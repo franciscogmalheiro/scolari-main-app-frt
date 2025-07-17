@@ -1,0 +1,156 @@
+<div class="login-container">
+  <div class="login-background">
+    <div class="login-overlay"></div>
+  </div>
+  
+  <div class="login-content">
+    <div class="logo-section">
+      <div class="logo">
+        <div class="logo-icon">⚽</div>
+        <h1>FOOTBALL PRO</h1>
+      </div>
+      <p class="tagline">The ultimate football gaming experience</p>
+    </div>
+
+    <div class="form-container">
+      <div class="form-header">
+        <h2>{{ isLoginMode ? 'Welcome Back' : 'Join Football Pro' }}</h2>
+        <p>{{ isLoginMode ? 'Sign in to continue your football journey' : 'Create your account and start playing' }}</p>
+      </div>
+
+      <!-- Login Form -->
+      <form *ngIf="isLoginMode" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input 
+            type="email" 
+            id="login-email"
+            formControlName="email"
+            placeholder="Enter your email"
+            [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+          >
+          <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error-message">
+            <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</span>
+            <span *ngIf="loginForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input 
+            type="password" 
+            id="login-password"
+            formControlName="password"
+            placeholder="Enter your password"
+            [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+          >
+          <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-message">
+            <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</span>
+            <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</span>
+          </div>
+        </div>
+
+        <button type="submit" [disabled]="loginForm.invalid || isLoading" class="submit-btn">
+          <span *ngIf="!isLoading">Sign In</span>
+          <span *ngIf="isLoading" class="loading-spinner">Signing In...</span>
+        </button>
+      </form>
+
+      <!-- Register Form -->
+      <form *ngIf="!isLoginMode" [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-group">
+          <label for="register-name">Full Name</label>
+          <input 
+            type="text" 
+            id="register-name"
+            formControlName="name"
+            placeholder="Enter your full name"
+            [class.error]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched"
+          >
+          <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched" class="error-message">
+            <span *ngIf="registerForm.get('name')?.errors?.['required']">Name is required</span>
+            <span *ngIf="registerForm.get('name')?.errors?.['minlength']">Name must be at least 2 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="register-email">Email</label>
+          <input 
+            type="email" 
+            id="register-email"
+            formControlName="email"
+            placeholder="Enter your email"
+            [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+          >
+          <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="error-message">
+            <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required</span>
+            <span *ngIf="registerForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="register-password">Password</label>
+          <input 
+            type="password" 
+            id="register-password"
+            formControlName="password"
+            placeholder="Enter your password"
+            [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+          >
+          <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="error-message">
+            <span *ngIf="registerForm.get('password')?.errors?.['required']">Password is required</span>
+            <span *ngIf="registerForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="register-confirm-password">Confirm Password</label>
+          <input 
+            type="password" 
+            id="register-confirm-password"
+            formControlName="confirmPassword"
+            placeholder="Confirm your password"
+            [class.error]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched"
+          >
+          <div *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched" class="error-message">
+            <span *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Please confirm your password</span>
+          </div>
+          <div *ngIf="registerForm.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched" class="error-message">
+            Passwords do not match
+          </div>
+        </div>
+
+        <button type="submit" [disabled]="registerForm.invalid || isLoading" class="submit-btn">
+          <span *ngIf="!isLoading">Create Account</span>
+          <span *ngIf="isLoading" class="loading-spinner">Creating Account...</span>
+        </button>
+      </form>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="error-alert">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Mode Toggle -->
+      <div class="mode-toggle">
+        <p>
+          {{ isLoginMode ? "Don't have an account?" : "Already have an account?" }}
+          <button type="button" (click)="toggleMode()" class="toggle-btn">
+            {{ isLoginMode ? 'Sign Up' : 'Sign In' }}
+          </button>
+        </p>
+      </div>
+
+      <!-- Continue as Guest -->
+      <div class="guest-section">
+        <div class="divider">
+          <span>or</span>
+        </div>
+        <button type="button" (click)="continueAsGuest()" class="guest-btn">
+          Continue as Guest
+        </button>
+        <p class="guest-note">Some features will be limited</p>
+      </div>
+    </div>
+  </div>
+</div>

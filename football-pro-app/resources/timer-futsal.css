@@ -1,0 +1,182 @@
+/* General Body Styling */
+body {
+    background: linear-gradient(to bottom, #002f6c, #00509e); /* Dark blue gradient */
+    font-family: Arial, sans-serif;
+    color: white; /* All text in white */
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/* Timer Styling */
+#timer {
+    font-size: 6rem; /* Adjusted for smaller screens */
+    color: white;
+    text-shadow: 2px 2px 5px #00509e; /* Subtle text shadow */
+    text-align: center; /* Center align for smaller screens */
+}
+
+/* Score Styling */
+.display-score {
+    font-size: 8rem; /* Scaled down for smaller devices */
+    color: white;
+    text-shadow: 2px 2px 5px #00509e;
+    text-align: center; /* Center align for better visibility */
+}
+
+/* Date Styling */
+.display-date {
+    font-size: 1rem;
+    color: white;
+    margin-top: -10px; /* Adjust spacing */
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-align: center; /* Center align for consistency */
+}
+
+/* Buttons Styling */
+button {
+    text-transform: uppercase;
+}
+
+#teamAGoalButton, #teamBGoalButton, #highlightButton {
+    font-size: 1.3rem; /* Reduced for smaller devices */
+    border: 2px solid black;
+    width: 100%; /* Responsive button width */
+    max-width: 200px; /* Prevent excessive stretching */
+}
+
+/* Hide elements */
+.hidden {
+    display: none !important;
+}
+
+/* Style for "RESULTADO FINAL" */
+#finalResultText {
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #ffc107; /* Golden color for visibility */
+    text-align: center;
+    text-shadow: 2px 2px 5px #00509e; /* Subtle shadow */
+    margin-bottom: 20px; /* Space below */
+}
+
+/* Team Names */
+#teamAName, #teamBName {
+    font-size: 2rem; /* Reduced size for smaller devices */
+    text-shadow: 1px 1px 3px #00509e; /* Subtle shadow */
+    text-transform: uppercase;
+    margin: 10px 0;
+    text-align: center; /* Align for responsiveness */
+}
+
+/* Spacer Styling */
+.display-5 {
+    font-size: 2.5rem; /* Reduced size for smaller devices */
+    color: white;
+    text-shadow: 1px 1px 3px #00509e;
+    text-align: center;
+}
+
+/* Log Section */
+#eventLogA, #eventLogB, #eventLogHighlight {
+    padding: 5px;
+    color: white;
+    font-size: 1rem;
+    text-align: center;
+    margin: 5px;
+    box-sizing: border-box;
+}
+
+
+/* Layout Adjustments */
+.container {
+    /*min-height: 100vh;*/
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 10px;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.row.flex-grow-1 {
+    display: flex; /* Use flexbox for alignment */
+    justify-content: center; /* Center elements */
+    align-items: center; /* Align vertically */
+    flex-wrap: nowrap; /* Prevent buttons from wrapping */
+    gap: 10px; /* Add spacing between elements */
+}
+
+/* Individual Columns for Scores and Buttons */
+.col-2.text-center, .col-1.text-center {
+    flex: 0 0 auto; /* Prevent columns from shrinking or growing */
+    text-align: center;
+    margin: 0; /* Remove extra margins */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    #timer {
+        font-size: 4rem;
+    }
+
+    .display-score {
+        font-size: 10rem;
+    }
+
+    #teamAName, #teamBName {
+        font-size: 1.2rem;
+    }
+
+    .display-5 {
+        font-size: 2rem;
+    }
+    .row.flex-grow-1 {
+        flex-wrap: nowrap; /* Keep buttons on the sides */
+        gap: 5px; /* Reduce gap for smaller devices */
+    }
+
+    #teamAGoalButton, #teamBGoalButton,#highlightButton {
+        font-size: 1rem; /* Reduce button size */
+        padding: 8px 12px; /* Compact button padding */
+    }
+
+    .display-score {
+        font-size: 8rem; /* Slightly smaller scores */
+    }
+}
+
+@media (max-width: 576px) {
+    #timer {
+        font-size: 3rem;
+    }
+
+    .row.flex-grow-1 {
+        flex-wrap: nowrap; /* Ensure side buttons stay in place */
+        gap: 3px; /* Further reduce spacing */
+    }
+
+    #teamAGoalButton, #teamBGoalButton, #highlightButton {
+        font-size: 0.9rem; /* Make buttons smaller */
+        padding: 5px 10px; /* Compact padding */
+    }
+
+    .display-score {
+        font-size: 6rem; /* Smaller scores for very small devices */
+    }
+
+
+    #teamAName, #teamBName {
+        font-size: 1rem;
+    }
+
+    .display-5 {
+        font-size: 1.5rem;
+    }
+
+    #eventLogA, #eventLogB, #eventLogHighlight {
+        font-size: 0.8rem;
+    }
+}

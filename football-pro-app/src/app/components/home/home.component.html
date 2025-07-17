@@ -1,0 +1,62 @@
+<div class="home-container">
+  <app-header></app-header>
+
+  <main class="main-content">
+    <!-- Hero Banner Section -->
+    <section class="hero-banner">
+      <div class="banner-background">
+        <div class="banner-overlay"></div>
+      </div>
+      <div class="banner-content">
+        <h1 class="banner-title">SCOLARI</h1>
+        <p class="banner-description">
+          Experience football like never before with our cutting-edge gaming platform
+        </p>
+        <div class="banner-decoration">
+          <div class="decoration-circle left"></div>
+          <div class="decoration-circle right"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Game Modes Section -->
+    <section class="game-modes-section">
+      <!--div class="section-header">
+        <h2 class="section-title">CHOOSE YOUR MODE</h2>
+        <p class="section-subtitle">Select your preferred gaming experience</p>
+      </div-->
+
+      <div class="game-cards-container">
+        <app-game-card
+          *ngFor="let gameMode of gameModes"
+          [gameMode]="gameMode"
+          [isAuthenticated]="isAuthenticated"
+          (cardClick)="onGameCardClick($event)">
+        </app-game-card>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <div class="logo">
+            <div class="logo-icon">⚽</div>
+            <h3>FOOTBALL PRO</h3>
+          </div>
+          <p class="footer-tagline">The ultimate football gaming experience</p>
+        </div>
+        
+        <div class="social-links">
+          <a href="#" class="social-link">🐦</a>
+          <a href="#" class="social-link">📷</a>
+          <a href="#" class="social-link">📺</a>
+        </div>
+        
+        <div class="copyright">
+          © 2024 Football Pro. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  </main>
+</div>

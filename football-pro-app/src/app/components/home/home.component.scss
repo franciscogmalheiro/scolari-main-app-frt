@@ -1,0 +1,287 @@
+.home-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  overflow-x: hidden;
+}
+
+.main-content {
+  padding-top: 80px; // Account for fixed header
+}
+
+// Hero Banner Section
+.hero-banner {
+  position: relative;
+  height: 40vh;
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.banner-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><defs><linearGradient id="stadium" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23000;stop-opacity:1" /><stop offset="100%" style="stop-color:%23033;stop-opacity:1" /></linearGradient><pattern id="field" width="100" height="50" patternUnits="userSpaceOnUse"><rect width="100" height="50" fill="url(%23stadium)"/><path d="M 50 0 L 50 50 M 0 25 L 100 25" stroke="rgba(255,255,255,0.1)" stroke-width="1" fill="none"/></pattern></defs><rect width="1200" height="400" fill="url(%23field)"/></svg>');
+  background-size: cover;
+  background-position: center;
+}
+
+.banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+}
+
+.banner-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 800px;
+  padding: 0 2rem;
+}
+
+.banner-title {
+  font-size: 4rem;
+  font-weight: 900;
+  color: white;
+  margin: 0 0 1rem 0;
+  text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+  letter-spacing: 4px;
+}
+
+.banner-description {
+  font-size: 1.3rem;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.banner-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.decoration-circle {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  opacity: 0.3;
+}
+
+.decoration-circle.left {
+  top: 20%;
+  left: 10%;
+  background: radial-gradient(circle, #00ff88 0%, transparent 70%);
+}
+
+.decoration-circle.right {
+  bottom: 20%;
+  right: 10%;
+  background: radial-gradient(circle, #00ccff 0%, transparent 70%);
+}
+
+// Game Modes Section
+.game-modes-section {
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #00ff88;
+  margin: 0 0 1rem 0;
+  letter-spacing: 2px;
+}
+
+.section-subtitle {
+  font-size: 1.1rem;
+  color: #a0a0a0;
+  margin: 0;
+  font-weight: 300;
+}
+
+.game-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+// Footer
+.footer {
+  padding: 3rem 2rem 2rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer-logo {
+  margin-bottom: 2rem;
+}
+
+.footer-logo .logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.footer-logo .logo-icon {
+  font-size: 2rem;
+  background: linear-gradient(45deg, #00ff88, #00ccff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.footer-logo h3 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.footer-tagline {
+  color: #a0a0a0;
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 300;
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.social-link {
+  font-size: 1.5rem;
+  color: #a0a0a0;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  padding: 0.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-link:hover {
+  color: #00ff88;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.copyright {
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 300;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .hero-banner {
+    height: 35vh;
+    min-height: 250px;
+  }
+  
+  .banner-title {
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+  }
+  
+  .banner-description {
+    font-size: 1.1rem;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+  }
+  
+  .game-cards-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .decoration-circle {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding-top: 120px;
+  }
+  
+  .hero-banner {
+    height: 30vh;
+    min-height: 200px;
+  }
+  
+  .banner-title {
+    font-size: 2rem;
+    letter-spacing: 1px;
+  }
+  
+  .banner-description {
+    font-size: 1rem;
+  }
+  
+  .game-modes-section {
+    padding: 2rem 1rem;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+  }
+  
+  .footer {
+    padding: 2rem 1rem 1rem;
+  }
+  
+  .footer-logo h3 {
+    font-size: 1.5rem;
+  }
+  
+  .social-links {
+    gap: 1rem;
+  }
+  
+  .social-link {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+}

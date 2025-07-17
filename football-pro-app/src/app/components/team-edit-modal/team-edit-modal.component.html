@@ -1,0 +1,52 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="onCancel()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Edit Team {{ teamData?.team }}</h2>
+      <button class="close-button" (click)="onCancel()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Team Name Input -->
+      <div class="input-group">
+        <label for="teamName">Team Name:</label>
+        <input 
+          type="text" 
+          id="teamName"
+          [(ngModel)]="editedName"
+          placeholder="Enter team name"
+          class="name-input"
+          maxlength="20"
+        >
+      </div>
+
+      <!-- Color Picker -->
+      <div class="input-group">
+        <label>Team Color:</label>
+        <div class="color-picker">
+          <button 
+            *ngFor="let color of colorOptions" 
+            type="button"
+            class="color-option"
+            [ngStyle]="{'background-color': color, 'border': isSelectedColor(color) ? '3px solid #333' : '3px solid transparent'}"
+            [class.selected]="isSelectedColor(color)"
+            (click)="selectColor(color)"
+            [attr.aria-label]="color"
+          >
+            <i class="fas fa-check" *ngIf="isSelectedColor(color)"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-cancel" (click)="onCancel()">
+        Cancel
+      </button>
+      <button class="btn btn-save" (click)="onSave()" [disabled]="!editedName.trim()">
+        Save Changes
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,139 @@
+<div class="score-game-container">
+  <!-- Header -->
+  <div class="header">
+    <button class="back-button" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+  </div>
+
+  <!-- Control Buttons -->
+  <div class="control-section" *ngIf="!isMatchFinished">
+    <div class="control-buttons">
+      <button 
+        *ngIf="!isMatchStarted" 
+        class="btn btn-start" 
+        (click)="startMatch()">
+        <i class="fas fa-play"></i> START MATCH
+      </button>
+      
+      <button 
+        *ngIf="isMatchStarted" 
+        class="btn btn-finish" 
+        (click)="finishMatch()">
+        <i class="fas fa-stop"></i> FINISH MATCH
+      </button>
+    </div>
+  </div>
+
+  <!-- Final Result Display -->
+  <div *ngIf="showFinalResult" class="final-result">
+    <div class="ft-badge">FULL TIME</div>
+  </div>
+
+  <!-- Main Game Section -->
+  <div class="main-game-section">
+    <!-- Timer Display -->
+    <div class="timer-display">
+      {{ formatTime(secondsElapsed) }}
+    </div>
+
+    <!-- Teams and Score Row -->
+    <div class="teams-row">
+      <!-- Team A -->
+      <div class="team team-a">
+        <div class="team-icon" [style.color]="teamAColor" (click)="editTeam('A')" title="Click to edit team">
+          <i class="fas fa-tshirt"></i>
+        </div>
+        <div class="team-name" (click)="editTeam('A')" title="Click to edit team">
+          {{ teamAName }}
+        </div>
+      </div>
+
+      <!-- Score Display -->
+      <div class="score-display">
+        <div class="score">
+          {{ teamAScore }} : {{ teamBScore }}
+        </div>
+      </div>
+
+      <!-- Team B -->
+      <div class="team team-b">
+        <div class="team-icon" [style.color]="teamBColor" (click)="editTeam('B')" title="Click to edit team">
+          <i class="fas fa-tshirt"></i>
+        </div>
+        <div class="team-name" (click)="editTeam('B')" title="Click to edit team">
+          {{ teamBName }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div *ngIf="showControls" class="action-buttons">
+      <button class="btn btn-goal team-a-goal" (click)="addTeamGoal('A')">
+        <i class="fas fa-futbol"></i> GOAL
+      </button>
+      
+      <button class="btn btn-highlight" (click)="addHighlight()">
+        <i class="fas fa-star"></i> HIGHLIGHT
+      </button>
+      
+      <button class="btn btn-goal team-b-goal" (click)="addTeamGoal('B')">
+        <i class="fas fa-futbol"></i> GOAL
+      </button>
+    </div>
+
+    <!-- Event Logs -->
+    <div class="event-logs">
+      <!-- Team A Events -->
+      <div class="event-log team-a-log">
+        <div class="events-list">
+          <div *ngFor="let event of teamAEvents" class="event-item">
+            {{ event }}
+          </div>
+        </div>
+        <div class="undo-button-container team-a-undo">
+          <button 
+            *ngIf="showControls && teamAScore > 0" 
+            class="btn btn-undo" 
+            (click)="decreaseTeamGoal('A')">
+            <i class="fas fa-undo"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Highlight Events -->
+      <div class="event-log highlight-log">
+        <div class="events-list">
+          <div *ngFor="let event of highlightEvents" class="event-item">
+            {{ event }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Team B Events -->
+      <div class="event-log team-b-log">
+        <div class="events-list">
+          <div *ngFor="let event of teamBEvents" class="event-item">
+            {{ event }}
+          </div>
+        </div>
+        <div class="undo-button-container team-b-undo">
+          <button 
+            *ngIf="showControls && teamBScore > 0" 
+            class="btn btn-undo" 
+            (click)="decreaseTeamGoal('B')">
+            <i class="fas fa-undo"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Edit Modal -->
+  <app-team-edit-modal
+    [isOpen]="showEditModal"
+    [teamData]="teamEditData"
+    (save)="onTeamEditSave($event)"
+    (cancel)="onTeamEditCancel()"
+  ></app-team-edit-modal>
+</div>

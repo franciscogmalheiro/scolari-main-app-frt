@@ -1,0 +1,21 @@
+<header class="header">
+  <div class="header-container">
+    <div class="logo-section">
+      <div class="logo">
+        <div class="logo-icon">⚽</div>
+        <h1>SCOLARI</h1>
+      </div>
+    </div>
+
+    <div class="auth-section">
+      <div *ngIf="isAuthenticated" class="user-info">
+        <span class="user-name">Welcome, {{ currentUser?.name }}</span>
+        <button (click)="logout()" class="logout-btn">Logout</button>
+      </div>
+      <div *ngIf="!isAuthenticated" class="guest-info">
+        <span class="guest-label">Guest Mode</span>
+        <a routerLink="/login" class="login-btn">Login</a>
+      </div>
+    </div>
+  </div>
+</header>

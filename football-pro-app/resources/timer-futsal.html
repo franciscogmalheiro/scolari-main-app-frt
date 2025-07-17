@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 maximum-scale=1.0, user-scalable=no">
+    <title>Futsal Match Tracker</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="timer-futsal.css">
+</head>
+<body>
+<div class="container py-4 d-flex flex-column">
+
+    <!-- Start/Finish Buttons -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-12 text-center">
+            <button id="startButton" class="btn btn-success btn-lg me-2 ">COMEÇAR</button>
+            <button id="generateTeams"
+                    class="btn btn-warning btn-lg me-2 "
+                    onclick="window.location.href='teams'">
+                GERAR EQUIPAS
+            </button>
+
+            <button id="finishButton" class="btn btn-danger btn-lg ms-2 hidden">TERMINAR</button>
+        </div>
+    </div>
+
+    <!-- Timer Section -->
+    <div class="row align-items-center justify-content-center">
+        <div id="dateDisplay" class="display-date fw-bold text-center"></div>
+        <div class="col-3">
+            <div class="mt-3 d-flex flex-column align-items-center">
+            </div>
+        </div>
+        <div class="col-6">
+            <div id="timer" class="display-timer fw-bold w-100 text-center">00:00</div>
+        </div>
+        <div class="col-3">
+            <div class="mt-3 d-flex flex-column align-items-center">
+            </div>
+        </div>
+    </div>
+
+    <div id="finalResultText" class="hidden mb-0">RESULTADO FINAL</div>
+
+    <!-- Score Section -->
+    <div class="row align-items-center justify-content-center">
+        <!-- Team A Result Section -->
+        <div class="col-3 text-center">
+            <div>
+                <div>
+                    <i class="fa-solid fa-vest mb-2" style="color: orange; font-size: 5rem;"></i>
+                </div>
+                <span id="teamAName" class="fw-bold display-4">COLETES</span>
+            </div>
+        </div>
+
+        <!-- Combined Score Display -->
+        <div class="col-5 text-center">
+
+            <div id="scoreDisplay" class="display-score fw-bold">
+                <span>0-0</span>
+            </div>
+        </div>
+
+        <div class="col-3 text-center">
+            <div>
+                <div>
+                    <i class="fa-solid fa-shirt mb-2" style="color: white; font-size: 5rem;"></i>
+                </div>
+                <span id="teamBName" class="fw-bold display-4">OUTROS</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Section -->
+    <div class="row align-items-center justify-content-center">
+        <!-- Team A Result Section -->
+        <div class="col-3 text-center">
+            <div>
+                <button id="teamAGoalButton" class="btn btn-warning btn-lg hidden">
+                    <i class="fas fa-futbol"></i> GOLO
+                </button>
+            </div>
+        </div>
+
+        <!-- Combined Score Display -->
+        <div class="col-5 text-center">
+            <button id="highlightButton" class="btn btn-warning btn-lg hidden">
+                <i class="fas fa-star"></i>HIGHLIGHT
+            </button>
+        </div>
+
+        <div class="col-3 text-center">
+            <div>
+                <button id="teamBGoalButton" class="btn btn-warning btn-lg hidden">
+                    <i class="fas fa-futbol"></i> GOLO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Log Section -->
+    <div class="row justify-content-center">
+
+        <!-- Team A -->
+        <div class="col-4 text-center">
+            <div id="eventLogA" class="mt-3 text-center"></div>
+        </div>
+
+        <div class="col-4 text-center">
+            <div id="eventLogHighlight" class="mt-3 text-center"></div>
+        </div>
+
+        <!-- Team B -->
+        <div class="col-4 text-center">
+            <div id="eventLogB" class="mt-3 text-center"></div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+
+        <!-- Team A -->
+        <div class="col-4 text-center">
+            <button id="decreaseTeamA" class="btn btn-danger btn-sm hidden mx-4 mt-5">ANULAR</button>
+        </div>
+
+        <div class="col-4 text-center">
+        </div>
+
+        <!-- Team B -->
+        <div class="col-4 text-center">
+            <button id="decreaseTeamB" class="btn btn-danger btn-sm hidden mx-4 mt-5">Anular</button>
+        </div>
+    </div>
+    <!-- Team Players Modal -->
+    <div class="modal fade" id="teamModal" tabindex="-1" aria-labelledby="teamModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: darkgray; display:inline-block">
+                    <div class="row" style="text-align: center;">
+                        <div class="col-6">
+                            <i class="fa-solid fa-vest mb-2" style="color: orange; font-size: 2rem;"></i>
+                            <h5 class="modal-title" id="teamAModalLabel"></h5>
+                        </div>
+                        <div class="col-6">
+                            <i class="fa-solid fa-shirt mb-2" style="color: white; font-size: 2rem;"></i>
+                            <h5 class="modal-title" id="teamBModalLabel"></h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <ul id="teamColetesPlayersList" class="list-group"></ul>
+                        </div>
+                        <div class="col-6">
+                            <ul id="teamOutrosPlayersList" class="list-group"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="timer-futsal.js"></script>
+</body>
+</html>

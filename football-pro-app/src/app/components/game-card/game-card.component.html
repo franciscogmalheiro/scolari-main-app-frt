@@ -1,0 +1,24 @@
+<div class="game-card" 
+     [class.disabled]="isDisabled"
+     [style.background]="gameMode.gradient"
+     (click)="onCardClick()">
+  
+  <div class="card-content">
+    <div class="card-icon">
+      <span [innerHTML]="gameMode.icon"></span>
+    </div>
+    
+    <h3 class="card-title">{{ gameMode.title }}</h3>
+    
+    <p class="card-description">{{ gameMode.description }}</p>
+    
+    <button class="card-button" [disabled]="isDisabled">
+      <span *ngIf="!isDisabled">{{ gameMode.buttonText }}</span>
+      <span *ngIf="isDisabled" class="locked-button">
+        <span class="lock-icon">🔒</span>
+        {{ gameMode.buttonText }}
+      </span>
+      <span class="button-arrow"></span>
+    </button>
+  </div>
+</div>
