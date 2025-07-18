@@ -200,11 +200,11 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     const result = this.getCurrentResult();
     
     if (team === 'A') {
-      this.teamAEvents.unshift(`⚽ ${elapsedTime} (${result})`);
+      this.teamAEvents.push(`${elapsedTime} ⚽`);
     } else if (team === 'B') {
-      this.teamBEvents.unshift(`⚽ ${elapsedTime} (${result})`);
+      this.teamBEvents.push(`⚽ ${elapsedTime}`);
     } else {
-      this.highlightEvents.unshift(`⭐ ${elapsedTime}`);
+      this.highlightEvents.push(`⭐ ${elapsedTime}`);
     }
   }
 
