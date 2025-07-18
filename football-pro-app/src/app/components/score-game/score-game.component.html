@@ -38,7 +38,7 @@
     </div>
 
     <!-- Teams and Score Row -->
-    <div class="row align-items-center justify-content-center mb-4">
+    <div class="row align-items-center justify-content-center">
       <!-- Team A -->
       <div class="col-3 text-center">
         <div class="team-content" 
@@ -65,7 +65,7 @@
       <!-- Score Display -->
       <div class="col-5 text-center">
         <div class="score">
-          {{ teamAScore }} : {{ teamBScore }}
+          {{ teamAScore }} - {{ teamBScore }}
         </div>
       </div>
 
@@ -96,23 +96,23 @@
     <!-- Action Buttons Row -->
     <div class="row align-items-center justify-content-center mb-4" *ngIf="showControls">
       <!-- Team A Goal Button -->
-      <div class="col-3 text-center">
+      <div class="col-3 text-end">
         <button class="btn btn-goal team-a-goal" (click)="addTeamGoal('A')">
-          <i class="fas fa-futbol"></i> GOAL
+          <i class="fas fa-futbol"></i>
         </button>
       </div>
 
       <!-- Highlight Button -->
-      <div class="col-5 text-center">
+      <div class="col-2 text-center">
         <button class="btn btn-highlight" (click)="addHighlight()">
-          <i class="fas fa-star"></i> HIGHLIGHT
+          <i class="fas fa-star"></i>
         </button>
       </div>
 
       <!-- Team B Goal Button -->
-      <div class="col-3 text-center">
+      <div class="col-3 text-start">
         <button class="btn btn-goal team-b-goal" (click)="addTeamGoal('B')">
-          <i class="fas fa-futbol"></i> GOAL
+          <i class="fas fa-futbol"></i>
         </button>
       </div>
     </div>

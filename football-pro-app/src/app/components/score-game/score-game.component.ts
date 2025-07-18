@@ -10,6 +10,11 @@ interface MatchEvent {
   elapsedTime?: string;
 }
 
+interface EventItem {
+  text: string;
+  isUndone: boolean;
+}
+
 @Component({
   selector: 'app-score-game',
   templateUrl: './score-game.component.html',
@@ -32,9 +37,9 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   
   // Event tracking
   events: MatchEvent[] = [];
-  teamAEvents: string[] = [];
-  teamBEvents: string[] = [];
-  highlightEvents: string[] = [];
+  teamAEvents: EventItem[] = [];
+  teamBEvents: EventItem[] = [];
+  highlightEvents: EventItem[] = [];
   
   // UI state
   showControls = false;
@@ -131,12 +136,17 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   decreaseTeamGoal(team: 'A' | 'B'): void {
     if (team === 'A' && this.teamAScore > 0) {
       this.teamAScore--;
+      // Mark the most recent team A event as undone
+      if (this.teamAEvents.length > 0) {
+        this.teamAEvents[this.teamAEvents.length - 1].isUndone = true;
+      }
     } else if (team === 'B' && this.teamBScore > 0) {
       this.teamBScore--;
+      // Mark the most recent team B event as undone
+      if (this.teamBEvents.length > 0) {
+        this.teamBEvents[this.teamBEvents.length - 1].isUndone = true;
+      }
     }
-
-    const elapsedTime = this.formatTime(this.secondsElapsed);
-    this.addEventToLog(team, elapsedTime + ' (UNDO)');
   }
 
   addHighlight(): void {
@@ -200,11 +210,11 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     const result = this.getCurrentResult();
     
     if (team === 'A') {
-      this.teamAEvents.push(`${elapsedTime} ⚽`);
+      this.teamAEvents.push({ text: `${elapsedTime} ⚽`, isUndone: false });
     } else if (team === 'B') {
-      this.teamBEvents.push(`⚽ ${elapsedTime}`);
+      this.teamBEvents.push({ text: `⚽ ${elapsedTime}`, isUndone: false });
     } else {
-      this.highlightEvents.push(`⭐ ${elapsedTime}`);
+      this.highlightEvents.push({ text: `⭐ ${elapsedTime}`, isUndone: false });
     }
   }
 

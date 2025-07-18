@@ -1,14 +1,19 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 
+interface EventItem {
+  text: string;
+  isUndone: boolean;
+}
+
 @Component({
   selector: 'app-event-log',
   templateUrl: './event-log.component.html',
   styleUrls: ['./event-log.component.scss']
 })
 export class EventLogComponent {
-  @Input() teamAEvents: string[] = [];
-  @Input() teamBEvents: string[] = [];
-  @Input() highlightEvents: string[] = [];
+  @Input() teamAEvents: EventItem[] = [];
+  @Input() teamBEvents: EventItem[] = [];
+  @Input() highlightEvents: EventItem[] = [];
   @Input() showControls: boolean = false;
   @Input() teamAScore: number = 0;
   @Input() teamBScore: number = 0;

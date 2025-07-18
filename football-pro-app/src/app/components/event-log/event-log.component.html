@@ -4,19 +4,23 @@
   <div class="col-4 text-center">
     <div class="event-log team-a-log">
       <div class="events-list">
-        <div *ngFor="let event of teamAEvents" class="event-item">
-          {{ event }}
+        <div *ngFor="let event of teamAEvents" 
+             class="event-item"
+             [class.undone]="event.isUndone">
+          {{ event.text }}
         </div>
       </div>
     </div>
   </div>
 
   <!-- Highlight Events -->
-  <div class="col-4 text-center">
+  <div class="col-2 text-center">
     <div class="event-log highlight-log">
       <div class="events-list">
-        <div *ngFor="let event of highlightEvents" class="event-item">
-          {{ event }}
+        <div *ngFor="let event of highlightEvents" 
+             class="event-item"
+             [class.undone]="event.isUndone">
+          {{ event.text }}
         </div>
       </div>
     </div>
@@ -26,8 +30,10 @@
   <div class="col-4 text-center">
     <div class="event-log team-b-log">
       <div class="events-list">
-        <div *ngFor="let event of teamBEvents" class="event-item">
-          {{ event }}
+        <div *ngFor="let event of teamBEvents" 
+             class="event-item"
+             [class.undone]="event.isUndone">
+          {{ event.text }}
         </div>
       </div>
     </div>
@@ -49,7 +55,7 @@
   </div>
 
   <!-- Empty space for highlight column -->
-  <div class="col-4 text-center">
+  <div class="col-2 text-center">
   </div>
 
   <!-- Team B Undo -->
