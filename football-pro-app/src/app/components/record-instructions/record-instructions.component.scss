@@ -1,0 +1,135 @@
+.record-instructions-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.instructions-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.card-header {
+  margin-bottom: 3rem;
+  
+  .card-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  
+  .recording-icon {
+    font-size: 3rem;
+    margin: 0 auto;
+  }
+}
+
+.instructions-content {
+  margin-bottom: 3rem;
+}
+
+.instruction-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  text-align: left;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  .instruction-number {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-right: 1.5rem;
+    flex-shrink: 0;
+  }
+  
+  .instruction-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #555;
+    flex: 1;
+  }
+}
+
+.card-footer {
+  .next-button {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(240, 147, 251, 0.3);
+    }
+    
+    .button-arrow {
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+    }
+    
+    &:hover .button-arrow {
+      transform: translateX(5px);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .instructions-card {
+    padding: 2rem;
+  }
+  
+  .card-header .card-title {
+    font-size: 2rem;
+  }
+  
+  .instruction-item {
+    .instruction-number {
+      width: 35px;
+      height: 35px;
+      font-size: 1rem;
+      margin-right: 1rem;
+    }
+    
+    .instruction-text {
+      font-size: 1rem;
+    }
+  }
+} 

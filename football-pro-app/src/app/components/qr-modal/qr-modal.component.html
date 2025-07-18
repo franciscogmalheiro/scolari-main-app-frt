@@ -1,0 +1,36 @@
+<div class="qr-modal-overlay" 
+     *ngIf="isVisible" 
+     (click)="onOverlayClick($event)">
+  <div class="qr-modal">
+    <button class="close-button" (click)="onCloseClick()">
+      <span>×</span>
+    </button>
+    
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Faz scan do QR code e adquire uma senha com o responsável do campo</h2>
+      </div>
+      
+      <div class="qr-code-container">
+        <div class="qr-code-wrapper">
+          <img *ngIf="qrCodeUrl" [src]="qrCodeUrl" alt="QR Code" class="qr-code-image" />
+          <div *ngIf="!qrCodeUrl" class="qr-code-placeholder">
+            <div class="qr-icon">📱</div>
+            <p class="qr-placeholder-text">Gerando QR Code...</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="game-id-container">
+        <h3 class="game-id-label">ID do Jogo:</h3>
+        <div class="game-id">{{ gameId || 'XXXX' }}</div>
+        <div class="download-link">
+          <a href="/download-video/{{ gameId }}" class="download-button">
+            <i class="fas fa-download"></i>
+            Download Video
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

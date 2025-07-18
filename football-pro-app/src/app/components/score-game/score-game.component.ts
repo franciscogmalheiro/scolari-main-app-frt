@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { TeamEditModalComponent, TeamEditData } from '../team-edit-modal/team-edit-modal.component';
 
 interface MatchEvent {
@@ -27,6 +27,15 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   isMatchStarted = false;
   isMatchFinished = false;
   
+  // Recording properties
+  isRecording = false;
+  showQrModal = false;
+  showConfirmModal = false;
+  showStartConfirmModal = false;
+  gameId = '';
+  qrCodeData = '';
+  isRecordingMode = false;
+  
   // Team properties
   teamAName = 'COLETES';
   teamBName = 'OUTROS';
@@ -50,10 +59,18 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   showEditModal = false;
   editingTeam: 'A' | 'B' | null = null;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     this.updateDateDisplay();
+    this.checkGameMode();
+  }
+
+  private checkGameMode(): void {
+    this.route.queryParams.subscribe(params => {
+      this.isRecordingMode = params['mode'] === 'record';
+      console.log('Game mode:', this.isRecordingMode ? 'Recording' : 'Score only');
+    });
   }
 
   ngOnDestroy(): void {
@@ -65,13 +82,25 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   // Timer functions
   startMatch(): void {
     if (this.events.length > 0) {
-      if (!confirm("Starting a new match will clear the current events. Proceed?")) {
-        return;
-      }
-      this.clearEvents();
+      this.showStartConfirmModal = true;
+      return;
     }
+    this.doStartMatch();
+  }
 
+  onConfirmStartMatch(): void {
+    this.showStartConfirmModal = false;
+    this.clearEvents();
+    this.doStartMatch();
+  }
+
+  onCancelStartMatch(): void {
+    this.showStartConfirmModal = false;
+  }
+
+  private doStartMatch(): void {
     this.isMatchStarted = true;
+    this.isRecording = this.isRecordingMode; // Only start recording if in recording mode
     this.showControls = true;
     this.showFinalResult = false;
     this.teamAScore = 0;
@@ -88,16 +117,24 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.timerInterval = setInterval(() => {
       const currentTime = Date.now();
       this.secondsElapsed = Math.floor((currentTime - startTime) / 1000);
+      
+      // Auto-stop recording after 90 minutes (5400 seconds) - only in recording mode
+      if (this.isRecordingMode && this.secondsElapsed >= 5400) {
+        this.finishMatch();
+      }
     }, 1000);
   }
 
   finishMatch(): void {
-    if (!confirm("Are you sure you want to finish the match?")) {
-      return;
-    }
+    this.showConfirmModal = true;
+  }
 
+  onConfirmFinishMatch(): void {
+    this.showConfirmModal = false;
+    
     clearInterval(this.timerInterval);
     this.isMatchStarted = false;
+    this.isRecording = false; // Stop recording
     this.isMatchFinished = true;
     this.showControls = false;
     this.showFinalResult = true;
@@ -109,8 +146,21 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       result: this.getCurrentResult()
     });
 
-    // Download events as JSON
-    this.downloadEvents();
+    // Only show QR modal and generate game ID if in recording mode
+    if (this.isRecordingMode) {
+      // Generate game ID (this will be provided by backend)
+      this.gameId = this.generateGameId();
+      
+      // Show QR modal
+      this.showQrModal = true;
+    }
+
+    // Download events as JSON (commented out as requested)
+    // this.downloadEvents();
+  }
+
+  onCancelFinishMatch(): void {
+    this.showConfirmModal = false;
   }
 
   // Goal functions
@@ -226,6 +276,8 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   }
 
   downloadEvents(): void {
+    // Commented out as requested - no longer saving events as JSON file
+    /*
     const jsonStr = JSON.stringify(this.events, null, 2);
     const blob = new Blob([jsonStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -239,6 +291,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     
     URL.revokeObjectURL(url);
     alert('Match events saved as JSON file!');
+    */
   }
 
   updateDateDisplay(): void {
@@ -247,5 +300,15 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     this.router.navigate(['/home']);
+  }
+
+  // Generate a temporary game ID (will be replaced by backend)
+  private generateGameId(): string {
+    return 'GAME-' + Date.now().toString().slice(-6);
+  }
+
+  // Close QR modal
+  onCloseQrModal(): void {
+    this.showQrModal = false;
   }
 }

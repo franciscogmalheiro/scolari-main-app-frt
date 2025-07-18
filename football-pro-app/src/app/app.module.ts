@@ -11,6 +11,11 @@ import { GameCardComponent } from './components/game-card/game-card.component';
 import { ScoreGameComponent } from './components/score-game/score-game.component';
 import { TeamEditModalComponent } from './components/team-edit-modal/team-edit-modal.component';
 import { EventLogComponent } from './components/event-log/event-log.component';
+import { RecordInstructionsComponent } from './components/record-instructions/record-instructions.component';
+import { QrModalComponent } from './components/qr-modal/qr-modal.component';
+import { LiveIndicatorComponent } from './components/live-indicator/live-indicator.component';
+import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
+import { DownloadVideoComponent } from './components/download-video/download-video.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +26,12 @@ import { EventLogComponent } from './components/event-log/event-log.component';
     GameCardComponent,
     ScoreGameComponent,
     TeamEditModalComponent,
-    EventLogComponent
+    EventLogComponent,
+    RecordInstructionsComponent,
+    QrModalComponent,
+    LiveIndicatorComponent,
+    ConfirmationModalComponent,
+    DownloadVideoComponent
   ],
   imports: [
     BrowserModule,

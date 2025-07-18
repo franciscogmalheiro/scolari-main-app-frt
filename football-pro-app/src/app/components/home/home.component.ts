@@ -76,16 +76,16 @@ export class HomeComponent implements OnInit {
 
   private startScoreGame(): void {
     console.log('Starting Score Game...');
-    this.router.navigate(['/score-game']);
+    this.router.navigate(['/score-game'], { queryParams: { mode: 'score' } });
   }
 
   private startRecordGame(): void {
     console.log('Starting Record Game...');
-    // Implement record game logic
+    this.router.navigate(['/record-instructions']);
   }
 
   private openVideoLibrary(): void {
     console.log('Opening Video Library...');
-    // Implement video library logic
+    this.router.navigate(['/download-video']);
   }
 }

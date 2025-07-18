@@ -1,0 +1,42 @@
+<div class="record-instructions-container">
+  <app-header></app-header>
+
+  <main class="main-content">
+    <div class="instructions-card">
+      <div class="card-header">
+        <h1 class="card-title">Instruções de Gravação</h1>
+        <div class="recording-icon">📹</div>
+      </div>
+
+      <div class="instructions-content">
+        <div class="instruction-item">
+          <div class="instruction-number">1</div>
+          <div class="instruction-text">
+            A gravação do jogo terá inicio assim que o botão "iniciar" for premido.
+          </div>
+        </div>
+
+        <div class="instruction-item">
+          <div class="instruction-number">2</div>
+          <div class="instruction-text">
+            A gravação terá fim assim que o botão "terminar" for premido ou excedido o tempo limite de 90min.
+          </div>
+        </div>
+
+        <div class="instruction-item">
+          <div class="instruction-number">3</div>
+          <div class="instruction-text">
+            Assim que o botão "terminar" for pressionado, será apresentado o ID de jogo que vai precisar para descarregar o video.
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button class="next-button" (click)="onNextClick()">
+          <span>Próximo</span>
+          <span class="button-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  </main>
+</div> 

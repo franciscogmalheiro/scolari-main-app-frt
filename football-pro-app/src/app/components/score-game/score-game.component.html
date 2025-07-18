@@ -4,6 +4,10 @@
     <button class="back-button" (click)="goBack()">
       <i class="fas fa-arrow-left"></i>
     </button>
+    <div class="mode-indicator" *ngIf="isRecordingMode">
+      <span class="mode-icon">📹</span>
+      <span class="mode-text">Recording Mode</span>
+    </div>
   </div>
 
   <!-- Control Buttons -->
@@ -32,9 +36,12 @@
 
   <!-- Main Game Section -->
   <div class="main-game-section">
-    <!-- Timer Display -->
-    <div class="timer-display">
-      {{ formatTime(secondsElapsed) }}
+    <!-- Timer Display with Live Indicator -->
+    <div class="timer-section">
+      <div class="timer-display">
+        {{ formatTime(secondsElapsed) }}
+      </div>
+      <app-live-indicator *ngIf="isRecordingMode" [isRecording]="isRecording"></app-live-indicator>
     </div>
 
     <!-- Teams and Score Row -->
@@ -139,4 +146,35 @@
     (save)="onTeamEditSave($event)"
     (cancel)="onTeamEditCancel()"
   ></app-team-edit-modal>
+
+  <!-- Start Match Confirmation Modal -->
+  <app-confirmation-modal
+    [isVisible]="showStartConfirmModal"
+    title="Start New Match"
+    message="Starting a new match will clear the current events. Proceed?"
+    confirmText="Start Match"
+    cancelText="Cancel"
+    (confirm)="onConfirmStartMatch()"
+    (cancel)="onCancelStartMatch()"
+  ></app-confirmation-modal>
+
+  <!-- Finish Match Confirmation Modal -->
+  <app-confirmation-modal
+    [isVisible]="showConfirmModal"
+    [title]="isRecordingMode ? 'Finish Match & Stop Recording' : 'Finish Match'"
+    [message]="isRecordingMode ? 'Are you sure you want to finish the match and stop recording?' : 'Are you sure you want to finish the match?'"
+    confirmText="Finish Match"
+    cancelText="Cancel"
+    (confirm)="onConfirmFinishMatch()"
+    (cancel)="onCancelFinishMatch()"
+  ></app-confirmation-modal>
+
+  <!-- QR Code Modal (only shown in recording mode) -->
+  <app-qr-modal
+    *ngIf="isRecordingMode"
+    [isVisible]="showQrModal"
+    [gameId]="gameId"
+    [qrCodeData]="qrCodeData"
+    (closeModal)="onCloseQrModal()"
+  ></app-qr-modal>
 </div>
