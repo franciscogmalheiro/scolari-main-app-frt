@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TeamEditModalComponent, TeamEditData } from '../team-edit-modal/team-edit-modal.component';
+import { MatchService, MatchDto } from '../../services/match.service';
 
 interface MatchEvent {
   dateTime: string;
@@ -32,7 +33,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   showQrModal = false;
   showConfirmModal = false;
   showStartConfirmModal = false;
-  gameId = '';
+  gameId = ''; // This will contain the match code from the backend
   qrCodeData = '';
   isRecordingMode = false;
   
@@ -59,7 +60,17 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   showEditModal = false;
   editingTeam: 'A' | 'B' | null = null;
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  // Match data from query parameters
+  fieldId: number | null = null;
+  sportId: number | null = null;
+  fieldName: string = '';
+  sportName: string = '';
+
+  constructor(
+    private router: Router, 
+    private route: ActivatedRoute,
+    private matchService: MatchService
+  ) {}
 
   ngOnInit(): void {
     this.updateDateDisplay();
@@ -67,9 +78,29 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   }
 
   private checkGameMode(): void {
+    // Use snapshot to get parameters immediately
+    const params = this.route.snapshot.queryParams;
+    console.log('Received query params (snapshot):', params);
+    
+    this.isRecordingMode = params['mode'] === 'record';
+    this.fieldId = params['fieldId'] ? Number(params['fieldId']) : null;
+    this.sportId = params['sportId'] ? Number(params['sportId']) : null;
+    this.fieldName = params['fieldName'] || '';
+    this.sportName = params['sportName'] || '';
+    
+    console.log('Game mode:', this.isRecordingMode ? 'Recording' : 'Score only');
+    console.log('Field ID:', this.fieldId, 'Sport ID:', this.sportId);
+    console.log('Field Name:', this.fieldName, 'Sport Name:', this.sportName);
+    
+    // Also subscribe for any changes
     this.route.queryParams.subscribe(params => {
+      console.log('Received query params (subscription):', params);
       this.isRecordingMode = params['mode'] === 'record';
-      console.log('Game mode:', this.isRecordingMode ? 'Recording' : 'Score only');
+      this.fieldId = params['fieldId'] ? Number(params['fieldId']) : null;
+      this.sportId = params['sportId'] ? Number(params['sportId']) : null;
+      this.fieldName = params['fieldName'] || '';
+      this.sportName = params['sportName'] || '';
+      console.log('Updated - Field ID:', this.fieldId, 'Sport ID:', this.sportId);
     });
   }
 
@@ -99,6 +130,37 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   }
 
   private doStartMatch(): void {
+    console.log('doStartMatch called with fieldId:', this.fieldId, 'sportId:', this.sportId);
+    // Call backend to create match
+    if (this.fieldId && this.sportId) {
+      const matchData: MatchDto = {
+        fieldId: this.fieldId,
+        teamAName: this.teamAName,
+        teamBName: this.teamBName,
+        sportId: this.sportId
+      };
+
+      this.matchService.createMatch(matchData).subscribe({
+        next: (response) => {
+          console.log('Match created successfully:', response);
+          this.gameId = response.matchCode;
+          this.startMatchTimer();
+        },
+        error: (error) => {
+          console.error('Error creating match:', error);
+          // Cannot start match without backend game ID
+          console.error('Cannot start match: Backend game ID is required');
+          return;
+        }
+      });
+    } else {
+      // Cannot start match without field/sport data (required for backend)
+      console.error('Cannot start match: Field and sport data are required');
+      return;
+    }
+  }
+
+  private startMatchTimer(): void {
     this.isMatchStarted = true;
     this.isRecording = this.isRecordingMode; // Only start recording if in recording mode
     this.showControls = true;
@@ -146,17 +208,14 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       result: this.getCurrentResult()
     });
 
-    // Only show QR modal and generate game ID if in recording mode
+    // Upload events to backend
+    this.downloadEvents();
+
+    // Only show QR modal if in recording mode
     if (this.isRecordingMode) {
-      // Generate game ID (this will be provided by backend)
-      this.gameId = this.generateGameId();
-      
-      // Show QR modal
+      // Show QR modal with the match code from the backend
       this.showQrModal = true;
     }
-
-    // Download events as JSON (commented out as requested)
-    // this.downloadEvents();
   }
 
   onCancelFinishMatch(): void {
@@ -276,22 +335,20 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   }
 
   downloadEvents(): void {
-    // Commented out as requested - no longer saving events as JSON file
-    /*
-    const jsonStr = JSON.stringify(this.events, null, 2);
-    const blob = new Blob([jsonStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `match_events_${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    URL.revokeObjectURL(url);
-    alert('Match events saved as JSON file!');
-    */
+    if (!this.gameId) {
+      console.error('No game ID available for uploading events');
+      return;
+    }
+
+    // Send events to backend
+    this.matchService.uploadEvents(this.gameId, this.events).subscribe({
+      next: (response) => {
+        console.log('Events uploaded successfully:', response);
+      },
+      error: (error) => {
+        console.error('Error uploading events:', error);
+      }
+    });
   }
 
   updateDateDisplay(): void {
@@ -302,10 +359,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.router.navigate(['/home']);
   }
 
-  // Generate a temporary game ID (will be replaced by backend)
-  private generateGameId(): string {
-    return 'GAME-' + Date.now().toString().slice(-6);
-  }
+
 
   // Close QR modal
   onCloseQrModal(): void {

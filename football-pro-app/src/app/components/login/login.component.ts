@@ -21,15 +21,17 @@ export class LoginComponent implements OnInit {
     private router: Router
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
 
     this.registerForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
+      username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]]
+      confirmPassword: ['', [Validators.required]],
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      lastName: ['', [Validators.required, Validators.minLength(2)]]
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -60,13 +62,13 @@ export class LoginComponent implements OnInit {
       this.errorMessage = '';
 
       try {
-        const { email, password } = this.loginForm.value;
-        const success = await this.authService.login(email, password);
+        const { username, password } = this.loginForm.value;
+        const success = await this.authService.login(username, password);
         
         if (success) {
           this.router.navigate(['/home']);
         } else {
-          this.errorMessage = 'Invalid email or password';
+          this.errorMessage = 'Invalid username or password';
         }
       } catch (error) {
         this.errorMessage = 'An error occurred during login';
@@ -82,8 +84,8 @@ export class LoginComponent implements OnInit {
       this.errorMessage = '';
 
       try {
-        const { name, email, password } = this.registerForm.value;
-        const success = await this.authService.register(email, password, name);
+        const { username, email, password, firstName, lastName } = this.registerForm.value;
+        const success = await this.authService.register(username, email, password, firstName, lastName);
         
         if (success) {
           this.router.navigate(['/home']);

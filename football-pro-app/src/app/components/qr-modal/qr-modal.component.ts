@@ -8,26 +8,47 @@ import * as QRCode from 'qrcode';
 })
 export class QrModalComponent implements OnInit, OnChanges {
   @Input() isVisible = false;
-  @Input() gameId = '';
+  @Input() gameId = ''; // This will contain the match code from the backend
   @Input() qrCodeData = ''; // This will be provided by the backend
   @Output() closeModal = new EventEmitter<void>();
 
   qrCodeUrl = '';
 
   ngOnInit(): void {
-    this.generateQRCode();
+    // Don't generate QR code on init - wait until modal is visible
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['gameId'] || changes['qrCodeData']) {
+    // Only generate QR code when modal becomes visible or when gameId/qrCodeData changes
+    if (changes['isVisible'] && changes['isVisible'].currentValue === true) {
+      this.generateQRCode();
+    } else if ((changes['gameId'] || changes['qrCodeData']) && this.isVisible) {
       this.generateQRCode();
     }
   }
 
   private async generateQRCode(): Promise<void> {
     try {
-      // Generate QR code with game ID and some sample data
-      const qrData = this.qrCodeData || `GameID: ${this.gameId || 'XXXX'}\nTimestamp: ${new Date().toISOString()}`;
+      // Use the match code from the backend - no fallback generation
+      let qrData: string;
+      
+      if (this.qrCodeData) {
+        // If backend provides specific QR code data, use it
+        qrData = this.qrCodeData;
+      } else if (this.gameId) {
+        // Use the backend match code to create a structured QR code
+        const qrCodeInfo = {
+          matchCode: this.gameId,
+          timestamp: new Date().toISOString(),
+          type: 'match'
+        };
+        qrData = JSON.stringify(qrCodeInfo);
+      } else {
+        // Cannot generate QR code without backend match code
+        console.error('Cannot generate QR code: Backend match code is required');
+        return;
+      }
+
       this.qrCodeUrl = await QRCode.toDataURL(qrData, {
         width: 200,
         margin: 2,

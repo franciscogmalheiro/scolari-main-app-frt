@@ -95,9 +95,14 @@ export class DownloadVideoComponent implements OnInit {
   }
 
   onDownloadOptionClick(option: DownloadOption): void {
-    console.log(`Downloading ${option.title} for game ${this.downloadForm.value.gameId}`);
-    // Implement actual download logic here
-    alert(`Starting download for ${option.title}...`);
+    if (option.id === 'selected-moments') {
+      const matchCode = this.downloadForm.value.gameId;
+      this.router.navigate(['/selected-moments', matchCode]);
+    } else {
+      console.log(`Downloading ${option.title} for game ${this.downloadForm.value.gameId}`);
+      // Implement actual download logic here
+      alert(`Starting download for ${option.title}...`);
+    }
   }
 
   onBackClick(): void {

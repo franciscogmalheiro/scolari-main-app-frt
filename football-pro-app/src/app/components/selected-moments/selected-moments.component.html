@@ -1,0 +1,152 @@
+<div class="selected-moments-container">
+  <app-header></app-header>
+
+  <main class="main-content">
+    <div class="moments-card">
+      <!-- Header -->
+      <div class="card-header">
+        <button class="back-button" (click)="onBackClick()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="page-title">Select Moments</h1>
+        <div class="match-info">
+          <span class="match-code">Game ID: {{ matchCode }}</span>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="content-section">
+        <div class="loading-section" *ngIf="isLoadingEvents">
+          <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+          </div>
+          <h2>Loading Match Events</h2>
+          <p>Please wait while we fetch the goals and highlights...</p>
+        </div>
+
+        <div class="error-section" *ngIf="errorMessage">
+          <div class="error-icon">⚠️</div>
+          <h2>Error Loading Events</h2>
+          <p>{{ errorMessage }}</p>
+          <button class="retry-button" (click)="loadMatchEvents()">
+            <i class="fas fa-redo"></i>
+            Try Again
+          </button>
+        </div>
+
+        <div class="carousel-section" *ngIf="!isLoadingEvents && !errorMessage && matchEvents.length > 0">
+          <div class="carousel-header">
+            <h2 class="carousel-title">Match Events</h2>
+            <div class="carousel-counter">
+              {{ currentCarouselIndex + 1 }}-{{ Math.min(currentCarouselIndex + 3, matchEvents.length) }} of {{ matchEvents.length }}
+            </div>
+          </div>
+
+          <div class="carousel-container">
+            <div class="carousel-navigation">
+              <button 
+                class="nav-button prev-button" 
+                (click)="onCarouselPrevious()"
+                [disabled]="currentCarouselIndex === 0">
+                <i class="fas fa-chevron-left"></i>
+              </button>
+            </div>
+
+            <div class="carousel-content">
+              <div class="events-grid">
+                <div 
+                  class="event-card" 
+                  *ngFor="let event of matchEvents.slice(currentCarouselIndex, currentCarouselIndex + 3); let i = index"
+                  [class.selected]="isEventSelected(event)"
+                  (click)="onSelectMoment(event)">
+                  <div class="event-header">
+                    <div class="event-icon">
+                      <span [innerHTML]="getEventIcon(event.eventTypeName)"></span>
+                    </div>
+                    <div class="event-time">
+                      <p class="time-text">{{ event.elapsedTime }}</p>
+                    </div>
+                    <div class="team-name">{{ event.teamName }}</div>
+                  </div>
+                  
+                  <div class="event-details">
+                    <div class="event-actions">
+                      <button 
+                        class="preview-button"
+                        (click)="onPreviewMoment(event); $event.stopPropagation()">
+                        <i class="fas fa-play"></i>
+                        Preview
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="carousel-navigation">
+              <button 
+                class="nav-button next-button" 
+                (click)="onCarouselNext()"
+                [disabled]="currentCarouselIndex + 3 >= matchEvents.length">
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="carousel-indicators">
+            <div 
+              class="indicator" 
+              *ngFor="let event of matchEvents; let i = index"
+              [class.active]="i >= currentCarouselIndex && i < currentCarouselIndex + 3"
+              (click)="currentCarouselIndex = Math.floor(i / 3) * 3">
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Events List -->
+        <div class="selected-events-section" *ngIf="selectedEvents.length > 0">
+          <div class="selected-events-header">
+            <h3 class="selected-title">Selected Moments ({{ selectedEvents.length }})</h3>
+          </div>
+          
+          <div class="selected-events-list">
+            <div 
+              class="selected-event-item" 
+              *ngFor="let event of selectedEvents">
+              <div class="selected-event-icon">
+                <span [innerHTML]="getEventIcon(event.eventTypeName)"></span>
+              </div>
+              <div class="selected-event-info">
+                <span class="selected-event-time">{{ event.elapsedTime }}</span>
+              </div>
+              <button 
+                class="remove-button" 
+                (click)="removeSelectedEvent(event)"
+                title="Remove from selection">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-section" *ngIf="!isLoadingEvents && !errorMessage && matchEvents.length === 0">
+          <div class="empty-icon">📹</div>
+          <h2>No Events Found</h2>
+          <p>No goals or highlights were found for this match.</p>
+          <button class="back-to-download-button" (click)="onBackClick()">
+            <i class="fas fa-arrow-left"></i>
+            Back to Download Options
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="card-footer" *ngIf="!isLoadingEvents && !errorMessage && matchEvents.length > 0">
+        <button class="download-selected-button" (click)="onDownloadSelected()">
+          <i class="fas fa-download"></i>
+          Download {{ selectedEvents.length }} Selected Moment{{ selectedEvents.length !== 1 ? 's' : '' }}
+        </button>
+      </div>
+    </div>
+  </main>
+</div> 
