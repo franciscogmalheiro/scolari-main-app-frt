@@ -9,50 +9,14 @@
           Back
         </button>
         <h1 class="setup-title">Game Setup</h1>
-        <p class="setup-subtitle">Select your field and sport to get started</p>
+        <p class="setup-subtitle">Select your sport to get started</p>
       </div>
 
       <div class="setup-steps">
-        <!-- Step 1: Field Selection -->
+        <!-- Sport Selection for both modes -->
         <div class="step-section">
           <div class="step-header">
             <div class="step-number">1</div>
-            <h2 class="step-title">Select Field</h2>
-          </div>
-          
-          <div class="fields-container">
-            <div *ngIf="loadingFields" class="loading">
-              <div class="spinner"></div>
-              <p>Loading fields...</p>
-            </div>
-            
-            <div *ngIf="!loadingFields && fields.length === 0" class="no-data">
-              <p>No fields available</p>
-            </div>
-            
-            <div class="field-cards" *ngIf="!loadingFields && fields.length > 0">
-              <div 
-                *ngFor="let field of fields" 
-                class="field-card"
-                [class.selected]="selectedField?.id === field.id"
-                (click)="onFieldSelect(field)">
-                <div class="field-icon">🏟️</div>
-                <div class="field-info">
-                  <h3 class="field-name">{{ field.name }}</h3>
-                  <p class="field-address">{{ field.address }}</p>
-                </div>
-                <div class="selection-indicator" *ngIf="selectedField?.id === field.id">
-                  ✓
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 2: Sport Selection -->
-        <div class="step-section" *ngIf="selectedField">
-          <div class="step-header">
-            <div class="step-number">2</div>
             <h2 class="step-title">Select Sport</h2>
           </div>
           
@@ -63,7 +27,7 @@
             </div>
             
             <div *ngIf="!loadingSports && sports.length === 0" class="no-data">
-              <p>No sports available for this field</p>
+              <p>No sports available</p>
             </div>
             
             <div class="sport-cards" *ngIf="!loadingSports && sports.length > 0">
@@ -73,13 +37,11 @@
                 [class.selected]="selectedSport?.id === sport.id"
                 (click)="onSportSelect(sport)">
                 <div class="sport-icon">
-                  <span *ngIf="sport.code === 'FUTSAL'">⚽</span>
-                  <span *ngIf="sport.code === 'FOOTBALL'">⚽</span>
-                  <span *ngIf="sport.code !== 'FUTSAL' && sport.code !== 'FOOTBALL'">🏃</span>
+                  {{ getSportIcon(sport) }}
                 </div>
                 <div class="sport-info">
                   <h3 class="sport-name">{{ sport.name }}</h3>
-                  <p class="sport-code">{{ sport.code }}</p>
+                  <p class="sport-code" *ngIf="hasSportCode(sport)">{{ getSportCode(sport) }}</p>
                 </div>
                 <div class="selection-indicator" *ngIf="selectedSport?.id === sport.id">
                   ✓
@@ -90,7 +52,7 @@
         </div>
 
         <!-- Continue Button -->
-        <div class="continue-section" *ngIf="selectedField && selectedSport">
+        <div class="continue-section" *ngIf="selectedSport">
           <button 
             class="continue-button"
             (click)="continueToGame()">

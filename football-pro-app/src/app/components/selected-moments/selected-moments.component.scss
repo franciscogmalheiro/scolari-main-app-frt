@@ -216,6 +216,7 @@
   display: flex;
   justify-content: center;
   overflow: hidden;
+  position: relative;
 }
 
 .events-grid {
@@ -224,7 +225,46 @@
   gap: 1rem;
   width: 100%;
   max-width: none;
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  
+  &.slide-left {
+    animation: slideLeft 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  
+  &.slide-right {
+    animation: slideRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+}
+
+@keyframes slideLeft {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-100%);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideRight {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(100%);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .event-card {
@@ -275,6 +315,12 @@
     color: #333;
     font-weight: 600;
   }
+}
+
+.team-score {
+  color: #28a745;
+  font-weight: 700;
+  margin-right: 0.5rem;
 }
 
 .event-details {
@@ -407,6 +453,12 @@
       .selected-event-time {
         font-size: 0.9rem;
         font-weight: 700;
+        color: #333;
+      }
+      
+      .selected-event-team {
+        font-size: 0.8rem;
+        font-weight: 600;
         color: #333;
       }
     }

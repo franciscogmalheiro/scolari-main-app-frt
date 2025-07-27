@@ -1,8 +1,8 @@
 <header class="header">
   <div class="header-container">
-    <div class="logo-section">
+    <div class="logo-section" (click)="navigateToHome()" style="cursor: pointer;">
       <div class="logo">
-        <div class="logo-icon">⚽</div>
+        <img src="assets/scolari-simple-logo.png" alt="Scolari Logo" class="logo-image">
         <h1>SCOLARI</h1>
       </div>
     </div>
@@ -10,10 +10,11 @@
     <div class="auth-section">
       <div *ngIf="isAuthenticated" class="user-info">
         <span class="user-name">Welcome, {{ currentUser?.firstName }}</span>
+        <button *ngIf="currentUser?.role === 'ADMIN'" routerLink="/admin" class="admin-btn">Admin Panel</button>
         <button (click)="logout()" class="logout-btn">Logout</button>
       </div>
       <div *ngIf="!isAuthenticated" class="guest-info">
-        <span class="guest-label">Guest Mode</span>
+        <span class="guest-label">Convidado</span>
         <a routerLink="/login" class="login-btn">Login</a>
       </div>
     </div>

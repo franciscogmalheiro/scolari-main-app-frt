@@ -15,6 +15,7 @@ export class SelectedMomentsComponent implements OnInit {
   errorMessage = '';
   selectedEvents: MatchEventResponseDto[] = [];
   Math = Math; // Make Math available in template
+  isAnimating = false;
 
   constructor(
     private router: Router,
@@ -49,29 +50,37 @@ export class SelectedMomentsComponent implements OnInit {
   }
 
   onCarouselPrevious(): void {
-    if (this.currentCarouselIndex > 0) {
-      this.currentCarouselIndex = Math.max(0, this.currentCarouselIndex - 3);
-      this.animateCarousel('left');
+    if (this.currentCarouselIndex > 0 && !this.isAnimating) {
+      this.isAnimating = true;
+      this.animateCarousel('left', () => {
+        this.currentCarouselIndex = Math.max(0, this.currentCarouselIndex - 3);
+        this.isAnimating = false;
+      });
     }
   }
 
   onCarouselNext(): void {
-    if (this.currentCarouselIndex + 3 < this.matchEvents.length) {
-      this.currentCarouselIndex = Math.min(this.matchEvents.length - 3, this.currentCarouselIndex + 3);
-      this.animateCarousel('right');
+    if (this.currentCarouselIndex + 3 < this.matchEvents.length && !this.isAnimating) {
+      this.isAnimating = true;
+      this.animateCarousel('right', () => {
+        this.currentCarouselIndex = Math.min(this.matchEvents.length - 3, this.currentCarouselIndex + 3);
+        this.isAnimating = false;
+      });
     }
   }
 
-  private animateCarousel(direction: 'left' | 'right'): void {
+  private animateCarousel(direction: 'left' | 'right', callback: () => void): void {
     const eventsGrid = document.querySelector('.events-grid') as HTMLElement;
     if (eventsGrid) {
       // Add slide animation class
-      eventsGrid.style.transform = direction === 'left' ? 'translateX(20px)' : 'translateX(-20px)';
+      const slideClass = direction === 'left' ? 'slide-left' : 'slide-right';
+      eventsGrid.classList.add(slideClass);
       
-      // Reset transform after animation
+      // Remove class and execute callback after animation
       setTimeout(() => {
-        eventsGrid.style.transform = 'translateX(0)';
-      }, 300);
+        eventsGrid.classList.remove(slideClass);
+        callback();
+      }, 400);
     }
   }
 

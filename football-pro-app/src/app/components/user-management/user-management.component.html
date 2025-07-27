@@ -1,0 +1,401 @@
+<div class="user-management">
+  <!-- Header -->
+  <div class="management-header">
+    <div class="header-content">
+      <h2>Users Management</h2>
+      <button class="create-btn" (click)="openCreateModal()">
+        <span class="btn-icon">➕</span>
+        Add User
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMessage" class="message error-message">
+    <span class="message-icon">⚠️</span>
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="message success-message">
+    <span class="message-icon">✅</span>
+    {{ successMessage }}
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading users...</p>
+  </div>
+
+  <!-- Users Table -->
+  <div *ngIf="!isLoading" class="table-container">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users" class="user-row">
+          <td class="user-username">{{ user.username }}</td>
+          <td class="user-name">{{ user.firstName }} {{ user.lastName }}</td>
+          <td class="user-email">{{ user.email }}</td>
+          <td>
+            <span class="role-badge" [class]="getRoleClass(user.roleType || user.role)">
+              {{ getRoleDisplay(user.roleType || user.role) }}
+            </span>
+            <div *ngIf="user.roleType === 'FIELD' || user.role === 'FIELD'" class="role-detail">
+              <small *ngIf="getFieldName(user.fieldId)">Field: {{ getFieldName(user.fieldId) }}</small>
+            </div>
+            <div *ngIf="user.roleType === 'CLUB' || user.role === 'CLUB'" class="role-detail">
+              <small *ngIf="getClubName(user.clubId)">Club: {{ getClubName(user.clubId) }}</small>
+            </div>
+          </td>
+          <td class="user-date">{{ user.createdAt | date:'short' }}</td>
+          <td class="user-actions">
+            <button class="action-btn edit-btn" (click)="openEditModal(user)" title="Edit User">
+              <span class="action-icon">✏️</span>
+            </button>
+            <button class="action-btn delete-btn" (click)="openDeleteModal(user)" title="Delete User">
+              <span class="action-icon">🗑️</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="users.length === 0" class="empty-state">
+      <div class="empty-icon">👥</div>
+      <h3>No Users Found</h3>
+      <p>Get started by creating your first user account.</p>
+      <button class="create-btn" (click)="openCreateModal()">
+        <span class="btn-icon">➕</span>
+        Add First User
+      </button>
+    </div>
+  </div>
+
+  <!-- Create User Modal -->
+  <div *ngIf="showCreateModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Create New User</h3>
+        <button class="close-btn" (click)="closeModals()">✕</button>
+      </div>
+      
+      <form [formGroup]="userForm" (ngSubmit)="createUser()" class="modal-form">
+        <div class="form-group">
+          <label for="username">Username *</label>
+          <input 
+            type="text" 
+            id="username"
+            formControlName="username"
+            placeholder="Enter username"
+            [class.error]="userForm.get('username')?.invalid && userForm.get('username')?.touched"
+          >
+          <div *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched" class="error-text">
+            <span *ngIf="userForm.get('username')?.errors?.['required']">Username is required</span>
+            <span *ngIf="userForm.get('username')?.errors?.['minlength']">Username must be at least 3 characters</span>
+            <span *ngIf="userForm.get('username')?.errors?.['maxlength']">Username cannot exceed 50 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password *</label>
+          <input 
+            type="password" 
+            id="password"
+            formControlName="password"
+            placeholder="Enter password"
+            [class.error]="userForm.get('password')?.invalid && userForm.get('password')?.touched"
+          >
+          <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="error-text">
+            <span *ngIf="userForm.get('password')?.errors?.['required']">Password is required</span>
+            <span *ngIf="userForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</span>
+            <span *ngIf="userForm.get('password')?.errors?.['maxlength']">Password cannot exceed 120 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input 
+            type="email" 
+            id="email"
+            formControlName="email"
+            placeholder="Enter email address"
+            [class.error]="userForm.get('email')?.invalid && userForm.get('email')?.touched"
+          >
+          <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="error-text">
+            <span *ngIf="userForm.get('email')?.errors?.['required']">Email is required</span>
+            <span *ngIf="userForm.get('email')?.errors?.['email']">Please enter a valid email address</span>
+            <span *ngIf="userForm.get('email')?.errors?.['maxlength']">Email cannot exceed 50 characters</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input 
+              type="text" 
+              id="firstName"
+              formControlName="firstName"
+              placeholder="Enter first name"
+              [class.error]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched"
+            >
+            <div *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched" class="error-text">
+              <span *ngIf="userForm.get('firstName')?.errors?.['required']">First name is required</span>
+              <span *ngIf="userForm.get('firstName')?.errors?.['maxlength']">First name cannot exceed 100 characters</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input 
+              type="text" 
+              id="lastName"
+              formControlName="lastName"
+              placeholder="Enter last name"
+              [class.error]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched"
+            >
+            <div *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched" class="error-text">
+              <span *ngIf="userForm.get('lastName')?.errors?.['required']">Last name is required</span>
+              <span *ngIf="userForm.get('lastName')?.errors?.['maxlength']">Last name cannot exceed 100 characters</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="roleType">Role *</label>
+          <select 
+            id="roleType"
+            formControlName="roleType"
+            [class.error]="userForm.get('roleType')?.invalid && userForm.get('roleType')?.touched"
+          >
+            <option *ngFor="let role of roleTypes" [value]="role.value">{{ role.label }}</option>
+          </select>
+          <div *ngIf="userForm.get('roleType')?.invalid && userForm.get('roleType')?.touched" class="error-text">
+            <span *ngIf="userForm.get('roleType')?.errors?.['required']">Role is required</span>
+          </div>
+        </div>
+
+        <!-- Field Selection (only for FIELD role) -->
+        <div class="form-group" *ngIf="userForm.get('roleType')?.value === 'FIELD'">
+          <label for="fieldId">Field *</label>
+          <select 
+            id="fieldId"
+            formControlName="fieldId"
+            [class.error]="userForm.get('fieldId')?.invalid && userForm.get('fieldId')?.touched"
+          >
+            <option value="">Select a field</option>
+            <option *ngFor="let field of fields" [value]="field.id">{{ field.club.name }} | {{ field.name }}</option>
+          </select>
+          <div *ngIf="userForm.get('fieldId')?.invalid && userForm.get('fieldId')?.touched" class="error-text">
+            <span *ngIf="userForm.get('fieldId')?.errors?.['required']">Field selection is required for Field role</span>
+          </div>
+        </div>
+
+        <!-- Club Selection (only for CLUB role) -->
+        <div class="form-group" *ngIf="userForm.get('roleType')?.value === 'CLUB'">
+          <label for="clubId">Club *</label>
+          <select 
+            id="clubId"
+            formControlName="clubId"
+            [class.error]="userForm.get('clubId')?.invalid && userForm.get('clubId')?.touched"
+          >
+            <option value="">Select a club</option>
+            <option *ngFor="let club of clubs" [value]="club.id">{{ club.name }}</option>
+          </select>
+          <div *ngIf="userForm.get('clubId')?.invalid && userForm.get('clubId')?.touched" class="error-text">
+            <span *ngIf="userForm.get('clubId')?.errors?.['required']">Club selection is required for Club role</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" (click)="closeModals()">Cancel</button>
+          <button type="submit" class="submit-btn" [disabled]="userForm.invalid || isLoading">
+            <span *ngIf="isLoading" class="loading-spinner-small"></span>
+            {{ isLoading ? 'Creating...' : 'Create User' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit User Modal -->
+  <div *ngIf="showEditModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Edit User</h3>
+        <button class="close-btn" (click)="closeModals()">✕</button>
+      </div>
+      
+      <form [formGroup]="userForm" (ngSubmit)="updateUser()" class="modal-form">
+        <div class="form-group">
+          <label for="edit-username">Username *</label>
+          <input 
+            type="text" 
+            id="edit-username"
+            formControlName="username"
+            placeholder="Enter username"
+            [class.error]="userForm.get('username')?.invalid && userForm.get('username')?.touched"
+          >
+          <div *ngIf="userForm.get('username')?.invalid && userForm.get('username')?.touched" class="error-text">
+            <span *ngIf="userForm.get('username')?.errors?.['required']">Username is required</span>
+            <span *ngIf="userForm.get('username')?.errors?.['minlength']">Username must be at least 3 characters</span>
+            <span *ngIf="userForm.get('username')?.errors?.['maxlength']">Username cannot exceed 50 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-password">Password</label>
+          <input 
+            type="password" 
+            id="edit-password"
+            formControlName="password"
+            placeholder="Leave blank to keep current password"
+            [class.error]="userForm.get('password')?.invalid && userForm.get('password')?.touched"
+          >
+          <div *ngIf="userForm.get('password')?.invalid && userForm.get('password')?.touched" class="error-text">
+            <span *ngIf="userForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</span>
+            <span *ngIf="userForm.get('password')?.errors?.['maxlength']">Password cannot exceed 120 characters</span>
+          </div>
+          <small class="help-text">Leave blank to keep the current password</small>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-email">Email *</label>
+          <input 
+            type="email" 
+            id="edit-email"
+            formControlName="email"
+            placeholder="Enter email address"
+            [class.error]="userForm.get('email')?.invalid && userForm.get('email')?.touched"
+          >
+          <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched" class="error-text">
+            <span *ngIf="userForm.get('email')?.errors?.['required']">Email is required</span>
+            <span *ngIf="userForm.get('email')?.errors?.['email']">Please enter a valid email address</span>
+            <span *ngIf="userForm.get('email')?.errors?.['maxlength']">Email cannot exceed 50 characters</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-firstName">First Name *</label>
+            <input 
+              type="text" 
+              id="edit-firstName"
+              formControlName="firstName"
+              placeholder="Enter first name"
+              [class.error]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched"
+            >
+            <div *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched" class="error-text">
+              <span *ngIf="userForm.get('firstName')?.errors?.['required']">First name is required</span>
+              <span *ngIf="userForm.get('firstName')?.errors?.['maxlength']">First name cannot exceed 100 characters</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-lastName">Last Name *</label>
+            <input 
+              type="text" 
+              id="edit-lastName"
+              formControlName="lastName"
+              placeholder="Enter last name"
+              [class.error]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched"
+            >
+            <div *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched" class="error-text">
+              <span *ngIf="userForm.get('lastName')?.errors?.['required']">Last name is required</span>
+              <span *ngIf="userForm.get('lastName')?.errors?.['maxlength']">Last name cannot exceed 100 characters</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-roleType">Role *</label>
+          <select 
+            id="edit-roleType"
+            formControlName="roleType"
+            [class.error]="userForm.get('roleType')?.invalid && userForm.get('roleType')?.touched"
+          >
+            <option *ngFor="let role of roleTypes" [value]="role.value">{{ role.label }}</option>
+          </select>
+          <div *ngIf="userForm.get('roleType')?.invalid && userForm.get('roleType')?.touched" class="error-text">
+            <span *ngIf="userForm.get('roleType')?.errors?.['required']">Role is required</span>
+          </div>
+        </div>
+
+        <!-- Field Selection (only for FIELD role) -->
+        <div class="form-group" *ngIf="userForm.get('roleType')?.value === 'FIELD'">
+          <label for="edit-fieldId">Field *</label>
+          <select 
+            id="edit-fieldId"
+            formControlName="fieldId"
+            [class.error]="userForm.get('fieldId')?.invalid && userForm.get('fieldId')?.touched"
+          >
+            <option value="">Select a field</option>
+            <option *ngFor="let field of fields" [value]="field.id">{{ field.club.name }} | {{ field.name }}</option>
+          </select>
+          <div *ngIf="userForm.get('fieldId')?.invalid && userForm.get('fieldId')?.touched" class="error-text">
+            <span *ngIf="userForm.get('fieldId')?.errors?.['required']">Field selection is required for Field role</span>
+          </div>
+        </div>
+
+        <!-- Club Selection (only for CLUB role) -->
+        <div class="form-group" *ngIf="userForm.get('roleType')?.value === 'CLUB'">
+          <label for="edit-clubId">Club *</label>
+          <select 
+            id="edit-clubId"
+            formControlName="clubId"
+            [class.error]="userForm.get('clubId')?.invalid && userForm.get('clubId')?.touched"
+          >
+            <option value="">Select a club</option>
+            <option *ngFor="let club of clubs" [value]="club.id">{{ club.name }}</option>
+          </select>
+          <div *ngIf="userForm.get('clubId')?.invalid && userForm.get('clubId')?.touched" class="error-text">
+            <span *ngIf="userForm.get('clubId')?.errors?.['required']">Club selection is required for Club role</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" (click)="closeModals()">Cancel</button>
+          <button type="submit" class="submit-btn" [disabled]="userForm.invalid || isLoading">
+            <span *ngIf="isLoading" class="loading-spinner-small"></span>
+            {{ isLoading ? 'Updating...' : 'Update User' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete User Confirmation Modal -->
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Delete User</h3>
+        <button class="close-btn" (click)="closeModals()">✕</button>
+      </div>
+      
+      <div class="delete-content">
+        <div class="delete-icon">🗑️</div>
+        <h4>Are you sure you want to delete this user?</h4>
+        <p class="delete-warning">
+          <strong>{{ selectedUser?.firstName }} {{ selectedUser?.lastName }}</strong> ({{ selectedUser?.username }}) will be permanently deleted and cannot be recovered.
+        </p>
+        
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" (click)="closeModals()">Cancel</button>
+          <button type="button" class="delete-confirm-btn" (click)="deleteUser()" [disabled]="isLoading">
+            <span *ngIf="isLoading" class="loading-spinner-small"></span>
+            {{ isLoading ? 'Deleting...' : 'Delete User' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

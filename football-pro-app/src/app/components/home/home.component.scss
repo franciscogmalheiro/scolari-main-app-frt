@@ -47,6 +47,17 @@
   padding: 0 2rem;
 }
 
+.banner-logo-image {
+  height: 35vh;
+  width: auto;
+  filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.4));
+  transition: transform 0.3s ease;
+}
+
+.banner-logo-image:hover {
+  transform: scale(1.05);
+}
+
 .banner-title {
   font-size: 4rem;
   font-weight: 900;
@@ -125,6 +136,7 @@
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
   margin-bottom: 4rem;
+  align-items: stretch;
 }
 
 // Footer
@@ -152,12 +164,15 @@
   margin-bottom: 1rem;
 }
 
-.footer-logo .logo-icon {
-  font-size: 2rem;
-  background: linear-gradient(45deg, #00ff88, #00ccff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.footer-logo-image {
+  height: 2.5rem;
+  width: auto;
+  filter: drop-shadow(0 0 15px rgba(0, 255, 136, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.footer-logo-image:hover {
+  transform: scale(1.05);
 }
 
 .footer-logo h3 {
@@ -216,9 +231,8 @@
     min-height: 250px;
   }
   
-  .banner-title {
-    font-size: 2.5rem;
-    letter-spacing: 2px;
+  .banner-logo-image {
+    height: 20vh;
   }
   
   .banner-description {
@@ -238,6 +252,10 @@
     width: 60px;
     height: 60px;
   }
+  
+  .footer-logo-image {
+    height: 2rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -250,9 +268,8 @@
     min-height: 200px;
   }
   
-  .banner-title {
-    font-size: 2rem;
-    letter-spacing: 1px;
+  .banner-logo-image {
+    height: 18vh;
   }
   
   .banner-description {
@@ -273,6 +290,10 @@
   
   .footer-logo h3 {
     font-size: 1.5rem;
+  }
+  
+  .footer-logo-image {
+    height: 1.8rem;
   }
   
   .social-links {

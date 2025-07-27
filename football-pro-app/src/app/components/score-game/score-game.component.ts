@@ -6,7 +6,7 @@ import { MatchService, MatchDto } from '../../services/match.service';
 interface MatchEvent {
   dateTime: string;
   eventName: 'start' | 'finish' | 'goal' | 'highlight';
-  team?: 'A' | 'B' | null;
+  team?: string | null;
   result: string;
   elapsedTime?: string;
 }
@@ -131,13 +131,21 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
   private doStartMatch(): void {
     console.log('doStartMatch called with fieldId:', this.fieldId, 'sportId:', this.sportId);
+    
+    // In recording mode, fieldId is mandatory
+    if (this.isRecordingMode && !this.fieldId) {
+      console.error('Cannot start match: Field ID is required in recording mode');
+      return;
+    }
+    
     // Call backend to create match
-    if (this.fieldId && this.sportId) {
+    if (this.sportId) {
       const matchData: MatchDto = {
-        fieldId: this.fieldId,
+        fieldId: this.fieldId || undefined,
         teamAName: this.teamAName,
         teamBName: this.teamBName,
-        sportId: this.sportId
+        sportId: this.sportId,
+        recordMode: this.isRecordingMode
       };
 
       this.matchService.createMatch(matchData).subscribe({
@@ -154,8 +162,8 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      // Cannot start match without field/sport data (required for backend)
-      console.error('Cannot start match: Field and sport data are required');
+      // Cannot start match without sport data (required for backend)
+      console.error('Cannot start match: Sport data is required');
       return;
     }
   }
@@ -208,8 +216,24 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       result: this.getCurrentResult()
     });
 
-    // Upload events to backend
-    this.downloadEvents();
+    // First call the finish endpoint, then upload events
+    if (this.gameId) {
+      this.matchService.finishMatch(this.gameId).subscribe({
+        next: (response) => {
+          console.log('Match finished successfully:', response);
+          // Upload events to backend after finishing the match
+          this.downloadEvents();
+        },
+        error: (error) => {
+          console.error('Error finishing match:', error);
+          // Still try to upload events even if finish fails
+          this.downloadEvents();
+        }
+      });
+    } else {
+      // Upload events to backend if no game ID (fallback)
+      this.downloadEvents();
+    }
 
     // Only show QR modal if in recording mode
     if (this.isRecordingMode) {
@@ -231,10 +255,11 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     }
 
     const elapsedTime = this.formatTime(this.secondsElapsed);
+    const teamName = team === 'A' ? this.teamAName : this.teamBName;
     this.events.push({
       dateTime: new Date().toISOString(),
       eventName: 'goal',
-      team: team,
+      team: teamName,
       result: this.getCurrentResult(),
       elapsedTime: elapsedTime
     });

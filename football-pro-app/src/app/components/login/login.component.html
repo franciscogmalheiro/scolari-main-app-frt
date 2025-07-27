@@ -6,16 +6,16 @@
   <div class="login-content">
     <div class="logo-section">
       <div class="logo">
-        <div class="logo-icon">⚽</div>
-        <h1>FOOTBALL PRO</h1>
+        <img src="assets/scolari-simple-logo.png" alt="Scolari Logo" class="logo-image">
+        <h1>SCOLARI</h1>
       </div>
       <p class="tagline">The ultimate football gaming experience</p>
     </div>
 
     <div class="form-container">
       <div class="form-header">
-        <h2>{{ isLoginMode ? 'Welcome Back' : 'Join Football Pro' }}</h2>
-        <p>{{ isLoginMode ? 'Sign in to continue your football journey' : 'Create your account and start playing' }}</p>
+        <h2>{{ isLoginMode ? 'Bem-vindo!' : 'Join Scolari' }}</h2>
+        <p>{{ isLoginMode ? 'Faz login para a experiência completa do Scolari' : 'Create your account and start playing' }}</p>
       </div>
 
       <!-- Login Form -->
@@ -164,9 +164,9 @@
       <!-- Mode Toggle -->
       <div class="mode-toggle">
         <p>
-          {{ isLoginMode ? "Don't have an account?" : "Already have an account?" }}
+          {{ isLoginMode ? "Ainda não tens conta?" : "Already have an account?" }}
           <button type="button" (click)="toggleMode()" class="toggle-btn">
-            {{ isLoginMode ? 'Sign Up' : 'Sign In' }}
+            {{ isLoginMode ? 'Regista-te' : 'Log In' }}
           </button>
         </p>
       </div>
@@ -177,9 +177,9 @@
           <span>or</span>
         </div>
         <button type="button" (click)="continueAsGuest()" class="guest-btn">
-          Continue as Guest
+          Continua como convidado
         </button>
-        <p class="guest-note">Some features will be limited</p>
+        <p class="guest-note">Não terás acesso a todas as features</p>
       </div>
     </div>
   </div>

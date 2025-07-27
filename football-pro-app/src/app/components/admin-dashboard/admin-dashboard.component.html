@@ -1,0 +1,60 @@
+<div class="admin-container">
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="header-content">
+      <div class="logo-section">
+        <div class="logo">
+          <div class="logo-icon">⚽</div>
+          <h1>FOOTBALL PRO</h1>
+        </div>
+        <span class="admin-badge">ADMIN PANEL</span>
+      </div>
+      
+      <div class="user-section">
+        <div class="user-info">
+          <span class="user-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</span>
+          <span class="user-role">{{ currentUser?.role }}</span>
+        </div>
+        <button class="logout-btn" (click)="logout()">
+          <span class="logout-icon">🚪</span>
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="admin-nav">
+    <div class="nav-container">
+      <button 
+        class="nav-tab" 
+        [class.active]="activeTab === 'clubs'"
+        (click)="setActiveTab('clubs')">
+        <span class="tab-icon">🏆</span>
+        Clubs
+      </button>
+      <button 
+        class="nav-tab" 
+        [class.active]="activeTab === 'users'"
+        (click)="setActiveTab('users')">
+        <span class="tab-icon">👥</span>
+        Users
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="admin-content">
+    <div class="content-container">
+      <!-- Clubs Management -->
+      <div *ngIf="activeTab === 'clubs'" class="tab-content">
+        <app-club-management></app-club-management>
+      </div>
+
+      <!-- Users Management -->
+      <div *ngIf="activeTab === 'users'" class="tab-content">
+        <app-user-management></app-user-management>
+      </div>
+    </div>
+  </main>
+</div> 

@@ -47,7 +47,7 @@
               <button 
                 class="nav-button prev-button" 
                 (click)="onCarouselPrevious()"
-                [disabled]="currentCarouselIndex === 0">
+                [disabled]="currentCarouselIndex === 0 || isAnimating">
                 <i class="fas fa-chevron-left"></i>
               </button>
             </div>
@@ -66,7 +66,10 @@
                     <div class="event-time">
                       <p class="time-text">{{ event.elapsedTime }}</p>
                     </div>
-                    <div class="team-name">{{ event.teamName }}</div>
+                    <div class="team-name">
+                      <span class="team-score" *ngIf="event.eventTypeName === 'Goal' && event.result">({{ event.result }})</span>
+                      {{ event.teamName }}
+                    </div>
                   </div>
                   
                   <div class="event-details">
@@ -87,7 +90,7 @@
               <button 
                 class="nav-button next-button" 
                 (click)="onCarouselNext()"
-                [disabled]="currentCarouselIndex + 3 >= matchEvents.length">
+                [disabled]="currentCarouselIndex + 3 >= matchEvents.length || isAnimating">
                 <i class="fas fa-chevron-right"></i>
               </button>
             </div>
@@ -118,6 +121,10 @@
               </div>
               <div class="selected-event-info">
                 <span class="selected-event-time">{{ event.elapsedTime }}</span>
+                <span class="selected-event-team">
+                  <span class="team-score" *ngIf="event.eventTypeName === 'Goal' && event.result">({{ event.result }})</span>
+                  {{ event.teamName }}
+                </span>
               </div>
               <button 
                 class="remove-button" 

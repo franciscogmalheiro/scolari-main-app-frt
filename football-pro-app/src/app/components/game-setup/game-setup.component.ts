@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { GameSetupService, Field, Sport } from '../../services/game-setup.service';
+import { GameSetupService, Sport as GameSetupSport } from '../../services/game-setup.service';
+import { SportService, Sport } from '../../services/sport.service';
+import { AuthService, User } from '../../services/auth.service';
 
 @Component({
   selector: 'app-game-setup',
@@ -8,79 +10,103 @@ import { GameSetupService, Field, Sport } from '../../services/game-setup.servic
   styleUrls: ['./game-setup.component.scss']
 })
 export class GameSetupComponent implements OnInit {
-  fields: Field[] = [];
-  sports: Sport[] = [];
-  selectedField: Field | null = null;
-  selectedSport: Sport | null = null;
-  loadingFields = false;
+  sports: (Sport | GameSetupSport)[] = [];
+  selectedSport: Sport | GameSetupSport | null = null;
   loadingSports = false;
   gameMode: string = '';
+  currentUser: User | null = null;
 
   constructor(
     private gameSetupService: GameSetupService,
+    private sportService: SportService,
+    private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.currentUser = this.authService.currentUserValue;
+    
     this.route.queryParams.subscribe(params => {
       this.gameMode = params['mode'] || '';
-    });
-    this.loadFields();
-  }
-
-  loadFields(): void {
-    this.loadingFields = true;
-    this.gameSetupService.getFields().subscribe({
-      next: (fields: Field[]) => {
-        this.fields = fields;
-        this.loadingFields = false;
-      },
-      error: (error: any) => {
-        console.error('Error loading fields:', error);
-        this.loadingFields = false;
-      }
+      
+      // Load sports based on user's fieldId
+      this.loadSports();
     });
   }
 
-  onFieldSelect(field: Field): void {
-    this.selectedField = field;
-    this.selectedSport = null;
-    this.loadSports(field.id);
-  }
-
-  loadSports(fieldId: number): void {
+  loadSports(): void {
     this.loadingSports = true;
-    this.gameSetupService.getSportsByField(fieldId).subscribe({
-      next: (sports: Sport[]) => {
-        this.sports = sports;
-        this.loadingSports = false;
-      },
-      error: (error: any) => {
-        console.error('Error loading sports:', error);
-        this.loadingSports = false;
-      }
-    });
+    
+    if (this.currentUser?.fieldId) {
+      // If user has a fieldId, get sports for that specific field
+      this.sportService.getSportsByField(this.currentUser.fieldId).subscribe({
+        next: (sports: Sport[]) => {
+          this.sports = sports;
+          this.loadingSports = false;
+        },
+        error: (error: any) => {
+          console.error('Error loading sports for field:', error);
+          this.loadingSports = false;
+        }
+      });
+    } else {
+      // If no fieldId, get all sports
+      this.sportService.getAllSports().subscribe({
+        next: (sports: Sport[]) => {
+          this.sports = sports;
+          this.loadingSports = false;
+        },
+        error: (error: any) => {
+          console.error('Error loading all sports:', error);
+          this.loadingSports = false;
+        }
+      });
+    }
   }
 
-  onSportSelect(sport: Sport): void {
+  onSportSelect(sport: Sport | GameSetupSport): void {
     this.selectedSport = sport;
   }
 
-  continueToGame(): void {
-    if (this.selectedField && this.selectedSport) {
-      const queryParams = {
-        fieldId: this.selectedField.id,
-        fieldName: this.selectedField.name,
-        sportId: this.selectedSport.id,
-        sportCode: this.selectedSport.code,
-        sportName: this.selectedSport.name,
-        mode: this.gameMode
-      };
+  getSportIcon(sport: Sport | GameSetupSport): string {
+    const gameSetupSport = sport as GameSetupSport;
+    if (gameSetupSport.code === 'FUTSAL' || gameSetupSport.code === 'FOOTBALL') {
+      return '⚽';
+    }
+    return '🏃';
+  }
 
+  getSportCode(sport: Sport | GameSetupSport): string | null {
+    const gameSetupSport = sport as GameSetupSport;
+    return gameSetupSport.code || null;
+  }
+
+  hasSportCode(sport: Sport | GameSetupSport): boolean {
+    const gameSetupSport = sport as GameSetupSport;
+    return !!gameSetupSport.code;
+  }
+
+  continueToGame(): void {
+    if (this.selectedSport) {
       if (this.gameMode === 'score') {
+        // For score mode, navigate to score game
+        const queryParams = {
+          sportId: this.selectedSport.id,
+          sportName: this.selectedSport.name,
+          mode: this.gameMode
+        };
         this.router.navigate(['/score-game'], { queryParams });
-      } else if (this.gameMode === 'record') {
+      } else {
+        // For record mode, navigate to record instructions
+        const gameSetupSport = this.selectedSport as GameSetupSport;
+        const queryParams = {
+          fieldId: this.currentUser?.fieldId,
+          sportId: this.selectedSport.id,
+          sportCode: gameSetupSport.code,
+          sportName: this.selectedSport.name,
+          mode: this.gameMode
+        };
         this.router.navigate(['/record-instructions'], { queryParams });
       }
     }

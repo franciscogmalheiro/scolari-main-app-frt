@@ -1,16 +1,15 @@
 <div class="game-card" 
      [class.disabled]="isDisabled"
      [style.background]="gameMode.gradient"
-     (click)="onCardClick()">
+     (click)="onCardClick()"
+     [title]="getDisabledTooltip()">
   
   <div class="card-content">
     <div class="card-icon">
       <span [innerHTML]="gameMode.icon"></span>
     </div>
     
-    <h3 class="card-title">{{ gameMode.title }}</h3>
-    
-    <p class="card-description">{{ gameMode.description }}</p>
+    <!--h3 class="card-title">{{ gameMode.title }}</h3-->
     
     <button class="card-button" [disabled]="isDisabled">
       <span *ngIf="!isDisabled">{{ gameMode.buttonText }}</span>
@@ -20,5 +19,8 @@
       </span>
       <span class="button-arrow"></span>
     </button>
+
+    <p class="card-description">{{ gameMode.description }}</p>
+
   </div>
 </div>

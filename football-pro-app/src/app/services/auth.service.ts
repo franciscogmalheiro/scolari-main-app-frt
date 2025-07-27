@@ -3,6 +3,12 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
+export interface Sport {
+  id: number;
+  code: string;
+  name: string;
+}
+
 export interface User {
   id: number;
   username: string;
@@ -10,6 +16,8 @@ export interface User {
   firstName: string;
   lastName: string;
   role: string;
+  fieldId?: number;
+  fieldSports?: Sport[];
 }
 
 export interface LoginRequest {
@@ -34,6 +42,7 @@ export interface AuthResponse {
   firstName: string;
   lastName: string;
   role: string;
+  fieldId?: number;
 }
 
 @Injectable({
@@ -78,8 +87,21 @@ export class AuthService {
           email: response.email,
           firstName: response.firstName,
           lastName: response.lastName,
-          role: response.role
+          role: response.role,
+          fieldId: response.fieldId
         };
+
+        // Load sports data for FIELD users
+        if (user.role === 'FIELD' && user.fieldId) {
+          try {
+            const sports = await this.loadFieldSports(user.fieldId);
+            user.fieldSports = sports;
+            console.log('Field sports loaded during login:', sports);
+          } catch (error) {
+            console.error('Error loading field sports during login:', error);
+            user.fieldSports = [];
+          }
+        }
 
         this.setToken(response.token);
         this.setUser(user);
@@ -185,6 +207,40 @@ export class AuthService {
       return JSON.parse(jsonPayload);
     } catch {
       return null;
+    }
+  }
+
+  private async loadFieldSports(fieldId: number): Promise<Sport[]> {
+    try {
+      const response = await this.http.get<Sport[]>(
+        `${this.API_BASE_URL}/field-sports/field/${fieldId}/sports`
+      ).toPromise();
+      return response || [];
+    } catch (error) {
+      console.error('Error loading field sports:', error);
+      return [];
+    }
+  }
+
+  // Get field sports for current user
+  public getFieldSports(): Sport[] {
+    const user = this.currentUserValue;
+    return user?.fieldSports || [];
+  }
+
+  // Refresh field sports (useful for manual refresh)
+  public async refreshFieldSports(): Promise<void> {
+    const user = this.currentUserValue;
+    if (user?.role === 'FIELD' && user?.fieldId) {
+      try {
+        const sports = await this.loadFieldSports(user.fieldId);
+        user.fieldSports = sports;
+        this.setUser(user);
+        this.currentUserSubject.next(user);
+        console.log('Field sports refreshed:', sports);
+      } catch (error) {
+        console.error('Error refreshing field sports:', error);
+      }
     }
   }
 }

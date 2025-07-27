@@ -55,12 +55,10 @@
   margin-bottom: 1rem;
 }
 
-.logo-icon {
-  font-size: 2.5rem;
-  background: linear-gradient(45deg, #00ff88, #00ccff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.logo-image {
+  width: 3rem;
+  height: 3rem;
+  object-fit: contain;
   filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.5));
 }
 
@@ -315,8 +313,9 @@
     font-size: 2rem;
   }
   
-  .logo-icon {
-    font-size: 2rem;
+  .logo-image {
+    width: 2.5rem;
+    height: 2.5rem;
   }
   
   .form-header h2 {
@@ -333,7 +332,8 @@
     font-size: 1.8rem;
   }
   
-  .logo-icon {
-    font-size: 1.8rem;
+  .logo-image {
+    width: 2rem;
+    height: 2rem;
   }
 }

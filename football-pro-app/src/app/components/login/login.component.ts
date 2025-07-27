@@ -66,7 +66,14 @@ export class LoginComponent implements OnInit {
         const success = await this.authService.login(username, password);
         
         if (success) {
-          this.router.navigate(['/home']);
+          // Check if user is admin and redirect accordingly
+          const userStr = localStorage.getItem('football_pro_user');
+          const currentUser = userStr ? JSON.parse(userStr) : null;
+          if (currentUser && currentUser.role === 'ADMIN') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/home']);
+          }
         } else {
           this.errorMessage = 'Invalid username or password';
         }

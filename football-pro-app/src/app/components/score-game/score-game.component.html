@@ -74,6 +74,12 @@
         <div class="score">
           {{ teamAScore }} - {{ teamBScore }}
         </div>
+        <!-- Access Video Button (only shown when match is finished and QR modal is closed) -->
+        <div *ngIf="isMatchFinished && isRecordingMode && !showQrModal" class="access-video-section">
+          <button class="btn btn-access-video" (click)="showQrModal = true">
+            <i class="fas fa-video"></i> Access Video
+          </button>
+        </div>
       </div>
 
       <!-- Team B -->
