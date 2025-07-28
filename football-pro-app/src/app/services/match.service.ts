@@ -30,6 +30,16 @@ export interface MatchEventResponseDto {
   teamName: string;
   elapsedTime: string;
   result?: string; // Score at the time of the event (e.g., "1-0", "2-1")
+  previewUrl?: string; // URL to the video preview MP4 file
+}
+
+export interface IndividualMatchEventDto {
+  matchId: number;
+  dateTime: string;
+  eventName: string;
+  teamName?: string;
+  result: string;
+  fieldCameraId?: number;
 }
 
 @Injectable({
@@ -55,5 +65,9 @@ export class MatchService {
 
   finishMatch(matchCode: string): Observable<any> {
     return this.http.post(`${this.API_BASE_URL}/matches/finish/${matchCode}`, {});
+  }
+
+  sendIndividualEvent(eventData: IndividualMatchEventDto): Observable<any> {
+    return this.http.post(`${this.API_BASE_URL}/match-events`, eventData);
   }
 } 

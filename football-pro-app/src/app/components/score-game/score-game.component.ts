@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TeamEditModalComponent, TeamEditData } from '../team-edit-modal/team-edit-modal.component';
-import { MatchService, MatchDto } from '../../services/match.service';
+import { MatchService, MatchDto, IndividualMatchEventDto } from '../../services/match.service';
 
 interface MatchEvent {
   dateTime: string;
@@ -34,6 +34,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   showConfirmModal = false;
   showStartConfirmModal = false;
   gameId = ''; // This will contain the match code from the backend
+  matchId: number | null = null; // This will contain the match ID from the backend
   qrCodeData = '';
   isRecordingMode = false;
   
@@ -152,6 +153,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
         next: (response) => {
           console.log('Match created successfully:', response);
           this.gameId = response.matchCode;
+          this.matchId = response.id;
           this.startMatchTimer();
         },
         error: (error) => {
@@ -176,12 +178,14 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.teamAScore = 0;
     this.teamBScore = 0;
 
-    this.events.push({
+    const startEvent: MatchEvent = {
       dateTime: new Date().toISOString(),
       eventName: 'start',
       team: null,
       result: this.getCurrentResult()
-    });
+    };
+    this.events.push(startEvent);
+    this.sendEventToBackend(startEvent);
 
     const startTime = Date.now();
     this.timerInterval = setInterval(() => {
@@ -209,12 +213,14 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.showControls = false;
     this.showFinalResult = true;
 
-    this.events.push({
+    const finishEvent: MatchEvent = {
       dateTime: new Date().toISOString(),
       eventName: 'finish',
       team: null,
       result: this.getCurrentResult()
-    });
+    };
+    this.events.push(finishEvent);
+    this.sendEventToBackend(finishEvent);
 
     // First call the finish endpoint, then upload events
     if (this.gameId) {
@@ -256,13 +262,15 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
     const elapsedTime = this.formatTime(this.secondsElapsed);
     const teamName = team === 'A' ? this.teamAName : this.teamBName;
-    this.events.push({
+    const goalEvent: MatchEvent = {
       dateTime: new Date().toISOString(),
       eventName: 'goal',
       team: teamName,
       result: this.getCurrentResult(),
       elapsedTime: elapsedTime
-    });
+    };
+    this.events.push(goalEvent);
+    this.sendEventToBackend(goalEvent);
 
     this.addEventToLog(team, elapsedTime);
   }
@@ -285,13 +293,15 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
   addHighlight(): void {
     const elapsedTime = this.formatTime(this.secondsElapsed);
-    this.events.push({
+    const highlightEvent: MatchEvent = {
       dateTime: new Date().toISOString(),
       eventName: 'highlight',
       team: null,
       result: this.getCurrentResult(),
       elapsedTime: elapsedTime
-    });
+    };
+    this.events.push(highlightEvent);
+    this.sendEventToBackend(highlightEvent);
 
     this.addEventToLog(null, elapsedTime);
   }
@@ -359,21 +369,48 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.highlightEvents = [];
   }
 
-  downloadEvents(): void {
-    if (!this.gameId) {
-      console.error('No game ID available for uploading events');
+  private sendEventToBackend(event: MatchEvent): void {
+    if (!this.isRecordingMode || !this.matchId) {
       return;
     }
 
-    // Send events to backend
-    this.matchService.uploadEvents(this.gameId, this.events).subscribe({
+    const eventData: IndividualMatchEventDto = {
+      matchId: this.matchId,
+      dateTime: event.dateTime,
+      eventName: event.eventName,
+      teamName: event.team || undefined,
+      result: event.result,
+      fieldCameraId: this.fieldId || undefined
+    };
+
+    this.matchService.sendIndividualEvent(eventData).subscribe({
       next: (response) => {
-        console.log('Events uploaded successfully:', response);
+        console.log('Event sent successfully:', response);
       },
       error: (error) => {
-        console.error('Error uploading events:', error);
+        console.error('Error sending event:', error);
       }
     });
+  }
+
+  downloadEvents(): void {
+    // Only upload events if not in recording mode (since events are sent individually in recording mode)
+    if (!this.isRecordingMode) {
+      if (!this.gameId) {
+        console.error('No game ID available for uploading events');
+        return;
+      }
+
+      // Send events to backend
+      this.matchService.uploadEvents(this.gameId, this.events).subscribe({
+        next: (response) => {
+          console.log('Events uploaded successfully:', response);
+        },
+        error: (error) => {
+          console.error('Error uploading events:', error);
+        }
+      });
+    }
   }
 
   updateDateDisplay(): void {

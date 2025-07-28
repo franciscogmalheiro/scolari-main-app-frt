@@ -73,12 +73,44 @@
                   </div>
                   
                   <div class="event-details">
-                    <div class="event-actions">
+                    <!-- Video Preview Section -->
+                    <div class="video-preview-section" *ngIf="currentPreviewEvent?.id === event.id">
+                      <div class="video-container">
+                        <video 
+                          #videoPlayer
+                          [src]="event.previewUrl" 
+                          [autoplay]="isVideoPlaying"
+                          [muted]="true"
+                          [loop]="true"
+                          [controls]="false"
+                          class="preview-video"
+                          (loadedmetadata)="onVideoLoaded()"
+                          (ended)="onVideoEnded()">
+                          Your browser does not support the video tag.
+                        </video>
+                        <div class="video-overlay" *ngIf="!isVideoPlaying">
+                          <button class="play-button" (click)="toggleVideoPlayback(); $event.stopPropagation()">
+                            <i class="fas fa-play"></i>
+                          </button>
+                        </div>
+                        <div class="video-overlay pause-overlay" *ngIf="isVideoPlaying" (click)="toggleVideoPlayback(); $event.stopPropagation()">
+                          <div class="pause-indicator">
+                            <i class="fas fa-pause"></i>
+                          </div>
+                        </div>
+                        <button class="close-video-button" (click)="closeVideoPreview(); $event.stopPropagation()">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div class="event-actions" *ngIf="currentPreviewEvent?.id !== event.id">
                       <button 
                         class="preview-button"
-                        (click)="onPreviewMoment(event); $event.stopPropagation()">
-                        <i class="fas fa-play"></i>
-                        Preview
+                        (click)="onPreviewMoment(event); $event.stopPropagation()"
+                        [disabled]="!event.previewUrl">
+                        <i class="fas" [class.fa-play]="event.previewUrl" [class.fa-video-slash]="!event.previewUrl"></i>
+                        {{ event.previewUrl ? 'Preview' : 'No Preview' }}
                       </button>
                     </div>
                   </div>

@@ -16,6 +16,8 @@ export class SelectedMomentsComponent implements OnInit {
   selectedEvents: MatchEventResponseDto[] = [];
   Math = Math; // Make Math available in template
   isAnimating = false;
+  currentPreviewEvent: MatchEventResponseDto | null = null;
+  isVideoPlaying = false;
 
   constructor(
     private router: Router,
@@ -105,8 +107,26 @@ export class SelectedMomentsComponent implements OnInit {
   }
 
   onPreviewMoment(event: MatchEventResponseDto): void {
-    console.log('Previewing moment:', event);
-    alert(`Previewing ${event.eventTypeName} at ${event.elapsedTime} for ${event.teamName}`);
+    if (!event.previewUrl) {
+      console.log('No preview URL available for this event');
+      alert('Video preview not available for this moment.');
+      return;
+    }
+
+    if (this.currentPreviewEvent?.id === event.id) {
+      // Toggle video playback for the same event
+      this.isVideoPlaying = !this.isVideoPlaying;
+    } else {
+      // Start preview for a new event
+      this.currentPreviewEvent = event;
+      this.isVideoPlaying = true;
+    }
+  }
+
+  toggleVideoPlayback(): void {
+    if (this.currentPreviewEvent) {
+      this.isVideoPlaying = !this.isVideoPlaying;
+    }
   }
 
   isEventSelected(event: MatchEventResponseDto): boolean {
@@ -125,5 +145,19 @@ export class SelectedMomentsComponent implements OnInit {
     
     console.log('Downloading selected moments:', this.selectedEvents);
     alert(`Downloading ${this.selectedEvents.length} selected moment(s)...`);
+  }
+
+  closeVideoPreview(): void {
+    this.currentPreviewEvent = null;
+    this.isVideoPlaying = false;
+  }
+
+  onVideoLoaded(): void {
+    console.log('Video loaded successfully');
+  }
+
+  onVideoEnded(): void {
+    // Video ended, but since we have loop=true, it will restart automatically
+    console.log('Video ended');
   }
 } 

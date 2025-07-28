@@ -347,6 +347,128 @@
         transform: translateY(-2px);
         box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
       }
+
+      &:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+        
+        &:hover {
+          transform: none;
+          box-shadow: none;
+        }
+      }
+    }
+  }
+
+  .video-preview-section {
+    margin-top: 1rem;
+    
+    .video-container {
+      position: relative;
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #000;
+      aspect-ratio: 16 / 9;
+      
+      .preview-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      
+      .video-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        .play-button {
+          background: rgba(255, 255, 255, 0.9);
+          border: none;
+          border-radius: 50%;
+          width: 60px;
+          height: 60px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          
+          i {
+            font-size: 1.5rem;
+            color: #333;
+            margin-left: 3px; // Slight offset for play icon
+          }
+          
+          &:hover {
+            background: white;
+            transform: scale(1.1);
+          }
+        }
+      }
+
+      .pause-overlay {
+        background: transparent;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        
+        &:hover {
+          opacity: 1;
+          background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .pause-indicator {
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 50%;
+          width: 60px;
+          height: 60px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          
+          i {
+            font-size: 1.5rem;
+            color: #333;
+          }
+        }
+      }
+      
+      .close-video-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 10;
+        
+        i {
+          color: white;
+          font-size: 0.9rem;
+        }
+        
+        &:hover {
+          background: rgba(0, 0, 0, 0.9);
+          transform: scale(1.1);
+        }
+      }
     }
   }
 }
