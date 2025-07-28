@@ -1,0 +1,329 @@
+<div class="camera-management">
+  <!-- Header -->
+  <div class="management-header">
+    <div class="header-content">
+      <h3>Camera Management - {{ fieldName }}</h3>
+      <button class="create-btn" (click)="openCreateModal()">
+        <span class="btn-icon">📹</span>
+        Add Camera
+      </button>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMessage" class="message error-message">
+    <span class="message-icon">⚠️</span>
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="message success-message">
+    <span class="message-icon">✅</span>
+    {{ successMessage }}
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading cameras...</p>
+  </div>
+
+  <!-- Cameras Table -->
+  <div *ngIf="!isLoading" class="table-container">
+    <table class="cameras-table">
+      <thead>
+        <tr>
+          <th>Camera Name</th>
+          <th>Model</th>
+          <th>IP Address</th>
+          <th>Port</th>
+          <th>Username</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let camera of cameras" class="camera-row">
+          <td class="camera-name">{{ camera.cameraName }}</td>
+          <td class="camera-model">{{ camera.cameraModel }}</td>
+          <td class="camera-ip">{{ camera.ipAddress }}</td>
+          <td class="camera-port">{{ camera.port }}</td>
+          <td class="camera-username">{{ camera.username }}</td>
+          <td class="camera-date">{{ camera.createdAt | date:'short' }}</td>
+          <td class="camera-actions">
+            <button class="action-btn edit-btn" (click)="openEditModal(camera)" title="Edit Camera">
+              <span class="action-icon">✏️</span>
+            </button>
+            <button class="action-btn delete-btn" (click)="openDeleteModal(camera)" title="Delete Camera">
+              <span class="action-icon">🗑️</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="cameras.length === 0" class="empty-state">
+      <div class="empty-icon">📹</div>
+      <h4>No Cameras Found</h4>
+      <p>Get started by adding your first camera for this field.</p>
+      <button class="create-btn" (click)="openCreateModal()">
+        <span class="btn-icon">📹</span>
+        Add First Camera
+      </button>
+    </div>
+  </div>
+
+  <!-- Create Camera Modal -->
+  <div *ngIf="showCreateModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Add New Camera</h3>
+        <button class="close-btn" (click)="closeModals()">✕</button>
+      </div>
+      
+      <form [formGroup]="cameraForm" (ngSubmit)="createCamera()" class="modal-form">
+        <div class="form-group">
+          <label for="cameraName">Camera Name *</label>
+          <input 
+            type="text" 
+            id="cameraName"
+            formControlName="cameraName"
+            placeholder="Enter camera name"
+            [class.error]="cameraForm.get('cameraName')?.invalid && cameraForm.get('cameraName')?.touched"
+          >
+          <div *ngIf="cameraForm.get('cameraName')?.invalid && cameraForm.get('cameraName')?.touched" class="error-text">
+            <span *ngIf="cameraForm.get('cameraName')?.errors?.['required']">Camera name is required</span>
+            <span *ngIf="cameraForm.get('cameraName')?.errors?.['maxlength']">Camera name must be at most 100 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cameraModel">Camera Model *</label>
+          <input 
+            type="text" 
+            id="cameraModel"
+            formControlName="cameraModel"
+            placeholder="Enter camera model"
+            [class.error]="cameraForm.get('cameraModel')?.invalid && cameraForm.get('cameraModel')?.touched"
+          >
+          <div *ngIf="cameraForm.get('cameraModel')?.invalid && cameraForm.get('cameraModel')?.touched" class="error-text">
+            <span *ngIf="cameraForm.get('cameraModel')?.errors?.['required']">Camera model is required</span>
+            <span *ngIf="cameraForm.get('cameraModel')?.errors?.['maxlength']">Camera model must be at most 100 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="ipAddress">IP Address *</label>
+          <input 
+            type="text" 
+            id="ipAddress"
+            formControlName="ipAddress"
+            placeholder="Enter IP address (IPv4 or IPv6)"
+            [class.error]="cameraForm.get('ipAddress')?.invalid && cameraForm.get('ipAddress')?.touched"
+          >
+          <div *ngIf="cameraForm.get('ipAddress')?.invalid && cameraForm.get('ipAddress')?.touched" class="error-text">
+            <span *ngIf="cameraForm.get('ipAddress')?.errors?.['required']">IP address is required</span>
+            <span *ngIf="cameraForm.get('ipAddress')?.errors?.['pattern']">Invalid IP address format</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="username">Username *</label>
+            <input 
+              type="text" 
+              id="username"
+              formControlName="username"
+              placeholder="Enter username"
+              [class.error]="cameraForm.get('username')?.invalid && cameraForm.get('username')?.touched"
+            >
+            <div *ngIf="cameraForm.get('username')?.invalid && cameraForm.get('username')?.touched" class="error-text">
+              <span *ngIf="cameraForm.get('username')?.errors?.['required']">Username is required</span>
+              <span *ngIf="cameraForm.get('username')?.errors?.['maxlength']">Username must be at most 50 characters</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password *</label>
+            <input 
+              type="password" 
+              id="password"
+              formControlName="password"
+              placeholder="Enter password"
+              [class.error]="cameraForm.get('password')?.invalid && cameraForm.get('password')?.touched"
+            >
+            <div *ngIf="cameraForm.get('password')?.invalid && cameraForm.get('password')?.touched" class="error-text">
+              <span *ngIf="cameraForm.get('password')?.errors?.['required']">Password is required</span>
+              <span *ngIf="cameraForm.get('password')?.errors?.['maxlength']">Password must be at most 255 characters</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="port">Port *</label>
+          <input 
+            type="number" 
+            id="port"
+            formControlName="port"
+            placeholder="Enter port number"
+            min="1"
+            max="65535"
+            [class.error]="cameraForm.get('port')?.invalid && cameraForm.get('port')?.touched"
+          >
+          <div *ngIf="cameraForm.get('port')?.invalid && cameraForm.get('port')?.touched" class="error-text">
+            <span *ngIf="cameraForm.get('port')?.errors?.['required']">Port is required</span>
+            <span *ngIf="cameraForm.get('port')?.errors?.['min'] || cameraForm.get('port')?.errors?.['max']">Port must be between 1 and 65535</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" (click)="closeModals()">Cancel</button>
+          <button type="submit" class="submit-btn" [disabled]="cameraForm.invalid || isLoading">
+            <span *ngIf="isLoading" class="loading-spinner-small"></span>
+            {{ isLoading ? 'Creating...' : 'Create Camera' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Camera Modal -->
+  <div *ngIf="showEditModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Edit Camera</h3>
+        <button class="close-btn" (click)="closeModals()">✕</button>
+      </div>
+      
+      <form [formGroup]="cameraForm" (ngSubmit)="updateCamera()" class="modal-form">
+        <div class="form-group">
+          <label for="edit-cameraName">Camera Name *</label>
+          <input 
+            type="text" 
+            id="edit-cameraName"
+            formControlName="cameraName"
+            placeholder="Enter camera name"
+            [class.error]="cameraForm.get('cameraName')?.invalid && cameraForm.get('cameraName')?.touched"
+          >
+          <div *ngIf="cameraForm.get('cameraName')?.invalid && cameraForm.get('cameraName')?.touched" class="error-text">
+            <span *ngIf="cameraForm.get('cameraName')?.errors?.['required']">Camera name is required</span>
+            <span *ngIf="cameraForm.get('cameraName')?.errors?.['maxlength']">Camera name must be at most 100 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-cameraModel">Camera Model *</label>
+          <input 
+            type="text" 
+            id="edit-cameraModel"
+            formControlName="cameraModel"
+            placeholder="Enter camera model"
+            [class.error]="cameraForm.get('cameraModel')?.invalid && cameraForm.get('cameraModel')?.touched"
+          >
+          <div *ngIf="cameraForm.get('cameraModel')?.invalid && cameraForm.get('cameraModel')?.touched" class="error-text">
+            <span *ngIf="cameraForm.get('cameraModel')?.errors?.['required']">Camera model is required</span>
+            <span *ngIf="cameraForm.get('cameraModel')?.errors?.['maxlength']">Camera model must be at most 100 characters</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-ipAddress">IP Address *</label>
+          <input 
+            type="text" 
+            id="edit-ipAddress"
+            formControlName="ipAddress"
+            placeholder="Enter IP address (IPv4 or IPv6)"
+            [class.error]="cameraForm.get('ipAddress')?.invalid && cameraForm.get('ipAddress')?.touched"
+          >
+          <div *ngIf="cameraForm.get('ipAddress')?.invalid && cameraForm.get('ipAddress')?.touched" class="error-text">
+            <span *ngIf="cameraForm.get('ipAddress')?.errors?.['required']">IP address is required</span>
+            <span *ngIf="cameraForm.get('ipAddress')?.errors?.['pattern']">Invalid IP address format</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-username">Username *</label>
+            <input 
+              type="text" 
+              id="edit-username"
+              formControlName="username"
+              placeholder="Enter username"
+              [class.error]="cameraForm.get('username')?.invalid && cameraForm.get('username')?.touched"
+            >
+            <div *ngIf="cameraForm.get('username')?.invalid && cameraForm.get('username')?.touched" class="error-text">
+              <span *ngIf="cameraForm.get('username')?.errors?.['required']">Username is required</span>
+              <span *ngIf="cameraForm.get('username')?.errors?.['maxlength']">Username must be at most 50 characters</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-password">Password *</label>
+            <input 
+              type="password" 
+              id="edit-password"
+              formControlName="password"
+              placeholder="Enter password"
+              [class.error]="cameraForm.get('password')?.invalid && cameraForm.get('password')?.touched"
+            >
+            <div *ngIf="cameraForm.get('password')?.invalid && cameraForm.get('password')?.touched" class="error-text">
+              <span *ngIf="cameraForm.get('password')?.errors?.['required']">Password is required</span>
+              <span *ngIf="cameraForm.get('password')?.errors?.['maxlength']">Password must be at most 255 characters</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-port">Port *</label>
+          <input 
+            type="number" 
+            id="edit-port"
+            formControlName="port"
+            placeholder="Enter port number"
+            min="1"
+            max="65535"
+            [class.error]="cameraForm.get('port')?.invalid && cameraForm.get('port')?.touched"
+          >
+          <div *ngIf="cameraForm.get('port')?.invalid && cameraForm.get('port')?.touched" class="error-text">
+            <span *ngIf="cameraForm.get('port')?.errors?.['required']">Port is required</span>
+            <span *ngIf="cameraForm.get('port')?.errors?.['min'] || cameraForm.get('port')?.errors?.['max']">Port must be between 1 and 65535</span>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" (click)="closeModals()">Cancel</button>
+          <button type="submit" class="submit-btn" [disabled]="cameraForm.invalid || isLoading">
+            <span *ngIf="isLoading" class="loading-spinner-small"></span>
+            {{ isLoading ? 'Updating...' : 'Update Camera' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Delete Camera</h3>
+        <button class="close-btn" (click)="closeModals()">✕</button>
+      </div>
+      
+      <div class="delete-content">
+        <div class="delete-icon">📹</div>
+        <h4>Are you sure you want to delete this camera?</h4>
+        <p class="delete-warning">
+          <strong>{{ selectedCamera?.cameraName }}</strong> will be permanently deleted and cannot be recovered.
+        </p>
+        
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" (click)="closeModals()">Cancel</button>
+          <button type="button" class="delete-confirm-btn" (click)="deleteCamera()" [disabled]="isLoading">
+            <span *ngIf="isLoading" class="loading-spinner-small"></span>
+            {{ isLoading ? 'Deleting...' : 'Delete Camera' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -97,6 +97,9 @@
                     <td class="field-sports">{{ getSportsDisplay(field.fieldSports) }}</td>
                     <td class="field-date">N/A</td>
                       <td class="field-actions">
+                        <button class="action-btn camera-btn small" (click)="openCameraManagement(field, club)" title="Manage Cameras">
+                          <span class="action-icon">📹</span>
+                        </button>
                         <button class="action-btn edit-btn small" (click)="openFieldEditModal(field, club)" title="Edit Field">
                           <span class="action-icon">✏️</span>
                         </button>
@@ -497,6 +500,28 @@
             {{ isLoading ? 'Deleting...' : 'Delete Field' }}
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Camera Management Modal -->
+  <div *ngIf="showCameraManagement" class="modal-overlay" (click)="closeCameraManagement()">
+    <div class="modal-content camera-modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Camera Management</h3>
+        <button class="close-btn" (click)="closeCameraManagement()">✕</button>
+      </div>
+      
+      <div class="camera-management-content">
+        <div class="camera-management-info">
+          <h4>{{ selectedFieldForCamera?.fieldName }}</h4>
+          <p>{{ selectedClubForCamera?.name }}</p>
+        </div>
+        
+        <app-field-camera-management 
+          [fieldId]="selectedFieldForCamera?.fieldId || 0"
+          [fieldName]="selectedFieldForCamera?.fieldName || ''">
+        </app-field-camera-management>
       </div>
     </div>
   </div>

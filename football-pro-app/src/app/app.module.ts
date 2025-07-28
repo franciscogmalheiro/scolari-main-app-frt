@@ -24,10 +24,12 @@ import { AdminDashboardComponent } from './components/admin-dashboard/admin-dash
 import { FieldManagementComponent } from './components/field-management/field-management.component';
 import { ClubManagementComponent } from './components/club-management/club-management.component';
 import { UserManagementComponent } from './components/user-management/user-management.component';
+import { FieldCameraManagementComponent } from './components/field-camera-management/field-camera-management.component';
 import { SportService } from './services/sport.service';
 import { ClubService } from './services/club.service';
 import { ClubFieldService } from './services/club-field.service';
 import { UserService } from './services/user.service';
+import { FieldCameraService } from './services/field-camera.service';
 
 @NgModule({
   declarations: [
@@ -49,7 +51,8 @@ import { UserService } from './services/user.service';
     AdminDashboardComponent,
     FieldManagementComponent,
     ClubManagementComponent,
-    UserManagementComponent
+    UserManagementComponent,
+    FieldCameraManagementComponent
   ],
   imports: [
     BrowserModule,

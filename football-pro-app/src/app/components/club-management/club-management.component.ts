@@ -30,6 +30,11 @@ export class ClubManagementComponent implements OnInit {
   selectedField: ClubFieldResponseDto | null = null;
   selectedClubForField: ClubResponseDto | null = null;
 
+  // Camera management
+  showCameraManagement = false;
+  selectedFieldForCamera: ClubFieldResponseDto | null = null;
+  selectedClubForCamera: ClubResponseDto | null = null;
+
   clubForm: FormGroup;
   fieldForm: FormGroup;
 
@@ -356,5 +361,18 @@ export class ClubManagementComponent implements OnInit {
 
   getSportsDisplay(fieldSports: Array<{id: number, fieldId: number, fieldName: string, sportId: number, sportCode: string, sportName: string}>): string {
     return fieldSports.map(sport => sport.sportName).join(', ');
+  }
+
+  // Camera management methods
+  openCameraManagement(field: ClubFieldResponseDto, club: ClubResponseDto): void {
+    this.selectedFieldForCamera = field;
+    this.selectedClubForCamera = club;
+    this.showCameraManagement = true;
+  }
+
+  closeCameraManagement(): void {
+    this.showCameraManagement = false;
+    this.selectedFieldForCamera = null;
+    this.selectedClubForCamera = null;
   }
 } 
