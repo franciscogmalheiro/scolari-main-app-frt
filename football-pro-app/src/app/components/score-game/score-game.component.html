@@ -1,47 +1,41 @@
+<app-header></app-header>
+
 <div class="score-game-container">
   <!-- Header -->
   <div class="header">
-    <button class="back-button" (click)="goBack()">
-      <i class="fas fa-arrow-left"></i>
-    </button>
-    <div class="mode-indicator" *ngIf="isRecordingMode">
-      <span class="mode-icon">📹</span>
-      <span class="mode-text">Recording Mode</span>
-    </div>
-  </div>
-
-  <!-- Control Buttons -->
-  <div class="control-section" *ngIf="!isMatchFinished">
-    <div class="control-buttons">
-      <button 
-        *ngIf="!isMatchStarted" 
-        class="btn btn-start" 
-        (click)="startMatch()">
-        <i class="fas fa-play"></i> START MATCH
-      </button>
-      
-      <button 
-        *ngIf="isMatchStarted" 
-        class="btn btn-finish" 
-        (click)="finishMatch()">
-        <i class="fas fa-stop"></i> FINISH MATCH
-      </button>
-    </div>
-  </div>
-
-  <!-- Final Result Display -->
-  <div *ngIf="showFinalResult" class="final-result">
-    <div class="ft-badge">FULL TIME</div>
   </div>
 
   <!-- Main Game Section -->
   <div class="main-game-section">
-    <!-- Timer Display with Live Indicator -->
+    <!-- Timer Display with Live Indicator or Start Button -->
     <div class="timer-section">
-      <div class="timer-display">
+      <!-- Show timer when match is started -->
+      <div class="timer-display" *ngIf="isMatchStarted">
         {{ formatTime(secondsElapsed) }}
       </div>
-      <app-live-indicator *ngIf="isRecordingMode" [isRecording]="isRecording"></app-live-indicator>
+      <!-- Show start button when match hasn't started -->
+      <button 
+        *ngIf="!isMatchStarted && !isMatchFinished" 
+        class="btn btn-start" 
+        (click)="startMatch()">
+        <i class="fas fa-play"></i> START MATCH
+      </button>
+      <!-- Live Indicator positioned on the right -->
+      <div class="live-indicator-container" *ngIf="isRecordingMode && isMatchStarted">
+        <app-live-indicator [isRecording]="isRecording"></app-live-indicator>
+      </div>
+    </div>
+
+    <!-- Finish Match Button (under timer) -->
+    <div class="finish-button-section" *ngIf="isMatchStarted && !isMatchFinished">
+      <button class="btn btn-finish-small" (click)="finishMatch()">
+        <i class="fas fa-stop"></i> FINISH
+      </button>
+    </div>
+
+    <!-- Final Result Display (under timer) -->
+    <div *ngIf="showFinalResult" class="final-result">
+      <div class="ft-text">FULL TIME</div>
     </div>
 
     <!-- Teams and Score Row -->

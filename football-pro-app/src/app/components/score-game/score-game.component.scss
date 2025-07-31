@@ -4,6 +4,7 @@
   padding: 20px;
   color: white;
   font-family: 'Arial', sans-serif;
+  margin-top: 40px; /* Account for fixed header height */
 }
 
 // Header Section
@@ -18,7 +19,7 @@
 
 .mode-indicator {
   position: absolute;
-  right: 0;
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
@@ -95,11 +96,27 @@
 // Timer Section
 .timer-section {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  position: relative;
+}
+
+// Finish Button Section
+.finish-button-section {
+  text-align: center;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+// Live Indicator Container
+.live-indicator-container {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .timer-display {
@@ -113,17 +130,13 @@
 // Final Result
 .final-result {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 
-  .ft-badge {
-    background: #ff6b9d;
-    color: white;
-    padding: 0.3rem 0.8rem;
-    border-radius: 15px;
-    font-size: 0.8rem;
+  .ft-text {
+    color: #666;
+    font-size: 1rem;
     font-weight: 600;
-    display: inline-block;
-    margin-bottom: 1rem;
+    letter-spacing: 1px;
   }
 }
 
@@ -293,13 +306,21 @@
 }
 
 .btn-start {
-  background: #007bff;
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
   color: white;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 3px 8px rgba(76, 175, 80, 0.3);
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  min-height: 40px;
+  border-radius: 20px;
 
   &:hover {
-    background: #0056b3;
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+    background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+  }
+
+  i {
+    font-size: 0.9rem;
   }
 }
 
@@ -311,6 +332,25 @@
   &:hover {
     background: linear-gradient(135deg, #ff3742 0%, #ff2e3a 100%);
     box-shadow: 0 10px 25px rgba(255, 71, 87, 0.4);
+  }
+}
+
+.btn-finish-small {
+  background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+  color: white;
+  box-shadow: 0 3px 8px rgba(255, 71, 87, 0.3);
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  min-height: 40px;
+  border-radius: 20px;
+
+  &:hover {
+    background: linear-gradient(135deg, #ff3742 0%, #ff2e3a 100%);
+    box-shadow: 0 6px 12px rgba(255, 71, 87, 0.4);
+  }
+
+  i {
+    font-size: 0.9rem;
   }
 }
 

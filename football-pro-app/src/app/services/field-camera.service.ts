@@ -52,4 +52,8 @@ export class FieldCameraService {
   deleteCamera(id: number): Observable<void> {
     return this.http.delete<void>(`${this.API_BASE_URL}/${id}`);
   }
+
+  checkCameraHealth(id: number): Observable<any> {
+    return this.http.get(`/api/hikvision/cameras/${id}/health`);
+  }
 } 

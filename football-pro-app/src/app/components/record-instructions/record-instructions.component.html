@@ -29,10 +29,56 @@
             Assim que o botão "terminar" for pressionado, será apresentado o ID de jogo que vai precisar para descarregar o video.
           </div>
         </div>
+
+        <!-- Camera Health Check Section -->
+        <div class="camera-health-section">
+          <div class="health-check-header">
+            <h3>Verificação da Câmara</h3>
+          </div>
+          
+          <!-- Loading Cameras State -->
+          <div *ngIf="isLoadingCameras" class="health-status loading">
+            <div class="spinner"></div>
+            <span>A carregar câmaras disponíveis...</span>
+          </div>
+
+          <!-- Loading State -->
+          <div *ngIf="isCheckingCamera && !isLoadingCameras" class="health-status loading">
+            <div class="spinner"></div>
+            <span>A verificar ligação da câmara...</span>
+          </div>
+
+          <!-- Success State -->
+          <div *ngIf="cameraHealthCheckPassed && !isCheckingCamera && !isLoadingCameras" class="health-status success">
+            <span class="status-icon">✅</span>
+            <span>Câmara conectada com sucesso</span>
+            <div *ngIf="selectedCamera" class="camera-info">
+              <small>{{ selectedCamera.cameraName }} ({{ selectedCamera.cameraModel }})</small>
+            </div>
+          </div>
+
+          <!-- Error State -->
+          <div *ngIf="cameraHealthCheckFailed && !isCheckingCamera && !isLoadingCameras" class="health-status error">
+            <span class="status-icon">❌</span>
+            <span>{{ errorMessage }}</span>
+            <button class="retry-button" (click)="retryCameraCheck()">
+              Tentar Novamente
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="card-footer">
-        <button class="next-button" (click)="onNextClick()">
+        <button class="back-button" (click)="onBackClick()">
+          <span class="button-arrow">←</span>
+          <span>Voltar</span>
+        </button>
+        
+        <button 
+          class="next-button" 
+          [class.disabled]="!cameraHealthCheckPassed || isCheckingCamera"
+          [disabled]="!cameraHealthCheckPassed || isCheckingCamera"
+          (click)="onNextClick()">
           <span>Próximo</span>
           <span class="button-arrow">→</span>
         </button>
