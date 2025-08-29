@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Sport {
   id: number;
@@ -16,6 +17,6 @@ export class GameSetupService {
   constructor(private http: HttpClient) { }
 
   getSportsByField(fieldId: number): Observable<Sport[]> {
-    return this.http.get<Sport[]>(`/api/field/${fieldId}/sports`);
+    return this.http.get<Sport[]>(`${environment.apiUrl}/field/${fieldId}/sports`);
   }
 } 

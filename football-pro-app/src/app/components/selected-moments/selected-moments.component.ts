@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatchService, MatchEventResponseDto } from '../../services/match.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-selected-moments',
@@ -8,6 +9,8 @@ import { MatchService, MatchEventResponseDto } from '../../services/match.servic
   styleUrls: ['./selected-moments.component.scss']
 })
 export class SelectedMomentsComponent implements OnInit {
+  @ViewChild('videoPlayer', { static: false }) videoPlayer!: ElementRef<HTMLVideoElement>;
+  
   matchCode = '';
   matchEvents: MatchEventResponseDto[] = [];
   currentCarouselIndex = 0;
@@ -107,26 +110,36 @@ export class SelectedMomentsComponent implements OnInit {
   }
 
   onPreviewMoment(event: MatchEventResponseDto): void {
-    if (!event.previewUrl) {
-      console.log('No preview URL available for this event');
-      alert('Video preview not available for this moment.');
+    if (!event.presignedUrl) {
       return;
     }
 
     if (this.currentPreviewEvent?.id === event.id) {
-      // Toggle video playback for the same event
       this.isVideoPlaying = !this.isVideoPlaying;
     } else {
-      // Start preview for a new event
       this.currentPreviewEvent = event;
       this.isVideoPlaying = true;
     }
   }
 
   toggleVideoPlayback(): void {
-    if (this.currentPreviewEvent) {
-      this.isVideoPlaying = !this.isVideoPlaying;
+    if (this.currentPreviewEvent && this.videoPlayer) {
+      const videoElement = this.videoPlayer.nativeElement;
+      if (this.isVideoPlaying) {
+        videoElement.pause();
+        this.isVideoPlaying = false;
+      } else {
+        videoElement.play().catch(() => {});
+        this.isVideoPlaying = true;
+      }
     }
+  }
+
+  // Check if video is ready to play
+  isVideoReady(): boolean {
+    if (!this.videoPlayer) return false;
+    const videoElement = this.videoPlayer.nativeElement;
+    return videoElement.readyState >= 2; // HAVE_CURRENT_DATA
   }
 
   isEventSelected(event: MatchEventResponseDto): boolean {
@@ -137,14 +150,49 @@ export class SelectedMomentsComponent implements OnInit {
     this.selectedEvents = this.selectedEvents.filter(selected => selected.id !== event.id);
   }
 
-  onDownloadSelected(): void {
+  private buildFilenameForEvent(event: MatchEventResponseDto): string {
+    const parts: string[] = [];
+    if (event.elapsedTime) parts.push(event.elapsedTime.replace(/[^0-9A-Za-z_-]/g, ''));
+    if (event.teamName) parts.push(event.teamName.replace(/[^0-9A-Za-z_-]/g, ''));
+    if (event.eventTypeName) parts.push(event.eventTypeName.replace(/[^0-9A-Za-z_-]/g, ''));
+    const base = parts.filter(Boolean).join('_') || `moment_${event.id}`;
+    return `${base}.mp4`;
+  }
+
+  private async downloadEvent(event: MatchEventResponseDto): Promise<void> {
+    const url = this.getVideoUrl(event);
+    if (!url) return;
+
+    const response = await fetch(url, { method: 'GET' });
+    if (!response.ok) throw new Error(`Failed to fetch video: ${response.status}`);
+
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+
+    const anchor = document.createElement('a');
+    anchor.href = objectUrl;
+    anchor.download = this.buildFilenameForEvent(event);
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    URL.revokeObjectURL(objectUrl);
+  }
+
+  async onDownloadSelected(): Promise<void> {
     if (this.selectedEvents.length === 0) {
       alert('Please select at least one moment to download.');
       return;
     }
-    
-    console.log('Downloading selected moments:', this.selectedEvents);
-    alert(`Downloading ${this.selectedEvents.length} selected moment(s)...`);
+
+    // Download sequentially to avoid overwhelming the browser and popup blockers
+    for (const event of this.selectedEvents) {
+      try {
+        // Ensure each download is user-gesture adjacent by slight delay
+        await this.downloadEvent(event);
+      } catch (e) {
+        console.error('Download failed for event', event.id, e);
+      }
+    }
   }
 
   closeVideoPreview(): void {
@@ -152,12 +200,19 @@ export class SelectedMomentsComponent implements OnInit {
     this.isVideoPlaying = false;
   }
 
-  onVideoLoaded(): void {
-    console.log('Video loaded successfully');
+  onVideoLoaded(): void {}
+
+  onVideoEnded(): void {}
+
+  onVideoError(event: any): void {
+    const videoElement = event.target as HTMLVideoElement;
+    console.error('Video error', videoElement.error);
   }
 
-  onVideoEnded(): void {
-    // Video ended, but since we have loop=true, it will restart automatically
-    console.log('Video ended');
+  // Method to get video URL from backend endpoint
+  getVideoUrl(event: MatchEventResponseDto): string {
+    if (!event.presignedUrl) return '';
+    const videoId = event.videoSegmentId;
+    return `${environment.apiUrl}/video-segments/${videoId}/download`;
   }
 } 

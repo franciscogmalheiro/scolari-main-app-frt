@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface MatchDto {
   fieldId?: number;
@@ -29,8 +30,9 @@ export interface MatchEventResponseDto {
   eventTypeName: string;
   teamName: string;
   elapsedTime: string;
+  videoSegmentId: number;
   result?: string; // Score at the time of the event (e.g., "1-0", "2-1")
-  previewUrl?: string; // URL to the video preview MP4 file
+  presignedUrl?: string; // Presigned URL to the video preview MP4 file
 }
 
 export interface IndividualMatchEventDto {
@@ -46,7 +48,7 @@ export interface IndividualMatchEventDto {
   providedIn: 'root'
 })
 export class MatchService {
-  private readonly API_BASE_URL = '/api';
+  private readonly API_BASE_URL = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 

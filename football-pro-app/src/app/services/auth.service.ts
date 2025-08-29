@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export interface Sport {
   id: number;
@@ -53,7 +54,7 @@ export class AuthService {
   public currentUser: Observable<User | null>;
   private readonly TOKEN_KEY = 'football_pro_token';
   private readonly USER_KEY = 'football_pro_user';
-  private readonly API_BASE_URL = '/api';
+  private readonly API_BASE_URL = environment.apiUrl;
 
   constructor(
     private router: Router,

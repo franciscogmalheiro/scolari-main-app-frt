@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface FieldCameraDto {
   fieldId: number;
@@ -29,7 +30,7 @@ export interface FieldCameraResponseDto {
   providedIn: 'root'
 })
 export class FieldCameraService {
-  private readonly API_BASE_URL = '/api/field-cameras';
+  private readonly API_BASE_URL = `${environment.apiUrl}/field-cameras`;
 
   constructor(private http: HttpClient) {}
 

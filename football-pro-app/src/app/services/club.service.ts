@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface ClubDto {
   id?: number;
@@ -28,7 +29,7 @@ export interface ClubResponseDto {
   providedIn: 'root'
 })
 export class ClubService {
-  private readonly API_BASE_URL = '/api/clubs';
+  private readonly API_BASE_URL = `${environment.apiUrl}/clubs`;
 
   constructor(private http: HttpClient) {}
 

@@ -20,6 +20,13 @@ export class FieldCameraManagementComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
 
+  // Health check UI state
+  healthCheckInProgressId: number | null = null;
+  // Toast message state
+  showToast = false;
+  toastMessage = '';
+  toastType: 'success' | 'error' = 'success';
+
   cameraForm: FormGroup;
 
   constructor(
@@ -29,7 +36,7 @@ export class FieldCameraManagementComponent implements OnInit {
     this.cameraForm = this.fb.group({
       cameraName: ['', [Validators.required, Validators.maxLength(100)]],
       cameraModel: ['', [Validators.required, Validators.maxLength(100)]],
-      ipAddress: ['', [Validators.required, Validators.pattern(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/)]],
+      ipAddress: ['', [Validators.required, Validators.pattern(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$/)]],
       username: ['', [Validators.required, Validators.maxLength(50)]],
       password: ['', [Validators.required, Validators.maxLength(255)]],
       port: [8000, [Validators.required, Validators.min(1), Validators.max(65535)]]
@@ -166,5 +173,43 @@ export class FieldCameraManagementComponent implements OnInit {
         }
       });
     }
+  }
+
+  // Trigger a health check for a specific camera
+  checkCameraHealth(cameraId: number): void {
+    this.healthCheckInProgressId = cameraId;
+    this.showToast = false;
+
+    this.fieldCameraService.checkCameraHealth(cameraId).subscribe({
+      next: () => {
+        this.healthCheckInProgressId = null;
+        this.showSuccessToast('Camera connection test successful!');
+      },
+      error: (error) => {
+        console.error('Camera health check failed:', error);
+        this.healthCheckInProgressId = null;
+        this.showErrorToast('Camera connection test failed. Check setup and try again.');
+      }
+    });
+  }
+
+  private showSuccessToast(message: string): void {
+    this.toastMessage = message;
+    this.toastType = 'success';
+    this.showToast = true;
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      this.showToast = false;
+    }, 3000);
+  }
+
+  private showErrorToast(message: string): void {
+    this.toastMessage = message;
+    this.toastType = 'error';
+    this.showToast = true;
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      this.showToast = false;
+    }, 5000);
   }
 } 

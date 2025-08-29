@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface UserDto {
   username: string;
@@ -31,7 +32,7 @@ export interface UserResponseDto {
   providedIn: 'root'
 })
 export class UserService {
-  private readonly API_BASE_URL = '/api/users';
+  private readonly API_BASE_URL = `${environment.apiUrl}/users`;
 
   constructor(private http: HttpClient) {}
 

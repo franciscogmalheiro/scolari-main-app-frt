@@ -78,14 +78,15 @@
                       <div class="video-container">
                         <video 
                           #videoPlayer
-                          [src]="event.previewUrl" 
+                          [src]="getVideoUrl(event)" 
                           [autoplay]="isVideoPlaying"
                           [muted]="true"
                           [loop]="true"
                           [controls]="false"
                           class="preview-video"
                           (loadedmetadata)="onVideoLoaded()"
-                          (ended)="onVideoEnded()">
+                          (ended)="onVideoEnded()"
+                          (error)="onVideoError($event)">
                           Your browser does not support the video tag.
                         </video>
                         <div class="video-overlay" *ngIf="!isVideoPlaying">
@@ -108,9 +109,9 @@
                       <button 
                         class="preview-button"
                         (click)="onPreviewMoment(event); $event.stopPropagation()"
-                        [disabled]="!event.previewUrl">
-                        <i class="fas" [class.fa-play]="event.previewUrl" [class.fa-video-slash]="!event.previewUrl"></i>
-                        {{ event.previewUrl ? 'Preview' : 'No Preview' }}
+                        [disabled]="!event.presignedUrl">
+                        <i class="fas" [class.fa-play]="event.presignedUrl" [class.fa-video-slash]="!event.presignedUrl"></i>
+                        {{ event.presignedUrl ? 'Preview' : 'No Preview' }}
                       </button>
                     </div>
                   </div>

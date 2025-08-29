@@ -15,7 +15,7 @@ The Field Camera Management feature allows administrators to manage cameras for 
 Each camera can be configured with the following properties:
 - **Camera Name**: A descriptive name for the camera (max 100 characters)
 - **Camera Model**: The model/manufacturer of the camera (max 100 characters)
-- **IP Address**: IPv4 or IPv6 address of the camera
+- **IP Address**: IPv4 or IPv6 address, or hostname of the camera
 - **Port**: Network port for camera communication (default: 8000)
 - **Username**: Authentication username (max 50 characters)
 - **Password**: Authentication password (max 255 characters)
@@ -34,7 +34,7 @@ Each camera can be configured with the following properties:
 3. Fill in the camera details:
    - Camera Name (required)
    - Camera Model (required)
-   - IP Address (required, must be valid IPv4 or IPv6)
+   - IP Address (required, must be valid IPv4, IPv6, or hostname)
    - Username (required)
    - Password (required)
    - Port (optional, defaults to 8000)
@@ -96,7 +96,7 @@ interface FieldCameraResponseDto {
 ## Validation Rules
 - **Camera Name**: Required, max 100 characters
 - **Camera Model**: Required, max 100 characters
-- **IP Address**: Required, must be valid IPv4 or IPv6 format
+- **IP Address**: Required, must be valid IPv4, IPv6, or hostname format
 - **Username**: Required, max 50 characters
 - **Password**: Required, max 255 characters
 - **Port**: Required, must be between 1 and 65535

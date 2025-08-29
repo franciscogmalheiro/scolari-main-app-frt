@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface FieldDto {
   id?: number;
@@ -26,7 +27,7 @@ export interface FieldResponseDto {
   providedIn: 'root'
 })
 export class FieldService {
-  private readonly API_BASE_URL = '/api/fields';
+  private readonly API_BASE_URL = `${environment.apiUrl}/fields`;
 
   constructor(private http: HttpClient) {}
 
