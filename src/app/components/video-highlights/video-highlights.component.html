@@ -1,0 +1,183 @@
+<div class="video-highlights-container">
+  <app-header></app-header>
+
+  <main class="main-content">
+    <div class="highlights-card">
+      <!-- Header -->
+      <div class="card-header">
+        <button class="back-button" (click)="onBackClick()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="page-title">Video Highlights</h1>
+        <div class="match-info">
+          <span class="match-code">Game ID: {{ matchCode }}</span>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="content-section">
+        <div class="loading-section" *ngIf="isLoading">
+          <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+          </div>
+          <h2>Loading Video Highlights</h2>
+          <p>Please wait while we fetch the highlights for this match...</p>
+        </div>
+
+        <div class="error-section" *ngIf="errorMessage">
+          <div class="error-icon">⚠️</div>
+          <h2>Error Loading Highlights</h2>
+          <p>{{ errorMessage }}</p>
+          <button class="retry-button" (click)="loadVideoHighlights()">
+            <i class="fas fa-redo"></i>
+            Try Again
+          </button>
+        </div>
+
+        <div class="highlights-section" *ngIf="!isLoading && !errorMessage && videoHighlights.length > 0">
+          <div class="highlights-header">
+            <h2 class="highlights-title">Available Highlights</h2>
+            <div class="highlights-counter">
+              {{ videoHighlights.length }} highlight{{ videoHighlights.length !== 1 ? 's' : '' }} found
+            </div>
+          </div>
+
+          <div class="highlights-grid">
+            <div 
+              class="highlight-card" 
+              *ngFor="let highlight of videoHighlights"
+              [class.selected]="isHighlightSelected(highlight)"
+              (click)="onSelectHighlight(highlight)">
+              <div class="highlight-header">
+                <div class="highlight-icon">
+                  <span>⭐</span>
+                </div>
+                <div class="highlight-name">
+                  <h3>{{ highlight.name }}</h3>
+                </div>
+              </div>
+              
+              <div class="highlight-details">
+                <div class="detail-row">
+                  <span class="detail-label">Created:</span>
+                  <span class="detail-value">{{ videoHighlightsService.formatDateTime(highlight.creationDateTime) }}</span>
+                </div>
+                <div class="detail-row" *ngIf="highlight.sizeBytes">
+                  <span class="detail-label">Size:</span>
+                  <span class="detail-value">{{ videoHighlightsService.formatFileSize(highlight.sizeBytes) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Status:</span>
+                  <span class="detail-value available">Available</span>
+                </div>
+              </div>
+
+              <!-- Video Preview Section -->
+              <div class="video-preview-section" *ngIf="currentPreviewHighlight?.id === highlight.id">
+                <div class="video-container">
+                  <video 
+                    #videoPlayer
+                    [src]="getVideoUrl(highlight)" 
+                    [autoplay]="isVideoPlaying"
+                    [muted]="true"
+                    [loop]="true"
+                    [controls]="false"
+                    class="preview-video"
+                    (loadedmetadata)="onVideoLoaded()"
+                    (ended)="onVideoEnded()"
+                    (error)="onVideoError($event)">
+                    Your browser does not support the video tag.
+                  </video>
+                  <div class="video-overlay" *ngIf="!isVideoPlaying">
+                    <button 
+                      class="play-button" 
+                      (click)="toggleVideoPlayback(); $event.stopPropagation()"
+                      aria-label="Play video preview"
+                      title="Play video preview">
+                      <i class="fas fa-play"></i>
+                    </button>
+                  </div>
+                  <div class="video-overlay pause-overlay" *ngIf="isVideoPlaying" (click)="toggleVideoPlayback(); $event.stopPropagation()">
+                    <div class="pause-indicator">
+                      <i class="fas fa-pause"></i>
+                    </div>
+                  </div>
+                  <button 
+                    class="close-video-button" 
+                    (click)="closeVideoPreview(); $event.stopPropagation()"
+                    aria-label="Close video preview"
+                    title="Close video preview">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="highlight-actions">
+                                  <button 
+                    class="preview-button"
+                    (click)="onPreviewHighlight(highlight); $event.stopPropagation()"
+                    [disabled]="!highlight.presignedUrl"
+                    [attr.aria-label]="highlight.presignedUrl ? 'Preview ' + highlight.name : 'No preview available for ' + highlight.name"
+                    title="{{ highlight.presignedUrl ? 'Preview ' + highlight.name : 'No preview available' }}">
+                    <i class="fas" [class.fa-play]="highlight.presignedUrl" [class.fa-video-slash]="!highlight.presignedUrl"></i>
+                    {{ highlight.presignedUrl ? 'Preview' : 'No Preview' }}
+                  </button>
+                <button 
+                  class="select-button"
+                  [class.selected]="isHighlightSelected(highlight)">
+                  <i class="fas" [class.fa-check-circle]="isHighlightSelected(highlight)" [class.fa-circle]="!isHighlightSelected(highlight)"></i>
+                  {{ isHighlightSelected(highlight) ? 'Selected' : 'Select' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Highlights List -->
+        <div class="selected-highlights-section" *ngIf="selectedHighlights.length > 0">
+          <div class="selected-highlights-header">
+            <h3 class="selected-title">Selected Highlights ({{ selectedHighlights.length }})</h3>
+          </div>
+          
+          <div class="selected-highlights-list">
+            <div 
+              class="selected-highlight-item" 
+              *ngFor="let highlight of selectedHighlights">
+              <div class="selected-highlight-icon">
+                <span>⭐</span>
+              </div>
+              <div class="selected-highlight-info">
+                <span class="selected-highlight-name">{{ highlight.name }}</span>
+                <span class="selected-highlight-size" *ngIf="highlight.sizeBytes">{{ videoHighlightsService.formatFileSize(highlight.sizeBytes) }}</span>
+              </div>
+              <button 
+                class="remove-button" 
+                (click)="removeSelectedHighlight(highlight)"
+                title="Remove from selection">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-section" *ngIf="!isLoading && !errorMessage && videoHighlights.length === 0">
+          <div class="empty-icon">📹</div>
+          <h2>No Highlights Found</h2>
+          <p>No video highlights were found for this match.</p>
+          <button class="back-to-download-button" (click)="onBackClick()">
+            <i class="fas fa-arrow-left"></i>
+            Back to Download Options
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="card-footer" *ngIf="!isLoading && !errorMessage && videoHighlights.length > 0">
+        <button class="download-selected-button" (click)="onDownloadSelected()">
+          <i class="fas fa-download"></i>
+          Download {{ selectedHighlights.length }} Selected Highlight{{ selectedHighlights.length !== 1 ? 's' : '' }}
+        </button>
+      </div>
+    </div>
+  </main>
+</div>

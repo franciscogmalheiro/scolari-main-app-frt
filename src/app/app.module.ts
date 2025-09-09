@@ -20,6 +20,7 @@ import { ConfirmationModalComponent } from './components/confirmation-modal/conf
 import { DownloadVideoComponent } from './components/download-video/download-video.component';
 import { GameSetupComponent } from './components/game-setup/game-setup.component';
 import { SelectedMomentsComponent } from './components/selected-moments/selected-moments.component';
+import { VideoHighlightsComponent } from './components/video-highlights/video-highlights.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { FieldManagementComponent } from './components/field-management/field-management.component';
 import { ClubManagementComponent } from './components/club-management/club-management.component';
@@ -48,6 +49,7 @@ import { FieldCameraService } from './services/field-camera.service';
     DownloadVideoComponent,
     GameSetupComponent,
     SelectedMomentsComponent,
+    VideoHighlightsComponent,
     AdminDashboardComponent,
     FieldManagementComponent,
     ClubManagementComponent,

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DownloadFormStateService } from '../../services/download-form-state.service';
 
 interface DownloadOption {
   id: string;
@@ -50,7 +51,8 @@ export class DownloadVideoComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private downloadFormStateService: DownloadFormStateService
   ) {
     this.downloadForm = this.fb.group({
       gameId: ['', [Validators.required, Validators.minLength(4)]],
@@ -59,13 +61,27 @@ export class DownloadVideoComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Check if game ID is provided in URL
-    this.route.params.subscribe(params => {
-      if (params['gameId']) {
-        this.gameId = params['gameId'];
-        this.downloadForm.patchValue({ gameId: this.gameId });
-      }
-    });
+    // Check if there's a saved form state to restore
+    const savedState = this.downloadFormStateService.getFormState();
+    if (savedState) {
+      this.gameId = savedState.gameId;
+      this.voucherCode = savedState.voucherCode;
+      this.isGameValid = savedState.isGameValid;
+      this.downloadForm.patchValue({
+        gameId: this.gameId,
+        voucherCode: this.voucherCode
+      });
+      // Clear the saved state after restoring
+      this.downloadFormStateService.clearFormState();
+    } else {
+      // Check if game ID is provided in URL
+      this.route.params.subscribe(params => {
+        if (params['gameId']) {
+          this.gameId = params['gameId'];
+          this.downloadForm.patchValue({ gameId: this.gameId });
+        }
+      });
+    }
   }
 
   onSubmit(): void {
@@ -95,9 +111,20 @@ export class DownloadVideoComponent implements OnInit {
   }
 
   onDownloadOptionClick(option: DownloadOption): void {
+    // Save the current form state before navigating
+    const currentState = {
+      gameId: this.downloadForm.value.gameId,
+      voucherCode: this.downloadForm.value.voucherCode,
+      isGameValid: this.isGameValid
+    };
+    this.downloadFormStateService.saveFormState(currentState);
+
     if (option.id === 'selected-moments') {
       const matchCode = this.downloadForm.value.gameId;
       this.router.navigate(['/selected-moments', matchCode]);
+    } else if (option.id === 'highlights') {
+      const matchCode = this.downloadForm.value.gameId;
+      this.router.navigate(['/video-highlights', matchCode]);
     } else {
       console.log(`Downloading ${option.title} for game ${this.downloadForm.value.gameId}`);
       // Implement actual download logic here

@@ -7,6 +7,7 @@ import { ScoreGameComponent } from './components/score-game/score-game.component
 import { RecordInstructionsComponent } from './components/record-instructions/record-instructions.component';
 import { DownloadVideoComponent } from './components/download-video/download-video.component';
 import { SelectedMomentsComponent } from './components/selected-moments/selected-moments.component';
+import { VideoHighlightsComponent } from './components/video-highlights/video-highlights.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
@@ -21,6 +22,7 @@ const routes: Routes = [
   { path: 'download-video', component: DownloadVideoComponent },
   { path: 'download-video/:gameId', component: DownloadVideoComponent },
   { path: 'selected-moments/:matchCode', component: SelectedMomentsComponent },
+  { path: 'video-highlights/:matchCode', component: VideoHighlightsComponent },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [AdminGuard] },
   { path: '**', redirectTo: '/login' }
 ];
