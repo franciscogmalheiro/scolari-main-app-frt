@@ -11,6 +11,7 @@ import { VideoHighlightsComponent } from './components/video-highlights/video-hi
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
+import { MatchHistoryComponent } from './components/match-history/match-history.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -21,6 +22,7 @@ const routes: Routes = [
   { path: 'record-instructions', component: RecordInstructionsComponent },
   { path: 'download-video', component: DownloadVideoComponent },
   { path: 'download-video/:gameId', component: DownloadVideoComponent },
+  { path: 'match-history', component: MatchHistoryComponent },
   { path: 'selected-moments/:matchCode', component: SelectedMomentsComponent },
   { path: 'video-highlights/:matchCode', component: VideoHighlightsComponent },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [AdminGuard] },

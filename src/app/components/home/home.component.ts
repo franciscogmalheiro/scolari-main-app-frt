@@ -42,6 +42,16 @@ export class HomeComponent implements OnInit {
       buttonText: 'ACESSO AOS VÍDEOS',
       requiresAuth: true,
       disabled: false
+    },
+    {
+      id: 'match-history',
+      title: 'HISTÓRICO DE JOGOS',
+      description: 'Consulta os jogos anteriores do teu campo e acede rapidamente aos vídeos.',
+      icon: '🗂️',
+      gradient: 'linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)',
+      buttonText: 'VER HISTÓRICO',
+      requiresAuth: true,
+      disabled: false
     }
   ];
 
@@ -93,6 +103,9 @@ export class HomeComponent implements OnInit {
       case 'download-video':
         this.openVideoLibrary();
         break;
+      case 'match-history':
+        this.openMatchHistory();
+        break;
     }
   }
 
@@ -140,6 +153,7 @@ export class HomeComponent implements OnInit {
     if (mode === 'score') {
       // For score mode, navigate to score game
       const queryParams = {
+        fieldId: this.currentUser?.fieldId,
         sportId: sport.id,
         sportName: sport.name,
         mode: mode
@@ -163,5 +177,10 @@ export class HomeComponent implements OnInit {
   private openVideoLibrary(): void {
     console.log('Opening Video Library...');
     this.router.navigate(['/download-video']);
+  }
+
+  private openMatchHistory(): void {
+    console.log('Opening Match History...');
+    this.router.navigate(['/match-history']);
   }
 }

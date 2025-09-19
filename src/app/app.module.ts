@@ -26,6 +26,7 @@ import { FieldManagementComponent } from './components/field-management/field-ma
 import { ClubManagementComponent } from './components/club-management/club-management.component';
 import { UserManagementComponent } from './components/user-management/user-management.component';
 import { FieldCameraManagementComponent } from './components/field-camera-management/field-camera-management.component';
+import { MatchHistoryComponent } from './components/match-history/match-history.component';
 import { SportService } from './services/sport.service';
 import { ClubService } from './services/club.service';
 import { ClubFieldService } from './services/club-field.service';
@@ -54,7 +55,8 @@ import { FieldCameraService } from './services/field-camera.service';
     FieldManagementComponent,
     ClubManagementComponent,
     UserManagementComponent,
-    FieldCameraManagementComponent
+    FieldCameraManagementComponent,
+    MatchHistoryComponent
   ],
   imports: [
     BrowserModule,

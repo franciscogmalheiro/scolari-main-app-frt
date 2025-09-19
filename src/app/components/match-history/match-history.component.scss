@@ -1,0 +1,95 @@
+.match-history-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+}
+
+.content {
+  padding: 100px 2rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #00ff88;
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  margin: 0;
+  color: #a0a0a0;
+  font-weight: 300;
+}
+
+.table-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.match-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #eaeaea;
+}
+
+.match-table th, .match-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.match-table thead th {
+  text-align: left;
+  color: #a0a0a0;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.match-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}
+
+.actions {
+  text-align: right;
+}
+
+.camera-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 18px rgba(118, 75, 162, 0.4);
+}
+
+.camera-btn:hover { transform: translateY(-1px); }
+.camera-btn:active { transform: translateY(0); }
+
+.loading { color: #a0a0a0; }
+.error { color: #ff6b6b; }
+.empty { color: #777; }
+
+.no-record {
+  color: #555;
+}
+
+

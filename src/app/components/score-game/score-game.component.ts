@@ -222,9 +222,10 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.events.push(finishEvent);
     this.sendEventToBackend(finishEvent);
 
-    // First call the finish endpoint, then upload events
+    // First call the finish endpoint with finalResult, then upload events
     if (this.gameId) {
-      this.matchService.finishMatch(this.gameId).subscribe({
+      const finalResult = this.getCurrentResult();
+      this.matchService.finishMatch(this.gameId, finalResult).subscribe({
         next: (response) => {
           console.log('Match finished successfully:', response);
           // Upload events to backend after finishing the match

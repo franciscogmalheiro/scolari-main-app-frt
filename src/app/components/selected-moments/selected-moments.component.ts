@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatchService, MatchEventResponseDto } from '../../services/match.service';
 import { environment } from '../../../environments/environment';
@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './selected-moments.component.html',
   styleUrls: ['./selected-moments.component.scss']
 })
-export class SelectedMomentsComponent implements OnInit {
+export class SelectedMomentsComponent implements OnInit, OnDestroy {
   @ViewChild('videoPlayer', { static: false }) videoPlayer!: ElementRef<HTMLVideoElement>;
   
   matchCode = '';
@@ -21,6 +21,8 @@ export class SelectedMomentsComponent implements OnInit {
   isAnimating = false;
   currentPreviewEvent: MatchEventResponseDto | null = null;
   isVideoPlaying = false;
+  private videoUrlCache = new Map<number, string>(); // Cache for video URLs
+  private videoBlobCache = new Map<number, string>(); // Cache for blob URLs
 
   constructor(
     private router: Router,
@@ -119,6 +121,8 @@ export class SelectedMomentsComponent implements OnInit {
     } else {
       this.currentPreviewEvent = event;
       this.isVideoPlaying = true;
+      // Preload video if not cached
+      this.preloadVideo(event);
     }
   }
 
@@ -213,6 +217,51 @@ export class SelectedMomentsComponent implements OnInit {
   getVideoUrl(event: MatchEventResponseDto): string {
     if (!event.presignedUrl) return '';
     const videoId = event.videoSegmentId;
+    
+    // Return cached blob URL if available
+    if (this.videoBlobCache.has(videoId)) {
+      return this.videoBlobCache.get(videoId)!;
+    }
+    
+    // Return backend URL (will be replaced by blob URL after download)
     return `${environment.apiUrl}/video-segments/${videoId}/download`;
+  }
+
+  private async preloadVideo(event: MatchEventResponseDto): Promise<void> {
+    const videoId = event.videoSegmentId;
+    
+    // Skip if already cached
+    if (this.videoBlobCache.has(videoId)) {
+      return;
+    }
+    
+    try {
+      const backendUrl = `${environment.apiUrl}/video-segments/${videoId}/download`;
+      const response = await fetch(backendUrl, { method: 'GET' });
+      
+      if (!response.ok) {
+        console.error(`Failed to fetch video ${videoId}: ${response.status}`);
+        return;
+      }
+      
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      
+      // Cache the blob URL
+      this.videoBlobCache.set(videoId, blobUrl);
+      
+      // Update the video source if this is the currently previewed event
+      if (this.currentPreviewEvent?.id === event.id && this.videoPlayer) {
+        this.videoPlayer.nativeElement.src = blobUrl;
+      }
+    } catch (error) {
+      console.error(`Error preloading video ${videoId}:`, error);
+    }
+  }
+
+  ngOnDestroy(): void {
+    // Clean up blob URLs to prevent memory leaks
+    this.videoBlobCache.forEach(blobUrl => URL.revokeObjectURL(blobUrl));
+    this.videoBlobCache.clear();
   }
 } 

@@ -1,0 +1,46 @@
+<div class="match-history-page">
+  <app-header></app-header>
+  <main class="content">
+    <section class="section-header">
+      <h2 class="title">Histórico de Jogos</h2>
+      <p class="subtitle">Consulta e acede rapidamente às gravações</p>
+    </section>
+
+    <section class="table-card">
+      <div *ngIf="isLoading" class="loading">A carregar…</div>
+      <div *ngIf="!isLoading && errorMessage" class="error">{{ errorMessage }}</div>
+
+      <div *ngIf="!isLoading && !errorMessage && matches.length" class="table-wrapper">
+        <table class="match-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Modalidade</th>
+              <th>Início</th>
+              <th>Fim</th>
+              <th>Resultado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of matches">
+              <td class="mono">{{ m.matchCode }}</td>
+              <td>{{ m.sportName }}</td>
+              <td>{{ m.startDateTime | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ m.finishDateTime | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ m.teamAName }} {{ m.finalResult }} {{ m.teamBName }}</td>
+              <td class="actions">
+                <button *ngIf="m.recordMode" class="camera-btn" title="Aceder ao Download" (click)="goToDownload(m.matchCode)">📷</button>
+                <span *ngIf="!m.recordMode" class="no-record">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!isLoading && !errorMessage && !matches.length" class="empty">Sem jogos ainda.</div>
+    </section>
+  </main>
+</div>
+
+
