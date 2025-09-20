@@ -220,9 +220,15 @@
   transition: all 0.3s ease;
   text-decoration: none;
   
-  &:hover {
+  &:hover:not(.disabled) {
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
   }
   
   .option-icon {
@@ -245,6 +251,13 @@
       margin: 0;
       opacity: 0.9;
     }
+
+    .option-unavailable {
+      font-size: 0.8rem;
+      margin: 0.5rem 0 0 0;
+      opacity: 0.8;
+      font-style: italic;
+    }
   }
   
   .option-arrow {
@@ -253,7 +266,12 @@
     transition: transform 0.3s ease;
   }
   
-  &:hover .option-arrow {
+  .option-disabled-icon {
+    font-size: 1.2rem;
+    opacity: 0.8;
+  }
+  
+  &:hover:not(.disabled) .option-arrow {
     transform: translateX(5px);
   }
 }

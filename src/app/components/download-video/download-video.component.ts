@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DownloadFormStateService } from '../../services/download-form-state.service';
+import { MatchService } from '../../services/match.service';
+import { VideoHighlightsService } from '../../services/video-highlights.service';
+import { forkJoin } from 'rxjs';
 
 interface DownloadOption {
   id: string;
@@ -9,6 +12,7 @@ interface DownloadOption {
   description: string;
   icon: string;
   gradient: string;
+  disabled: boolean;
 }
 
 @Component({
@@ -26,25 +30,20 @@ export class DownloadVideoComponent implements OnInit {
 
   downloadOptions: DownloadOption[] = [
     {
-      id: 'full-game',
-      title: 'Full Game',
-      description: 'Download the complete match recording',
-      icon: '🎥',
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    },
-    {
       id: 'highlights',
       title: 'Highlights',
       description: 'Download only the best moments and goals',
       icon: '⭐',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      disabled: false
     },
     {
       id: 'selected-moments',
       title: 'Selected Moments',
       description: 'Choose specific moments to download',
       icon: '🎯',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      disabled: false
     }
   ];
 
@@ -52,7 +51,9 @@ export class DownloadVideoComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private fb: FormBuilder,
-    private downloadFormStateService: DownloadFormStateService
+    private downloadFormStateService: DownloadFormStateService,
+    private matchService: MatchService,
+    private videoHighlightsService: VideoHighlightsService
   ) {
     this.downloadForm = this.fb.group({
       gameId: ['', [Validators.required, Validators.minLength(4)]],
@@ -101,6 +102,7 @@ export class DownloadVideoComponent implements OnInit {
       // Mock validation - replace with actual backend validation
       if (gameId && voucherCode) {
         this.isGameValid = true;
+        this.checkDataAvailability(gameId);
         this.isLoading = false;
       } else {
         this.errorMessage = 'Invalid game ID or voucher code. Please try again.';
@@ -111,6 +113,10 @@ export class DownloadVideoComponent implements OnInit {
   }
 
   onDownloadOptionClick(option: DownloadOption): void {
+    if (option.disabled) {
+      return;
+    }
+
     // Save the current form state before navigating
     const currentState = {
       gameId: this.downloadForm.value.gameId,
@@ -125,10 +131,6 @@ export class DownloadVideoComponent implements OnInit {
     } else if (option.id === 'highlights') {
       const matchCode = this.downloadForm.value.gameId;
       this.router.navigate(['/video-highlights', matchCode]);
-    } else {
-      console.log(`Downloading ${option.title} for game ${this.downloadForm.value.gameId}`);
-      // Implement actual download logic here
-      alert(`Starting download for ${option.title}...`);
     }
   }
 
@@ -142,5 +144,34 @@ export class DownloadVideoComponent implements OnInit {
     if (this.gameId) {
       this.downloadForm.patchValue({ gameId: this.gameId });
     }
+  }
+
+  private checkDataAvailability(matchCode: string): void {
+    // Make both API calls to check for data availability
+    const matchEventsCall = this.matchService.getMatchEvents(matchCode);
+    const videoHighlightsCall = this.videoHighlightsService.getVideoHighlights(matchCode);
+
+    forkJoin([matchEventsCall, videoHighlightsCall]).subscribe({
+      next: ([matchEvents, videoHighlights]) => {
+        // Update button states based on data availability
+        const highlightsOption = this.downloadOptions.find(option => option.id === 'highlights');
+        const selectedMomentsOption = this.downloadOptions.find(option => option.id === 'selected-moments');
+
+        if (highlightsOption) {
+          highlightsOption.disabled = !videoHighlights || videoHighlights.length === 0;
+        }
+
+        if (selectedMomentsOption) {
+          selectedMomentsOption.disabled = !matchEvents || matchEvents.length === 0;
+        }
+      },
+      error: (error) => {
+        console.error('Error checking data availability:', error);
+        // If there's an error, disable both buttons as a safety measure
+        this.downloadOptions.forEach(option => {
+          option.disabled = true;
+        });
+      }
+    });
   }
 } 

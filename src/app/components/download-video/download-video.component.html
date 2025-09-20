@@ -86,6 +86,7 @@
             class="download-option"
             *ngFor="let option of downloadOptions"
             [style.background]="option.gradient"
+            [class.disabled]="option.disabled"
             (click)="onDownloadOptionClick(option)">
             <div class="option-icon">
               <span [innerHTML]="option.icon"></span>
@@ -93,9 +94,15 @@
             <div class="option-content">
               <h3 class="option-title">{{ option.title }}</h3>
               <p class="option-description">{{ option.description }}</p>
+              <p class="option-unavailable" *ngIf="option.disabled">
+                No {{ option.title.toLowerCase() }} available for this match
+              </p>
             </div>
-            <div class="option-arrow">
+            <div class="option-arrow" *ngIf="!option.disabled">
               <i class="fas fa-arrow-right"></i>
+            </div>
+            <div class="option-disabled-icon" *ngIf="option.disabled">
+              <i class="fas fa-lock"></i>
             </div>
           </div>
         </div>

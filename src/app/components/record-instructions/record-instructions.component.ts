@@ -134,8 +134,8 @@ export class RecordInstructionsComponent implements OnInit {
   }
 
   onBackClick(): void {
-    // Navigate back to previous page
-    this.router.navigate(['../'], { relativeTo: this.route, queryParams: this.queryParams });
+    // Navigate back to home page
+    this.router.navigate(['/home']);
   }
 
   retryCameraCheck(): void {

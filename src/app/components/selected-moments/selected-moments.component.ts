@@ -164,22 +164,62 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
   }
 
   private async downloadEvent(event: MatchEventResponseDto): Promise<void> {
-    const url = this.getVideoUrl(event);
-    if (!url) return;
+    let response: Response;
+    let urlUsed: string;
+    
+    try {
+      // Try presigned URL first if available
+      if (event.presignedUrl) {
+        try {
+          response = await fetch(event.presignedUrl, { 
+            method: 'GET',
+            mode: 'cors' // Explicitly set CORS mode
+          });
+          
+          // Check if response is ok (not 403, 404, etc.)
+          if (!response.ok) {
+            throw new Error(`Presigned URL returned ${response.status}: ${response.statusText}`);
+          }
+          
+          urlUsed = event.presignedUrl;
+        } catch (presignedError: any) {
+          const shouldRetry = this.shouldRetryPresignedUrl(presignedError);
+          console.warn(`Presigned URL failed for download of video ${event.videoSegmentId} (${presignedError.message}), ${shouldRetry ? 'falling back to backend' : 'not retrying'}`);
+          
+          if (shouldRetry) {
+            // Fallback to backend URL
+            const backendUrl = `${environment.apiUrl}/video-segments/${event.videoSegmentId}/download`;
+            response = await fetch(backendUrl, { method: 'GET' });
+            urlUsed = backendUrl;
+          } else {
+            throw presignedError; // Re-throw if we shouldn't retry
+          }
+        }
+      } else {
+        // No presigned URL, use backend directly
+        const backendUrl = `${environment.apiUrl}/video-segments/${event.videoSegmentId}/download`;
+        response = await fetch(backendUrl, { method: 'GET' });
+        urlUsed = backendUrl;
+      }
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch video from ${urlUsed}: ${response.status}`);
+      }
 
-    const response = await fetch(url, { method: 'GET' });
-    if (!response.ok) throw new Error(`Failed to fetch video: ${response.status}`);
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
 
-    const blob = await response.blob();
-    const objectUrl = URL.createObjectURL(blob);
-
-    const anchor = document.createElement('a');
-    anchor.href = objectUrl;
-    anchor.download = this.buildFilenameForEvent(event);
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
-    URL.revokeObjectURL(objectUrl);
+      const anchor = document.createElement('a');
+      anchor.href = objectUrl;
+      anchor.download = this.buildFilenameForEvent(event);
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error(`Error downloading video ${event.videoSegmentId}:`, error);
+      throw error;
+    }
   }
 
   async onDownloadSelected(): Promise<void> {
@@ -210,12 +250,41 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
 
   onVideoError(event: any): void {
     const videoElement = event.target as HTMLVideoElement;
-    console.error('Video error', videoElement.error);
+    const error = videoElement.error;
+    console.error('Video error', error);
+    
+    // Check if we're using a presigned URL and it failed
+    if (this.currentPreviewEvent?.presignedUrl && videoElement.src === this.currentPreviewEvent.presignedUrl) {
+      console.warn('Presigned URL failed, attempting fallback to backend...');
+      this.preloadVideo(this.currentPreviewEvent);
+    } else if (error && error.code) {
+      // Log specific error codes for debugging
+      const errorMessages = {
+        1: 'MEDIA_ERR_ABORTED',
+        2: 'MEDIA_ERR_NETWORK', 
+        3: 'MEDIA_ERR_DECODE',
+        4: 'MEDIA_ERR_SRC_NOT_SUPPORTED'
+      };
+      console.warn(`Video error code ${error.code}: ${errorMessages[error.code as keyof typeof errorMessages] || 'Unknown error'}`);
+    }
   }
 
-  // Method to get video URL from backend endpoint
+  // Helper method to check if presigned URL should be retried
+  private shouldRetryPresignedUrl(error: any): boolean {
+    // Don't retry if it's a network error or CORS issue
+    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+      return false;
+    }
+    // Don't retry if it's a 404 (file not found)
+    if (error.message && error.message.includes('404')) {
+      return false;
+    }
+    // Retry for 403 (expired), 500 (server error), etc.
+    return true;
+  }
+
+  // Method to get video URL - prioritizes presigned URL over backend endpoint
   getVideoUrl(event: MatchEventResponseDto): string {
-    if (!event.presignedUrl) return '';
     const videoId = event.videoSegmentId;
     
     // Return cached blob URL if available
@@ -223,7 +292,12 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
       return this.videoBlobCache.get(videoId)!;
     }
     
-    // Return backend URL (will be replaced by blob URL after download)
+    // Prioritize presigned URL if available
+    if (event.presignedUrl) {
+      return event.presignedUrl;
+    }
+    
+    // Fallback to backend URL
     return `${environment.apiUrl}/video-segments/${videoId}/download`;
   }
 
@@ -236,11 +310,45 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
     }
     
     try {
-      const backendUrl = `${environment.apiUrl}/video-segments/${videoId}/download`;
-      const response = await fetch(backendUrl, { method: 'GET' });
+      let response: Response;
+      let urlUsed: string;
+      
+      // Try presigned URL first if available
+      if (event.presignedUrl) {
+        try {
+          response = await fetch(event.presignedUrl, { 
+            method: 'GET',
+            mode: 'cors' // Explicitly set CORS mode
+          });
+          
+          // Check if response is ok (not 403, 404, etc.)
+          if (!response.ok) {
+            throw new Error(`Presigned URL returned ${response.status}: ${response.statusText}`);
+          }
+          
+          urlUsed = event.presignedUrl;
+        } catch (presignedError: any) {
+          const shouldRetry = this.shouldRetryPresignedUrl(presignedError);
+          console.warn(`Presigned URL failed for video ${videoId} (${presignedError.message}), ${shouldRetry ? 'falling back to backend' : 'not retrying'}`);
+          
+          if (shouldRetry) {
+            // Fallback to backend URL
+            const backendUrl = `${environment.apiUrl}/video-segments/${videoId}/download`;
+            response = await fetch(backendUrl, { method: 'GET' });
+            urlUsed = backendUrl;
+          } else {
+            throw presignedError; // Re-throw if we shouldn't retry
+          }
+        }
+      } else {
+        // No presigned URL, use backend directly
+        const backendUrl = `${environment.apiUrl}/video-segments/${videoId}/download`;
+        response = await fetch(backendUrl, { method: 'GET' });
+        urlUsed = backendUrl;
+      }
       
       if (!response.ok) {
-        console.error(`Failed to fetch video ${videoId}: ${response.status}`);
+        console.error(`Failed to fetch video ${videoId} from ${urlUsed}: ${response.status}`);
         return;
       }
       
