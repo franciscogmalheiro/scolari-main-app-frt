@@ -55,6 +55,6 @@ export class FieldCameraService {
   }
 
   checkCameraHealth(id: number): Observable<any> {
-    return this.http.get(`/api/hikvision/cameras/${id}/health`);
+    return this.http.get(`/api/field-cameras/${id}/health`);
   }
 } 
