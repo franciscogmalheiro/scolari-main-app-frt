@@ -1,25 +1,28 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatchService, MatchEventResponseDto } from '../../services/match.service';
+import { VideoHighlightsService, VideoHighlight } from '../../services/video-highlights.service';
+import { DownloadFormStateService } from '../../services/download-form-state.service';
 import { environment } from '../../../environments/environment';
+import { forkJoin } from 'rxjs';
 
 @Component({
-  selector: 'app-selected-moments',
-  templateUrl: './selected-moments.component.html',
-  styleUrls: ['./selected-moments.component.scss']
+  selector: 'app-video-library',
+  templateUrl: './video-library.component.html',
+  styleUrls: ['./video-library.component.scss']
 })
-export class SelectedMomentsComponent implements OnInit, OnDestroy {
+export class VideoLibraryComponent implements OnInit, OnDestroy {
   @ViewChild('videoPlayer', { static: false }) videoPlayer!: ElementRef<HTMLVideoElement>;
   
   matchCode = '';
   matchEvents: MatchEventResponseDto[] = [];
-  currentCarouselIndex = 0;
+  videoHighlights: VideoHighlight[] = [];
+  allVideos: (MatchEventResponseDto | VideoHighlight)[] = [];
   isLoadingEvents = false;
   errorMessage = '';
-  selectedEvents: MatchEventResponseDto[] = [];
+  selectedEvents: (MatchEventResponseDto | VideoHighlight)[] = [];
   Math = Math; // Make Math available in template
-  isAnimating = false;
-  currentPreviewEvent: MatchEventResponseDto | null = null;
+  currentPreviewEvent: (MatchEventResponseDto | VideoHighlight) | null = null;
   isVideoPlaying = false;
   private videoUrlCache = new Map<number, string>(); // Cache for video URLs
   private videoBlobCache = new Map<number, string>(); // Cache for blob URLs
@@ -27,79 +30,92 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private matchService: MatchService
+    private matchService: MatchService,
+    private videoHighlightsService: VideoHighlightsService,
+    private downloadFormStateService: DownloadFormStateService
   ) {}
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       if (params['matchCode']) {
         this.matchCode = params['matchCode'];
-        this.loadMatchEvents();
+        this.loadAllVideos();
       }
     });
   }
 
-  loadMatchEvents(): void {
+  loadAllVideos(): void {
     this.isLoadingEvents = true;
     this.errorMessage = '';
     
-    this.matchService.getMatchEvents(this.matchCode).subscribe({
-      next: (events) => {
-        this.matchEvents = events;
+    const matchEventsCall = this.matchService.getMatchEvents(this.matchCode);
+    const videoHighlightsCall = this.videoHighlightsService.getVideoHighlights(this.matchCode);
+
+    forkJoin([matchEventsCall, videoHighlightsCall]).subscribe({
+      next: ([matchEvents, videoHighlights]) => {
+        this.matchEvents = matchEvents || [];
+        this.videoHighlights = videoHighlights || [];
+        
+        // Combine videos with highlights first
+        this.allVideos = [...this.videoHighlights, ...this.matchEvents];
         this.isLoadingEvents = false;
       },
       error: (error) => {
-        console.error('Error loading match events:', error);
-        this.errorMessage = 'Failed to load match events. Please try again.';
+        console.error('Error loading videos:', error);
+        this.errorMessage = 'Failed to load videos. Please try again.';
         this.isLoadingEvents = false;
       }
     });
   }
 
-  onCarouselPrevious(): void {
-    if (this.currentCarouselIndex > 0 && !this.isAnimating) {
-      this.isAnimating = true;
-      this.animateCarousel('left', () => {
-        this.currentCarouselIndex = Math.max(0, this.currentCarouselIndex - 3);
-        this.isAnimating = false;
-      });
-    }
-  }
-
-  onCarouselNext(): void {
-    if (this.currentCarouselIndex + 3 < this.matchEvents.length && !this.isAnimating) {
-      this.isAnimating = true;
-      this.animateCarousel('right', () => {
-        this.currentCarouselIndex = Math.min(this.matchEvents.length - 3, this.currentCarouselIndex + 3);
-        this.isAnimating = false;
-      });
-    }
-  }
-
-  private animateCarousel(direction: 'left' | 'right', callback: () => void): void {
-    const eventsGrid = document.querySelector('.events-grid') as HTMLElement;
-    if (eventsGrid) {
-      // Add slide animation class
-      const slideClass = direction === 'left' ? 'slide-left' : 'slide-right';
-      eventsGrid.classList.add(slideClass);
-      
-      // Remove class and execute callback after animation
-      setTimeout(() => {
-        eventsGrid.classList.remove(slideClass);
-        callback();
-      }, 400);
-    }
-  }
+  // Removed carousel navigation and animations
 
   onBackClick(): void {
+    // Clear any saved form state to reset the download form
+    this.downloadFormStateService.clearFormState();
     this.router.navigate(['/download-video']);
   }
 
-  getEventIcon(eventTypeName: string): string {
-    return eventTypeName === 'Goal' ? '⚽' : '⭐';
+  getEventIcon(event: MatchEventResponseDto | VideoHighlight): string {
+    if ('eventTypeName' in event) {
+      return event.eventTypeName === 'Goal' ? '⚽' : '⭐';
+    } else {
+      return '🎬'; // Video highlight icon
+    }
   }
 
-  onSelectMoment(event: MatchEventResponseDto): void {
+  getEventTime(event: MatchEventResponseDto | VideoHighlight): string {
+    if ('elapsedTime' in event) {
+      return event.elapsedTime;
+    } else {
+      return 'Resumo';
+    }
+  }
+
+  getEventName(event: MatchEventResponseDto | VideoHighlight): string {
+    if ('teamName' in event) {
+      return event.teamName;
+    } else {
+      return '';
+    }
+  }
+
+  isMatchEvent(event: MatchEventResponseDto | VideoHighlight): event is MatchEventResponseDto {
+    return 'eventTypeName' in event;
+  }
+
+  isGoal(event: MatchEventResponseDto | VideoHighlight): boolean {
+    return this.isMatchEvent(event) && event.eventTypeName === 'Goal' && !!(event as MatchEventResponseDto).result;
+  }
+
+  getEventResult(event: MatchEventResponseDto | VideoHighlight): string {
+    if (this.isMatchEvent(event) && event.result) {
+      return event.result;
+    }
+    return '';
+  }
+
+  onSelectMoment(event: MatchEventResponseDto | VideoHighlight): void {
     const isSelected = this.selectedEvents.some(selected => selected.id === event.id);
     
     if (isSelected) {
@@ -111,33 +127,16 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
     }
   }
 
-  onPreviewMoment(event: MatchEventResponseDto): void {
+  onPreviewMoment(event: MatchEventResponseDto | VideoHighlight): void {
     if (!event.presignedUrl) {
       return;
     }
-
-    if (this.currentPreviewEvent?.id === event.id) {
-      this.isVideoPlaying = !this.isVideoPlaying;
-    } else {
-      this.currentPreviewEvent = event;
-      this.isVideoPlaying = true;
-      // Preload video if not cached
-      this.preloadVideo(event);
-    }
+    this.currentPreviewEvent = event;
+    this.isVideoPlaying = true;
+    this.preloadVideo(event);
   }
 
-  toggleVideoPlayback(): void {
-    if (this.currentPreviewEvent && this.videoPlayer) {
-      const videoElement = this.videoPlayer.nativeElement;
-      if (this.isVideoPlaying) {
-        videoElement.pause();
-        this.isVideoPlaying = false;
-      } else {
-        videoElement.play().catch(() => {});
-        this.isVideoPlaying = true;
-      }
-    }
-  }
+  toggleVideoPlayback(): void {}
 
   // Check if video is ready to play
   isVideoReady(): boolean {
@@ -146,24 +145,25 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
     return videoElement.readyState >= 2; // HAVE_CURRENT_DATA
   }
 
-  isEventSelected(event: MatchEventResponseDto): boolean {
+  isEventSelected(event: MatchEventResponseDto | VideoHighlight): boolean {
     return this.selectedEvents.some(selected => selected.id === event.id);
   }
 
-  removeSelectedEvent(event: MatchEventResponseDto): void {
+  removeSelectedEvent(event: MatchEventResponseDto | VideoHighlight): void {
     this.selectedEvents = this.selectedEvents.filter(selected => selected.id !== event.id);
   }
 
-  private buildFilenameForEvent(event: MatchEventResponseDto): string {
+  private buildFilenameForEvent(event: MatchEventResponseDto | VideoHighlight): string {
     const parts: string[] = [];
-    if (event.elapsedTime) parts.push(event.elapsedTime.replace(/[^0-9A-Za-z_-]/g, ''));
-    if (event.teamName) parts.push(event.teamName.replace(/[^0-9A-Za-z_-]/g, ''));
-    if (event.eventTypeName) parts.push(event.eventTypeName.replace(/[^0-9A-Za-z_-]/g, ''));
-    const base = parts.filter(Boolean).join('_') || `moment_${event.id}`;
+    if ('elapsedTime' in event && event.elapsedTime) parts.push(event.elapsedTime.replace(/[^0-9A-Za-z_-]/g, ''));
+    if ('teamName' in event && event.teamName) parts.push(event.teamName.replace(/[^0-9A-Za-z_-]/g, ''));
+    if ('eventTypeName' in event && event.eventTypeName) parts.push(event.eventTypeName.replace(/[^0-9A-Za-z_-]/g, ''));
+    if (!('elapsedTime' in event)) parts.push('highlight');
+    const base = parts.filter(Boolean).join('_') || `video_${event.id}`;
     return `${base}.mp4`;
   }
 
-  private async downloadEvent(event: MatchEventResponseDto): Promise<void> {
+  private async downloadEvent(event: MatchEventResponseDto | VideoHighlight): Promise<void> {
     let response: Response;
     let urlUsed: string;
     
@@ -184,11 +184,14 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
           urlUsed = event.presignedUrl;
         } catch (presignedError: any) {
           const shouldRetry = this.shouldRetryPresignedUrl(presignedError);
-          console.warn(`Presigned URL failed for download of video ${event.videoSegmentId} (${presignedError.message}), ${shouldRetry ? 'falling back to backend' : 'not retrying'}`);
+          const videoId = 'videoSegmentId' in event ? event.videoSegmentId : event.id;
+          console.warn(`Presigned URL failed for download of video ${videoId} (${presignedError.message}), ${shouldRetry ? 'falling back to backend' : 'not retrying'}`);
           
           if (shouldRetry) {
             // Fallback to backend URL
-            const backendUrl = `${environment.apiUrl}/video-segments/${event.videoSegmentId}/download`;
+            const backendUrl = 'videoSegmentId' in event ? 
+              `${environment.apiUrl}/video-segments/${event.videoSegmentId}/download` :
+              `${environment.apiUrl}/video-highlights/${event.id}/download`;
             response = await fetch(backendUrl, { method: 'GET' });
             urlUsed = backendUrl;
           } else {
@@ -197,7 +200,9 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
         }
       } else {
         // No presigned URL, use backend directly
-        const backendUrl = `${environment.apiUrl}/video-segments/${event.videoSegmentId}/download`;
+        const backendUrl = 'videoSegmentId' in event ? 
+          `${environment.apiUrl}/video-segments/${event.videoSegmentId}/download` :
+          `${environment.apiUrl}/video-highlights/${event.id}/download`;
         response = await fetch(backendUrl, { method: 'GET' });
         urlUsed = backendUrl;
       }
@@ -217,7 +222,8 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
       document.body.removeChild(anchor);
       URL.revokeObjectURL(objectUrl);
     } catch (error) {
-      console.error(`Error downloading video ${event.videoSegmentId}:`, error);
+      const videoId = 'videoSegmentId' in event ? event.videoSegmentId : event.id;
+      console.error(`Error downloading video ${videoId}:`, error);
       throw error;
     }
   }
@@ -284,8 +290,8 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
   }
 
   // Method to get video URL - prioritizes presigned URL over backend endpoint
-  getVideoUrl(event: MatchEventResponseDto): string {
-    const videoId = event.videoSegmentId;
+  getVideoUrl(event: MatchEventResponseDto | VideoHighlight): string {
+    const videoId = 'videoSegmentId' in event ? event.videoSegmentId : event.id;
     
     // Return cached blob URL if available
     if (this.videoBlobCache.has(videoId)) {
@@ -298,11 +304,15 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
     }
     
     // Fallback to backend URL
-    return `${environment.apiUrl}/video-segments/${videoId}/download`;
+    if ('videoSegmentId' in event) {
+      return `${environment.apiUrl}/video-segments/${videoId}/download`;
+    } else {
+      return `${environment.apiUrl}/video-highlights/${videoId}/download`;
+    }
   }
 
-  private async preloadVideo(event: MatchEventResponseDto): Promise<void> {
-    const videoId = event.videoSegmentId;
+  private async preloadVideo(event: MatchEventResponseDto | VideoHighlight): Promise<void> {
+    const videoId = 'videoSegmentId' in event ? event.videoSegmentId : event.id;
     
     // Skip if already cached
     if (this.videoBlobCache.has(videoId)) {
@@ -333,7 +343,9 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
           
           if (shouldRetry) {
             // Fallback to backend URL
-            const backendUrl = `${environment.apiUrl}/video-segments/${videoId}/download`;
+            const backendUrl = 'videoSegmentId' in event ? 
+              `${environment.apiUrl}/video-segments/${videoId}/download` :
+              `${environment.apiUrl}/video-highlights/${videoId}/download`;
             response = await fetch(backendUrl, { method: 'GET' });
             urlUsed = backendUrl;
           } else {
@@ -342,7 +354,9 @@ export class SelectedMomentsComponent implements OnInit, OnDestroy {
         }
       } else {
         // No presigned URL, use backend directly
-        const backendUrl = `${environment.apiUrl}/video-segments/${videoId}/download`;
+        const backendUrl = 'videoSegmentId' in event ? 
+          `${environment.apiUrl}/video-segments/${videoId}/download` :
+          `${environment.apiUrl}/video-highlights/${videoId}/download`;
         response = await fetch(backendUrl, { method: 'GET' });
         urlUsed = backendUrl;
       }

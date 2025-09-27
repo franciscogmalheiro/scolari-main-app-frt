@@ -345,4 +345,24 @@
       font-size: 1.1rem;
     }
   }
+}
+
+.loading-section {
+  text-align: center;
+  padding: 2rem 0;
+  
+  .loading-spinner {
+    margin-bottom: 1rem;
+    
+    i {
+      font-size: 2rem;
+      color: #4facfe;
+    }
+  }
+  
+  p {
+    color: #666;
+    font-size: 1rem;
+    margin: 0;
+  }
 } 

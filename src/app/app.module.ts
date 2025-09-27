@@ -19,8 +19,7 @@ import { LiveIndicatorComponent } from './components/live-indicator/live-indicat
 import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
 import { DownloadVideoComponent } from './components/download-video/download-video.component';
 import { GameSetupComponent } from './components/game-setup/game-setup.component';
-import { SelectedMomentsComponent } from './components/selected-moments/selected-moments.component';
-import { VideoHighlightsComponent } from './components/video-highlights/video-highlights.component';
+import { VideoLibraryComponent } from './components/video-library/video-library.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { FieldManagementComponent } from './components/field-management/field-management.component';
 import { ClubManagementComponent } from './components/club-management/club-management.component';
@@ -49,8 +48,7 @@ import { FieldCameraService } from './services/field-camera.service';
     ConfirmationModalComponent,
     DownloadVideoComponent,
     GameSetupComponent,
-    SelectedMomentsComponent,
-    VideoHighlightsComponent,
+    VideoLibraryComponent,
     AdminDashboardComponent,
     FieldManagementComponent,
     ClubManagementComponent,

@@ -13,12 +13,14 @@
       <div class="timer-display" *ngIf="isMatchStarted">
         {{ formatTime(secondsElapsed) }}
       </div>
+      <!-- Finish Match Button (under timer) -->
+    
       <!-- Show start button when match hasn't started -->
       <button 
         *ngIf="!isMatchStarted && !isMatchFinished" 
         class="btn btn-start" 
         (click)="startMatch()">
-        <i class="fas fa-play"></i> START MATCH
+        <i class="fas fa-play"></i> COMEÇAR JOGO
       </button>
       <!-- Live Indicator positioned on the right -->
       <div class="live-indicator-container" *ngIf="isRecordingMode && isMatchStarted">
@@ -26,16 +28,11 @@
       </div>
     </div>
 
-    <!-- Finish Match Button (under timer) -->
-    <div class="finish-button-section" *ngIf="isMatchStarted && !isMatchFinished">
-      <button class="btn btn-finish-small" (click)="finishMatch()">
-        <i class="fas fa-stop"></i> FINISH
-      </button>
-    </div>
+    
 
     <!-- Final Result Display (under timer) -->
     <div *ngIf="showFinalResult" class="final-result">
-      <div class="ft-text">FULL TIME</div>
+      <div class="ft-text">FINAL DO JOGO</div>
     </div>
 
     <!-- Teams and Score Row -->
@@ -103,21 +100,21 @@
     <!-- Action Buttons Row -->
     <div class="row align-items-center justify-content-center mb-4" *ngIf="showControls">
       <!-- Team A Goal Button -->
-      <div class="col-3 text-end">
+      <div class="col-3 text-center">
         <button class="btn btn-goal team-a-goal" (click)="addTeamGoal('A')">
           <i class="fas fa-futbol"></i>
         </button>
       </div>
 
       <!-- Highlight Button -->
-      <div class="col-2 text-center">
+      <div class="col-5 text-center">
         <button class="btn btn-highlight" (click)="addHighlight()">
           <i class="fas fa-star"></i>
         </button>
       </div>
 
       <!-- Team B Goal Button -->
-      <div class="col-3 text-start">
+      <div class="col-3 text-center">
         <button class="btn btn-goal team-b-goal" (click)="addTeamGoal('B')">
           <i class="fas fa-futbol"></i>
         </button>
@@ -137,6 +134,12 @@
       (undoTeamA)="decreaseTeamGoal('A')"
       (undoTeamB)="decreaseTeamGoal('B')"
     ></app-event-log>
+
+    <div class="finish-button-section" *ngIf="isMatchStarted && !isMatchFinished">
+      <button class="btn btn-finish-small" (click)="finishMatch()">
+        <i class="fas fa-stop"></i> TERMINAR
+      </button>
+    </div>
   </div>
 
   <!-- Team Edit Modal -->
@@ -161,10 +164,10 @@
   <!-- Finish Match Confirmation Modal -->
   <app-confirmation-modal
     [isVisible]="showConfirmModal"
-    [title]="isRecordingMode ? 'Finish Match & Stop Recording' : 'Finish Match'"
-    [message]="isRecordingMode ? 'Are you sure you want to finish the match and stop recording?' : 'Are you sure you want to finish the match?'"
-    confirmText="Finish Match"
-    cancelText="Cancel"
+    [title]="isRecordingMode ? 'Finish Match & Stop Recording' : 'Terminar o Jogo'"
+    [message]="isRecordingMode ? 'Tens a certeza que queres terminar o jogo e parar a gravação?' : 'Tens a certeza que queres terminar o jogo?'"
+    confirmText="Terminar o Jogo"
+    cancelText="Cancelar"
     (confirm)="onConfirmFinishMatch()"
     (cancel)="onCancelFinishMatch()"
   ></app-confirmation-modal>

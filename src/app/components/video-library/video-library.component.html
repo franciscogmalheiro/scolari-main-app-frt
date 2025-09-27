@@ -1,0 +1,135 @@
+<div class="selected-moments-container">
+  <app-header></app-header>
+
+  <main class="main-content">
+    <div class="moments-card">
+      <!-- Header -->
+
+      <!-- Content -->
+      <div class="content-section">
+        <div class="loading-section" *ngIf="isLoadingEvents">
+          <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+          </div>
+          <h2>Loading Match Events</h2>
+          <p>Please wait while we fetch the goals and highlights...</p>
+        </div>
+
+        <div class="error-section" *ngIf="errorMessage">
+          <div class="error-icon">⚠️</div>
+          <h2>Error Loading Events</h2>
+          <p>{{ errorMessage }}</p>
+          <button class="retry-button" (click)="loadAllVideos()">
+            <i class="fas fa-redo"></i>
+            Try Again
+          </button>
+        </div>
+
+        <div class="library-section" *ngIf="!isLoadingEvents && !errorMessage && allVideos.length > 0">
+          <div class="library-header">
+            <h2 class="library-title">GALERIA: {{ matchCode }}</h2>
+            <div class="library-counter">{{ allVideos.length }} video{{ allVideos.length !== 1 ? 's' : '' }}</div>
+          </div>
+
+          <div class="library-content">
+            <div class="row g-3">
+              <div 
+                class="col-12 col-sm-6 col-md-4 col-lg-4"
+                [ngClass]="{ 'expanded-col': currentPreviewEvent?.id === event.id }"
+                *ngFor="let event of allVideos">
+                <div 
+                  class="event-card" 
+                  [class.selected]="isEventSelected(event)"
+                  [class.expanded]="currentPreviewEvent?.id === event.id"
+                  (click)="onSelectMoment(event)">
+                  <div class="event-header">
+                    <div class="event-icon">
+                      <span [innerHTML]="getEventIcon(event)"></span>
+                    </div>
+                    <div class="event-time">
+                      <p class="time-text">{{ getEventTime(event) }}</p>
+                    </div>
+                    <div class="team-name">
+                      <span class="team-score" *ngIf="isGoal(event)">({{ getEventResult(event) }})</span>
+                      {{ getEventName(event) }}
+                    </div>
+                  </div>
+
+                <div class="event-thumbnail" (click)="onPreviewMoment(event); $event.stopPropagation()">
+                  <video 
+                    #thumbVideo
+                    [src]="getVideoUrl(event)"
+                    [muted]="true"
+                    [loop]="true"
+                    [autoplay]="currentPreviewEvent?.id === event.id"
+                    [controls]="currentPreviewEvent?.id === event.id"
+                    class="thumb-video"
+                    (mouseenter)="currentPreviewEvent?.id !== event.id && thumbVideo.play()"
+                    (mouseleave)="currentPreviewEvent?.id !== event.id && thumbVideo.pause()"
+                    (error)="onVideoError($event)">
+                  </video>
+                  <button class="thumb-play-button" *ngIf="currentPreviewEvent?.id !== event.id" (click)="onPreviewMoment(event); $event.stopPropagation()">
+                    <i class="fas fa-play"></i>
+                  </button>
+                  <button class="close-video-button" *ngIf="currentPreviewEvent?.id === event.id" (click)="currentPreviewEvent = null; $event.stopPropagation()">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Events List -->
+        <div class="selected-events-section" *ngIf="selectedEvents.length > 0">
+          <div class="selected-events-header">
+            <h3 class="selected-title">Vídeos selecionados: ({{ selectedEvents.length }})</h3>
+          </div>
+          
+          <div class="selected-events-list">
+            <div 
+              class="selected-event-item" 
+              *ngFor="let event of selectedEvents">
+              <div class="selected-event-icon">
+                <span [innerHTML]="getEventIcon(event)"></span>
+              </div>
+              <div class="selected-event-info">
+                <span class="selected-event-time">{{ getEventTime(event) }}</span>
+                <span class="selected-event-team">
+                  <span class="team-score" *ngIf="isGoal(event)">({{ getEventResult(event) }})</span>
+                  {{ getEventName(event) }}
+                </span>
+              </div>
+              <button 
+                class="remove-button" 
+                (click)="removeSelectedEvent(event)"
+                title="Remove from selection">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-section" *ngIf="!isLoadingEvents && !errorMessage && allVideos.length === 0">
+          <div class="empty-icon">📹</div>
+          <h2>Não foram encontrados vídeos para este jogo.</h2>
+          <button class="back-to-download-button" (click)="onBackClick()">
+            <i class="fas fa-arrow-left"></i>
+            Procurar outro jogo
+          </button>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="card-footer" *ngIf="!isLoadingEvents && !errorMessage && matchEvents.length > 0">
+        <button class="download-selected-button" 
+                [disabled]="selectedEvents.length === 0"
+                (click)="onDownloadSelected()">
+          <i class="fas fa-download"></i>
+          Download {{ selectedEvents.length }} Video{{ selectedEvents.length !== 1 ? 's' : '' }}
+        </button>
+      </div>
+    </div>
+  </main>
+</div> 

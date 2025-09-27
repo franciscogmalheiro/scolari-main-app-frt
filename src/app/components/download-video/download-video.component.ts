@@ -104,12 +104,28 @@ export class DownloadVideoComponent implements OnInit {
         this.isGameValid = true;
         this.checkDataAvailability(gameId);
         this.isLoading = false;
+        
+        // Navigate directly to video library after validation
+        this.navigateToVideoLibrary(gameId);
       } else {
         this.errorMessage = 'Invalid game ID or voucher code. Please try again.';
         this.isGameValid = false;
         this.isLoading = false;
       }
     }, 1500);
+  }
+
+  private navigateToVideoLibrary(gameId: string): void {
+    // Save the current form state before navigating
+    const currentState = {
+      gameId: this.downloadForm.value.gameId,
+      voucherCode: this.downloadForm.value.voucherCode,
+      isGameValid: this.isGameValid
+    };
+    this.downloadFormStateService.saveFormState(currentState);
+    
+    // Navigate directly to video library
+    this.router.navigate(['/video-library', gameId]);
   }
 
   onDownloadOptionClick(option: DownloadOption): void {
@@ -125,13 +141,9 @@ export class DownloadVideoComponent implements OnInit {
     };
     this.downloadFormStateService.saveFormState(currentState);
 
-    if (option.id === 'selected-moments') {
-      const matchCode = this.downloadForm.value.gameId;
-      this.router.navigate(['/selected-moments', matchCode]);
-    } else if (option.id === 'highlights') {
-      const matchCode = this.downloadForm.value.gameId;
-      this.router.navigate(['/video-highlights', matchCode]);
-    }
+    // Navigate directly to video library for both options
+    const matchCode = this.downloadForm.value.gameId;
+    this.router.navigate(['/video-library', matchCode]);
   }
 
   onBackClick(): void {

@@ -8,22 +8,22 @@
         <button class="back-button" (click)="onBackClick()">
           <i class="fas fa-arrow-left"></i>
         </button>
-        <h1 class="page-title">Download Video</h1>
+        <h1 class="page-title">Galeria de Vídeos</h1>
       </div>
 
       <!-- Form Section -->
       <div class="form-section" *ngIf="!isGameValid">
         <div class="form-header">
           <div class="form-icon">⬇️</div>
-          <h2 class="form-title">Enter Game Details</h2>
+          <h2 class="form-title">Insere os dados do jogo</h2>
           <p class="form-description">
-            Enter your game ID and voucher code to access your recorded match
+            Para acederes à galeria de vídeos tens de inserir o ID de Jogo e o voucher adquirido junto ao responsável de campo.
           </p>
         </div>
 
         <form [formGroup]="downloadForm" (ngSubmit)="onSubmit()" class="download-form">
           <div class="form-group">
-            <label for="gameId" class="form-label">Game ID</label>
+            <label for="gameId" class="form-label">ID de Jogo</label>
             <input
               type="text"
               id="gameId"
@@ -39,13 +39,13 @@
           </div>
 
           <div class="form-group">
-            <label for="voucherCode" class="form-label">Voucher Code</label>
+            <label for="voucherCode" class="form-label">Voucher</label>
             <input
               type="text"
               id="voucherCode"
               formControlName="voucherCode"
               class="form-input"
-              placeholder="Enter your voucher code"
+              placeholder="Insere o voucher adquirido com o responsavel deste campo"
               [class.error]="downloadForm.get('voucherCode')?.invalid && downloadForm.get('voucherCode')?.touched"
             />
             <div class="error-message" *ngIf="downloadForm.get('voucherCode')?.invalid && downloadForm.get('voucherCode')?.touched">
@@ -71,47 +71,21 @@
         </form>
       </div>
 
-      <!-- Download Options Section -->
+      <!-- Success Section -->
       <div class="download-options-section" *ngIf="isGameValid">
         <div class="options-header">
           <div class="success-icon">✅</div>
           <h2 class="options-title">Game Validated Successfully!</h2>
           <p class="options-description">
-            Choose your preferred download option for game ID: <strong>{{ downloadForm.value.gameId }}</strong>
+            Redirecting to video library for game ID: <strong>{{ downloadForm.value.gameId }}</strong>
           </p>
         </div>
 
-        <div class="download-options">
-          <div 
-            class="download-option"
-            *ngFor="let option of downloadOptions"
-            [style.background]="option.gradient"
-            [class.disabled]="option.disabled"
-            (click)="onDownloadOptionClick(option)">
-            <div class="option-icon">
-              <span [innerHTML]="option.icon"></span>
-            </div>
-            <div class="option-content">
-              <h3 class="option-title">{{ option.title }}</h3>
-              <p class="option-description">{{ option.description }}</p>
-              <p class="option-unavailable" *ngIf="option.disabled">
-                No {{ option.title.toLowerCase() }} available for this match
-              </p>
-            </div>
-            <div class="option-arrow" *ngIf="!option.disabled">
-              <i class="fas fa-arrow-right"></i>
-            </div>
-            <div class="option-disabled-icon" *ngIf="option.disabled">
-              <i class="fas fa-lock"></i>
-            </div>
+        <div class="loading-section">
+          <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
           </div>
-        </div>
-
-        <div class="options-footer">
-          <button class="new-search-button" (click)="onNewSearch()">
-            <i class="fas fa-search"></i>
-            Search Different Game
-          </button>
+          <p>Loading your video library...</p>
         </div>
       </div>
     </div>

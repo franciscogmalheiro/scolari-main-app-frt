@@ -96,7 +96,7 @@
 // Timer Section
 .timer-section {
   text-align: center;
-  margin-bottom: 1rem;
+  //margin-bottom: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,7 +142,7 @@
 
 // Main Game Section
 .main-game-section {
-  padding: 2rem;
+  padding: 1rem;
   background: white;
   border-radius: 15px;
   color: #333;
@@ -224,7 +224,7 @@
 }
 
 .score {
-  font-size: 9rem;
+  font-size: 8rem;
   font-weight: 900;
   color: #333;
   letter-spacing: 2px;
@@ -402,7 +402,6 @@
 
   .timer-display {
     font-size: 3rem;
-    padding: 0.8rem 1.5rem;
   }
 
   .teams-section {
@@ -412,7 +411,7 @@
   }
 
   .score {
-    font-size: 2.5rem;
+    font-size: 5rem;
   }
 
   .action-buttons {

@@ -11,12 +11,10 @@
   max-height: 300px;
   overflow-y: auto;
   margin-bottom: 1rem;
-  padding: 1rem;
 }
 
 .event-item {
-  padding: 0.5rem 0;
-  margin-bottom: 0.5rem;
+  padding: 0.2rem 0;
   font-size: 0.9rem;
   color: #333;
   text-align: center;
@@ -30,21 +28,21 @@
 
 .team-a-log {
   .events-list {
-    text-align: right;
+    text-align: center;
   }
   
   .event-item {
-    text-align: right;
+    text-align: center;
   }
 }
 
 .team-b-log {
   .events-list {
-    text-align: left;
+    text-align: center;
   }
   
   .event-item {
-    text-align: left;
+    text-align: center;
   }
 }
 
@@ -65,13 +63,6 @@
   margin-top: 1rem;
 }
 
-.team-a-undo {
-  justify-content: flex-end;
-}
-
-.team-b-undo {
-  justify-content: flex-start;
-}
 
 .btn-undo {
   background: #dc3545;
@@ -122,7 +113,7 @@
 
 @media (max-width: 480px) {
   .event-log {
-    padding: 1rem;
+    padding: 0rem;
   }
 
   .events-list {

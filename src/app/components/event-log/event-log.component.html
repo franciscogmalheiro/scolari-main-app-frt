@@ -1,7 +1,7 @@
 <!-- Event Logs -->
 <div class="row justify-content-center">
   <!-- Team A Events -->
-  <div class="col-4 text-center">
+  <div class="col-3 text-center">
     <div class="event-log team-a-log">
       <div class="events-list">
         <div *ngFor="let event of teamAEvents" 
@@ -14,7 +14,7 @@
   </div>
 
   <!-- Highlight Events -->
-  <div class="col-2 text-center">
+  <div class="col-5 text-center">
     <div class="event-log highlight-log">
       <div class="events-list">
         <div *ngFor="let event of highlightEvents" 
@@ -27,7 +27,7 @@
   </div>
 
   <!-- Team B Events -->
-  <div class="col-4 text-center">
+  <div class="col-3 text-center">
     <div class="event-log team-b-log">
       <div class="events-list">
         <div *ngFor="let event of teamBEvents" 
@@ -43,7 +43,7 @@
 <!-- Undo Buttons Row -->
 <div class="row justify-content-center">
   <!-- Team A Undo -->
-  <div class="col-4 text-center">
+  <div class="col-3 text-center">
     <div class="undo-button-container team-a-undo">
       <button 
         *ngIf="showControls && teamAScore > 0" 
@@ -55,11 +55,11 @@
   </div>
 
   <!-- Empty space for highlight column -->
-  <div class="col-2 text-center">
+  <div class="col-5 text-center">
   </div>
 
   <!-- Team B Undo -->
-  <div class="col-4 text-center">
+  <div class="col-3 text-center">
     <div class="undo-button-container team-b-undo">
       <button 
         *ngIf="showControls && teamBScore > 0" 
