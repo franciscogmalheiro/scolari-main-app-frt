@@ -3,21 +3,18 @@
 
   <main class="main-content">
     <div class="moments-card">
-      <!-- Header -->
-
-      <!-- Content -->
       <div class="content-section">
         <div class="loading-section" *ngIf="isLoadingEvents">
           <div class="loading-spinner">
             <i class="fas fa-spinner fa-spin"></i>
           </div>
-          <h2>Loading Match Events</h2>
-          <p>Please wait while we fetch the goals and highlights...</p>
+          <h2>Loading Media</h2>
+          <p>Please wait while we fetch photos and videos...</p>
         </div>
 
         <div class="error-section" *ngIf="errorMessage">
           <div class="error-icon">⚠️</div>
-          <h2>Error Loading Events</h2>
+          <h2>Error Loading Media</h2>
           <p>{{ errorMessage }}</p>
           <button class="retry-button" (click)="loadAllVideos()">
             <i class="fas fa-redo"></i>
@@ -48,11 +45,9 @@
                     </div>
                     <div class="event-time">
                       <p class="time-text">{{ getItemDescription(item) }}</p>
-                      
                     </div>
                     <div class="team-name">
                       <span class="team-score" *ngIf="isItemGoal(item)">({{ getItemResult(item) }})</span>
-
                     </div>
                   </div>
 
@@ -93,16 +88,12 @@
           </div>
         </div>
 
-        <!-- Selected Events List -->
         <div class="selected-events-section" *ngIf="getSelectedCount() > 0">
           <div class="selected-events-header">
             <h3 class="selected-title">Selecionados: ({{ getSelectedCount() }})</h3>
           </div>
-          
           <div class="selected-events-list">
-            <div 
-              class="selected-event-item" 
-              *ngFor="let item of selectedItems">
+            <div class="selected-event-item" *ngFor="let item of selectedItems">
               <div class="selected-event-icon">
                 <span [innerHTML]="getItemIcon(item)"></span>
               </div>
@@ -113,10 +104,7 @@
                   {{ getItemName(item) }}
                 </span>
               </div>
-              <button 
-                class="remove-button" 
-                (click)="removeSelectedItem(item)"
-                title="Remove from selection">
+              <button class="remove-button" (click)="removeSelectedItem(item)" title="Remove from selection">
                 <i class="fas fa-times"></i>
               </button>
             </div>
@@ -125,7 +113,7 @@
 
         <div class="empty-section" *ngIf="!isLoadingEvents && !errorMessage && allItems.length === 0">
           <div class="empty-icon">📹</div>
-          <h2>Não foram encontrados vídeos para este jogo.</h2>
+          <h2>Não foram encontrados conteúdos para este jogo.</h2>
           <button class="back-to-download-button" (click)="onBackClick()">
             <i class="fas fa-arrow-left"></i>
             Procurar outro jogo
@@ -133,16 +121,14 @@
         </div>
       </div>
 
-      <!-- Footer -->
       <div class="card-footer" *ngIf="!isLoadingEvents && !errorMessage && allItems.length > 0">
-        <button class="download-selected-button" 
-                [disabled]="getSelectedCount() === 0"
-                (click)="onDownloadSelected()">
+        <button class="download-selected-button" [disabled]="getSelectedCount() === 0" (click)="onDownloadSelected()">
           <i class="fas fa-download"></i>
           Download {{ getSelectedCount() }} Item{{ getSelectedCount() !== 1 ? 's' : '' }}
         </button>
       </div>
     </div>
   </main>
+</div>
 
-</div> 
+

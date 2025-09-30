@@ -86,6 +86,17 @@
   align-items: center;
 }
 
+.app-version {
+  margin-right: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .user-info {
   display: flex;
   align-items: center;
@@ -133,6 +144,20 @@
   background: rgba(255, 71, 87, 0.2);
   border-color: rgba(255, 71, 87, 0.5);
   transform: translateY(-1px);
+}
+
+/* Icon-only logout overrides: transparent background, no borders */
+.logout-icon-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #ff4757;
+  padding: 0.5rem;
+}
+
+.logout-icon-btn:hover {
+  background: transparent;
+  border: none;
 }
 
 .guest-info {
@@ -194,6 +219,31 @@
   .guest-label {
     display: none;
   }
+
+  .app-version {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
+    margin-right: 0.5rem;
+  }
+
+  /* Reduce header padding and hide wordmark on tablets */
+  .header {
+    padding: 0.25rem 0;
+  }
+  .logo h1 {
+    display: none;
+  }
+  /* Show icon-only logout, hide text logout */
+  .logout-text-btn { display: none; }
+  .logout-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -209,5 +259,17 @@
   
   .auth-section {
     order: 2;
+  }
+
+  /* Further compact header for mobile */
+  .header {
+    padding: 0.4rem 0;
+  }
+  .logo-image {
+    height: 1.6rem;
+  }
+  .logout-icon-btn {
+    width: 36px;
+    height: 36px;
   }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService, User } from '../../services/auth.service';
+import { DownloadFormStateService } from '../../services/download-form-state.service';
 
 @Component({
   selector: 'app-header',
@@ -13,7 +14,8 @@ export class HeaderComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private downloadFormStateService: DownloadFormStateService
   ) {}
 
   ngOnInit(): void {
@@ -28,6 +30,8 @@ export class HeaderComponent implements OnInit {
   }
 
   navigateToHome(): void {
+    // Clear any saved form state when navigating to home
+    this.downloadFormStateService.clearFormState();
     this.router.navigate(['/home']);
   }
 }

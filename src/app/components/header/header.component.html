@@ -11,7 +11,12 @@
       <div *ngIf="isAuthenticated" class="user-info">
         <span class="user-name">Bem-vindo, {{ currentUser?.firstName }}</span>
         <button *ngIf="currentUser?.role === 'ADMIN'" routerLink="/admin" class="admin-btn">Admin Panel</button>
-        <button (click)="logout()" class="logout-btn">Logout</button>
+        <!-- Logout button (text) for larger screens -->
+        <button (click)="logout()" class="logout-btn logout-text-btn">Logout</button>
+        <!-- Logout icon for small screens -->
+        <button (click)="logout()" class="logout-btn logout-icon-btn" aria-label="Logout">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
       </div>
       <div *ngIf="!isAuthenticated" class="guest-info">
         <span class="guest-label">Convidado</span>

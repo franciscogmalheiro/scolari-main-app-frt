@@ -75,14 +75,17 @@ export class DownloadVideoComponent implements OnInit {
       // Clear the saved state after restoring
       this.downloadFormStateService.clearFormState();
     } else {
-      // Check if game ID is provided in URL
-      this.route.params.subscribe(params => {
-        if (params['gameId']) {
-          this.gameId = params['gameId'];
-          this.downloadForm.patchValue({ gameId: this.gameId });
-        }
-      });
+      // Reset form to initial state when coming from home page or fresh load
+      this.resetForm();
     }
+    
+    // Check if game ID is provided in URL
+    this.route.params.subscribe(params => {
+      if (params['gameId']) {
+        this.gameId = params['gameId'];
+        this.downloadForm.patchValue({ gameId: this.gameId });
+      }
+    });
   }
 
   onSubmit(): void {
@@ -125,7 +128,7 @@ export class DownloadVideoComponent implements OnInit {
     this.downloadFormStateService.saveFormState(currentState);
     
     // Navigate directly to video library
-    this.router.navigate(['/video-library', gameId]);
+    this.router.navigate(['/media-library', gameId]);
   }
 
   onDownloadOptionClick(option: DownloadOption): void {
@@ -143,7 +146,7 @@ export class DownloadVideoComponent implements OnInit {
 
     // Navigate directly to video library for both options
     const matchCode = this.downloadForm.value.gameId;
-    this.router.navigate(['/video-library', matchCode]);
+    this.router.navigate(['/media-library', matchCode]);
   }
 
   onBackClick(): void {
@@ -151,11 +154,16 @@ export class DownloadVideoComponent implements OnInit {
   }
 
   onNewSearch(): void {
+    this.resetForm();
+  }
+
+  private resetForm(): void {
     this.isGameValid = false;
+    this.isLoading = false;
+    this.errorMessage = '';
+    this.gameId = '';
+    this.voucherCode = '';
     this.downloadForm.reset();
-    if (this.gameId) {
-      this.downloadForm.patchValue({ gameId: this.gameId });
-    }
   }
 
   private checkDataAvailability(matchCode: string): void {

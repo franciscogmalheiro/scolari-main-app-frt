@@ -14,7 +14,6 @@
       <!-- Form Section -->
       <div class="form-section" *ngIf="!isGameValid">
         <div class="form-header">
-          <div class="form-icon">⬇️</div>
           <h2 class="form-title">Insere os dados do jogo</h2>
           <p class="form-description">
             Para acederes à galeria de vídeos tens de inserir o ID de Jogo e o voucher adquirido junto ao responsável de campo.
@@ -29,7 +28,7 @@
               id="gameId"
               formControlName="gameId"
               class="form-input"
-              placeholder="Enter your game ID"
+              placeholder="Insere o ID de Jogo"
               [class.error]="downloadForm.get('gameId')?.invalid && downloadForm.get('gameId')?.touched"
             />
             <div class="error-message" *ngIf="downloadForm.get('gameId')?.invalid && downloadForm.get('gameId')?.touched">
@@ -62,7 +61,7 @@
             type="submit" 
             class="submit-button"
             [disabled]="downloadForm.invalid || isLoading">
-            <span *ngIf="!isLoading">Validate & Continue</span>
+            <span *ngIf="!isLoading">Validar</span>
             <span *ngIf="isLoading" class="loading">
               <i class="fas fa-spinner fa-spin"></i>
               Validating...

@@ -14,25 +14,26 @@
         <table class="match-table">
           <thead>
             <tr>
+              <th></th>
               <th>Código</th>
               <th>Modalidade</th>
               <th>Início</th>
               <th>Fim</th>
               <th>Resultado</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let m of matches">
+              <td class="actions">
+                <button *ngIf="m.recordMode" class="camera-btn" title="Aceder ao Download" (click)="goToDownload(m.matchCode)">📷</button>
+                <span *ngIf="!m.recordMode" class="no-record">—</span>
+              </td>
               <td class="mono">{{ m.matchCode }}</td>
               <td>{{ m.sportName }}</td>
               <td>{{ m.startDateTime | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>{{ m.finishDateTime | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>{{ m.teamAName }} {{ m.finalResult }} {{ m.teamBName }}</td>
-              <td class="actions">
-                <button *ngIf="m.recordMode" class="camera-btn" title="Aceder ao Download" (click)="goToDownload(m.matchCode)">📷</button>
-                <span *ngIf="!m.recordMode" class="no-record">—</span>
-              </td>
+              
             </tr>
           </tbody>
         </table>

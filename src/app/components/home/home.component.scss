@@ -4,9 +4,7 @@
   overflow-x: hidden;
 }
 
-.main-content {
-  padding-top: 80px; // Account for fixed header
-}
+/* .main-content no longer needs header compensation; global body padding handles it */
 
 // Hero Banner Section
 .hero-banner {
@@ -224,6 +222,18 @@
   font-weight: 300;
 }
 
+.app-version {
+  margin-top: 0.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+}
+
 // Responsive Design
 @media (max-width: 768px) {
   .hero-banner {
@@ -259,10 +269,6 @@
 }
 
 @media (max-width: 480px) {
-  .main-content {
-    padding-top: 120px;
-  }
-  
   .hero-banner {
     height: 30vh;
     min-height: 200px;

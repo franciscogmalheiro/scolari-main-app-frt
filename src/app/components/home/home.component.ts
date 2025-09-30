@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService, User, Sport } from '../../services/auth.service';
 import { GameMode } from '../game-card/game-card.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -11,6 +12,7 @@ import { GameMode } from '../game-card/game-card.component';
 export class HomeComponent implements OnInit {
   currentUser: User | null = null;
   isAuthenticated = false;
+  appVersion: string = environment.appVersion;
 
   gameModes: GameMode[] = [
     {

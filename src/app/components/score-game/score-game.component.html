@@ -1,10 +1,6 @@
 <app-header></app-header>
 
 <div class="score-game-container">
-  <!-- Header -->
-  <div class="header">
-  </div>
-
   <!-- Main Game Section -->
   <div class="main-game-section">
     <!-- Timer Display with Live Indicator or Start Button -->
@@ -68,7 +64,7 @@
         <!-- Access Video Button (only shown when match is finished and QR modal is closed) -->
         <div *ngIf="isMatchFinished && isRecordingMode && !showQrModal" class="access-video-section">
           <button class="btn btn-access-video" (click)="showQrModal = true">
-            <i class="fas fa-video"></i> Access Video
+            <i class="fas fa-video"></i> Aceder ao Vídeo
           </button>
         </div>
       </div>
@@ -180,4 +176,54 @@
     [qrCodeData]="qrCodeData"
     (closeModal)="onCloseQrModal()"
   ></app-qr-modal>
+
+  <!-- Photo Capture Modal -->
+  <div class="photo-capture-modal" *ngIf="isCapturingPhoto">
+    <div class="photo-capture-content">
+      <div class="photo-capture-header">
+        <h3>📸 Querem tirar a foto de final de Jogo?</h3>
+      </div>
+      
+      <div class="photo-capture-body">
+        <div class="photo-preview" *ngIf="photoUploadProgress === 0">
+          <div class="camera-icon">
+            <i class="fas fa-camera"></i>
+          </div>
+          <p>A Camera irá abrir assim que clicarem no botão de "Tirar Foto"</p>
+        </div>
+        
+        <div class="upload-progress" *ngIf="photoUploadProgress > 0">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="photoUploadProgress"></div>
+          </div>
+          <p *ngIf="photoUploadProgress < 100">Uploading photo...</p>
+          <p *ngIf="photoUploadProgress === 100">Photo uploaded successfully!</p>
+        </div>
+      </div>
+      
+      <div class="photo-capture-controls">
+        <button 
+          class="btn btn-secondary" 
+          (click)="skipPhotoCapture()"
+          [disabled]="photoUploadProgress > 0">
+          Não tirar
+        </button>
+        <button 
+          class="btn btn-primary" 
+          (click)="retryPhotoCapture()"
+          [disabled]="photoUploadProgress > 0">
+          <i class="fas fa-camera"></i> Tirar Foto
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Large Photo Preview Modal -->
+  <div class="photo-preview-modal" *ngIf="showPhotoPreviewModal">
+    <div class="photo-preview-content">
+      <button class="close-preview-btn" (click)="closePhotoPreview()">&times;</button>
+      <h3>Match Photo</h3>
+      <img *ngIf="lastCapturedPhotoUrl" [src]="lastCapturedPhotoUrl" alt="Match photo" class="photo-preview-image" />
+    </div>
+  </div>
 </div>

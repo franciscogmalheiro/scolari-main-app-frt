@@ -4,7 +4,6 @@
   padding: 20px;
   color: white;
   font-family: 'Arial', sans-serif;
-  margin-top: 40px; /* Account for fixed header height */
 }
 
 // Header Section
@@ -262,6 +261,23 @@
     transform: translateY(-1px);
   }
 
+  // Responsive sizing for smaller screens
+  @media (max-width: 768px) {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.7rem !important;
+    min-height: 28px !important;
+    border-radius: 14px !important;
+    gap: 0.2rem !important;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.65rem !important;
+    min-height: 26px !important;
+    border-radius: 13px !important;
+    gap: 0.15rem !important;
+  }
+
   &:active {
     transform: translateY(0);
   }
@@ -411,7 +427,7 @@
   }
 
   .score {
-    font-size: 5rem;
+    font-size: 3.5rem;
   }
 
   .action-buttons {
@@ -460,6 +476,316 @@
     padding: 0.8rem 1.5rem;
     min-height: 50px;
   }
+}
 
+// Photo Capture Modal Styles
+.photo-capture-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
 
+  // Mirror flip for camera video (front-facing camera)
+  video {
+    transform: scaleX(-1);
+  }
+  
+  .photo-capture-content {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    
+    .photo-capture-header {
+      margin-bottom: 2rem;
+      
+      h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #333;
+        margin: 0 0 0.5rem 0;
+      }
+      
+      p {
+        color: #666;
+        font-size: 1rem;
+        margin: 0;
+      }
+    }
+    
+    .photo-capture-body {
+      margin-bottom: 2rem;
+      
+      .photo-preview {
+        padding: 2rem;
+        border: 2px dashed #ddd;
+        border-radius: 15px;
+        background: #f8f9fa;
+        
+        .camera-icon {
+          font-size: 4rem;
+          color: #007bff;
+          margin-bottom: 1rem;
+        }
+        
+        p {
+          color: #666;
+          font-size: 1rem;
+          margin: 0;
+        }
+      }
+      
+      .upload-progress {
+        padding: 1rem;
+        
+        .progress-bar {
+          width: 100%;
+          height: 8px;
+          background: #e9ecef;
+          border-radius: 4px;
+          overflow: hidden;
+          margin-bottom: 1rem;
+          
+          .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            transition: width 0.3s ease;
+            border-radius: 4px;
+          }
+        }
+        
+        p {
+          color: #333;
+          font-weight: 600;
+          margin: 0;
+        }
+      }
+    }
+    
+    .photo-capture-controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: auto;
+      flex-shrink: 0;
+      
+      .btn {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 120px;
+        justify-content: center;
+        
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        
+        &.btn-secondary {
+          background: #6c757d;
+          color: white;
+          
+          &:hover:not(:disabled) {
+            background: #5a6268;
+            transform: translateY(-2px);
+          }
+        }
+        
+        &.btn-primary {
+          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+          color: white;
+          
+          &:hover:not(:disabled) {
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Large Photo Preview Modal Styles
+.photo-preview-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+
+  // Mirror flip for camera video (front-facing camera)
+  video {
+    transform: scaleX(-1);
+  }
+
+  .photo-preview-content {
+    position: relative;
+    border-radius: 16px;
+    padding: 1rem 1rem 1.5rem 1rem;
+    width: 95%;
+    max-width: 900px;
+    color: white;
+    text-align: center;
+
+    h3 {
+      margin: 0 0 1rem 0;
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .close-preview-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #dc3545;
+      color: #fff;
+      border: 0;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: #c82333;
+        transform: scale(1.1);
+      }
+    }
+
+    .photo-preview-image {
+      width: 100%;
+      max-height: 70vh;
+      object-fit: contain;
+      background: #000;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .photo-preview-actions {
+      margin-top: 1rem;
+
+      .btn.btn-primary {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+        }
+      }
+    }
+  }
+}
+
+// Responsive design for photo capture modal
+@media (max-width: 1024px) {
+  .photo-capture-modal {
+    padding: 1rem;
+    
+    .photo-capture-content {
+      padding: 1.5rem;
+      margin: 0;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      
+      .photo-capture-header {
+        h3 {
+          font-size: 1.5rem;
+        }
+      }
+      
+      .photo-capture-body {
+        .photo-preview {
+          padding: 1.5rem;
+          
+          .camera-icon {
+            font-size: 3rem;
+          }
+        }
+      }
+      
+      .photo-capture-controls {
+        flex-direction: column;
+        gap: 0.75rem;
+        
+        .btn {
+          width: 100%;
+          padding: 1rem 1.5rem;
+          font-size: 1.1rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .photo-capture-modal {
+    .photo-capture-content {
+      padding: 1rem;
+      margin: 0.5rem;
+      
+      .photo-capture-header {
+        h3 {
+          font-size: 1.3rem;
+        }
+      }
+      
+      .photo-capture-body {
+        .photo-preview {
+          padding: 1rem;
+          
+          .camera-icon {
+            font-size: 2.5rem;
+          }
+        }
+      }
+      
+      .photo-capture-controls {
+        .btn {
+          padding: 0.9rem 1.2rem;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
 }

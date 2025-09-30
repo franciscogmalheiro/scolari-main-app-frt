@@ -32,7 +32,7 @@ export interface MatchEventResponseDto {
   elapsedTime: string;
   videoSegmentId: number;
   result?: string; // Score at the time of the event (e.g., "1-0", "2-1")
-  presignedUrl?: string; // Presigned URL to the video preview MP4 file
+  presignedUrl: string; // Presigned URL to the video preview MP4 file
 }
 
 export interface FieldMatchResponseDto {

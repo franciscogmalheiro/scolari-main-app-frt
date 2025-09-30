@@ -1,7 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { TeamEditModalComponent, TeamEditData } from '../team-edit-modal/team-edit-modal.component';
+import { TeamEditData } from '../team-edit-modal/team-edit-modal.component';
 import { MatchService, MatchDto, IndividualMatchEventDto } from '../../services/match.service';
+import { CameraService } from '../../services/camera.service';
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 
 interface MatchEvent {
   dateTime: string;
@@ -60,6 +62,12 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   // Modal state
   showEditModal = false;
   editingTeam: 'A' | 'B' | null = null;
+  
+  // Photo capture state
+  isCapturingPhoto = false;
+  photoUploadProgress = 0;
+  lastCapturedPhotoUrl: string | null = null;
+  showPhotoPreviewModal = false;
 
   // Match data from query parameters
   fieldId: number | null = null;
@@ -70,7 +78,8 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router, 
     private route: ActivatedRoute,
-    private matchService: MatchService
+    private matchService: MatchService,
+    private cameraService: CameraService
   ) {}
 
   ngOnInit(): void {
@@ -230,22 +239,41 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
           console.log('Match finished successfully:', response);
           // Upload events to backend after finishing the match
           this.downloadEvents();
+          
+          // If in recording mode, show photo capture modal
+          if (this.isRecordingMode) {
+            this.isCapturingPhoto = true;
+            this.photoUploadProgress = 0;
+          } else {
+            // Show QR modal if not in recording mode
+            this.showQrModal = true;
+          }
         },
         error: (error) => {
           console.error('Error finishing match:', error);
           // Still try to upload events even if finish fails
           this.downloadEvents();
+          
+          // If in recording mode, show photo capture modal
+          if (this.isRecordingMode) {
+            this.isCapturingPhoto = true;
+            this.photoUploadProgress = 0;
+          } else {
+            this.showQrModal = true;
+          }
         }
       });
     } else {
       // Upload events to backend if no game ID (fallback)
       this.downloadEvents();
-    }
-
-    // Only show QR modal if in recording mode
-    if (this.isRecordingMode) {
-      // Show QR modal with the match code from the backend
-      this.showQrModal = true;
+      
+      // If in recording mode, show photo capture modal
+      if (this.isRecordingMode) {
+        this.isCapturingPhoto = true;
+        this.photoUploadProgress = 0;
+      } else {
+        this.showQrModal = true;
+      }
     }
   }
 
@@ -427,5 +455,108 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   // Close QR modal
   onCloseQrModal(): void {
     this.showQrModal = false;
+  }
+
+  // Photo capture methods
+  private async captureMatchPhoto(): Promise<void> {
+    if (!this.gameId) {
+      console.error('No game ID available for photo upload');
+      this.showQrModal = true; // Fallback to QR modal
+      return;
+    }
+
+    try {
+      // Hide the photo capture modal before opening camera
+      this.isCapturingPhoto = false;
+      
+      // Capture photo using camera service with 10-second countdown
+      const photoFile = await this.cameraService.capturePhoto(10);
+      
+      if (photoFile) {
+        console.log('Photo captured, uploading...');
+        this.photoUploadProgress = 1;
+        this.lastCapturedPhotoUrl = URL.createObjectURL(photoFile);
+        
+        // Upload photo to backend with progress
+        this.cameraService.uploadPhoto(this.gameId, photoFile).subscribe({
+          next: (event: HttpEvent<any>) => {
+            switch (event.type) {
+              case HttpEventType.Sent:
+                this.photoUploadProgress = 5;
+                break;
+              case HttpEventType.UploadProgress:
+                if (event.total) {
+                  this.photoUploadProgress = Math.min(99, Math.round(100 * (event.loaded / event.total)));
+                }
+                break;
+              case HttpEventType.Response:
+                this.photoUploadProgress = 100;
+                this.isCapturingPhoto = false;
+                // Show large preview modal that can be closed
+                this.showPhotoPreviewModal = true;
+                break;
+            }
+          },
+          error: (error) => {
+            console.error('Error uploading photo:', error);
+            this.isCapturingPhoto = false;
+            this.photoUploadProgress = 0;
+            
+            // Show error message but still show QR modal
+            this.showPhotoUploadError();
+          }
+        });
+      } else {
+        // User cancelled photo capture or error occurred
+        console.log('Photo capture cancelled or failed');
+        this.isCapturingPhoto = false;
+        this.photoUploadProgress = 0;
+        
+        // Show QR modal anyway
+        this.showQrModal = true;
+      }
+    } catch (error) {
+      console.error('Error during photo capture:', error);
+      this.isCapturingPhoto = false;
+      this.photoUploadProgress = 0;
+      
+      // Show error and fallback to QR modal
+      this.showPhotoUploadError();
+    }
+  }
+
+  private showPhotoUploadSuccess(): void {
+    // kept for potential future toast notification
+    console.log('Photo uploaded successfully!');
+  }
+
+  private showPhotoUploadError(): void {
+    // You can implement an error toast/notification here
+    console.log('Photo upload failed, showing QR modal anyway');
+    
+    // Show QR modal as fallback
+    this.showQrModal = true;
+  }
+
+  // Method to retry photo capture
+  retryPhotoCapture(): void {
+    this.captureMatchPhoto();
+  }
+
+  // Method to skip photo capture
+  skipPhotoCapture(): void {
+    this.isCapturingPhoto = false;
+    this.photoUploadProgress = 0;
+    this.showQrModal = true;
+  }
+
+  // Close the large photo preview modal
+  closePhotoPreview(): void {
+    this.showPhotoPreviewModal = false;
+    // Cleanup object URL if any
+    if (this.lastCapturedPhotoUrl) {
+      URL.revokeObjectURL(this.lastCapturedPhotoUrl);
+      this.lastCapturedPhotoUrl = null;
+    }
   }
 }

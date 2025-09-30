@@ -22,7 +22,6 @@
   overflow: visible;
   min-height: auto;
   max-height: none;
-  margin-top: 80px;
   display: flex;
   flex-direction: column;
 }
@@ -243,20 +242,20 @@
   &:hover {
     border-color: rgba(59, 130, 246, 0.3);
     box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1);
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-8px);
     background: rgba(255, 255, 255, 0.98);
   }
   
   &.selected {
-    border-color: rgba(16, 185, 129, 0.4);
-    background: rgba(240, 255, 246, 0.95);
-    box-shadow: 0 15px 35px rgba(16, 185, 129, 0.2), 0 0 0 1px rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.8);
+    background: rgba(166, 219, 166, 0.82);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35), 0 15px 35px rgba(16, 185, 129, 0.25);
     transform: translateY(-4px);
   }
 
   &.expanded {
     box-shadow: 0 25px 50px rgba(59, 130, 246, 0.2), 0 0 0 1px rgba(59, 130, 246, 0.15);
-    transform: translateY(-12px) scale(1.03);
+    transform: translateY(-12px);
     background: rgba(255, 255, 255, 0.98);
   }
 }
@@ -276,15 +275,32 @@
   .thumb-video {
     width: 100%;
     aspect-ratio: 16 / 9;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 16px;
-    background: #000;
     display: block;
     transition: transform 0.3s ease;
   }
+
+  .thumb-photo {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    border-radius: 16px;
+    background: #000;
+    display: block;
+    transition: all 0.3s ease;
+
+    &.expanded-photo {
+      aspect-ratio: unset;
+      height: auto;
+      max-height: 600px;
+      min-height: 300px;
+      object-fit: contain;
+    }
+  }
   
   &:hover .thumb-video {
-    transform: scale(1.05);
+    transform: none;
   }
   
   .thumb-play-button {
@@ -447,7 +463,7 @@
       .preview-video {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
         display: block;
       }
       
@@ -897,5 +913,35 @@
   
   .card-footer {
     padding: 1.5rem;
+  }
+}
+
+
+.close-photo-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+  }
+
+  i {
+    font-size: 0.9rem;
   }
 } 
