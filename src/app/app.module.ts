@@ -3,6 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './services/auth.interceptor';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -27,11 +29,6 @@ import { ClubManagementComponent } from './components/club-management/club-manag
 import { UserManagementComponent } from './components/user-management/user-management.component';
 import { FieldCameraManagementComponent } from './components/field-camera-management/field-camera-management.component';
 import { MatchHistoryComponent } from './components/match-history/match-history.component';
-import { SportService } from './services/sport.service';
-import { ClubService } from './services/club.service';
-import { ClubFieldService } from './services/club-field.service';
-import { UserService } from './services/user.service';
-import { FieldCameraService } from './services/field-camera.service';
 
 @NgModule({
   declarations: [
@@ -63,7 +60,11 @@ import { FieldCameraService } from './services/field-camera.service';
     AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ],
   providers: [
     {
