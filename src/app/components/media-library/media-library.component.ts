@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChildren, ElementRef, QueryList } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MediaLibraryService, MediaItemDto } from '../../services/media-library.service';
 import { DownloadFormStateService } from '../../services/download-form-state.service';
 import { environment } from '../../../environments/environment';
+import { MatchService, FieldMatchResponseDto } from '../../services/match.service';
 
 @Component({
   selector: 'app-media-library',
@@ -10,7 +11,7 @@ import { environment } from '../../../environments/environment';
   styleUrls: ['./media-library.component.scss']
 })
 export class MediaLibraryComponent implements OnInit, OnDestroy {
-  @ViewChild('videoPlayer', { static: false }) videoPlayer!: ElementRef<HTMLVideoElement>;
+  @ViewChildren('itemVideo') itemVideos!: QueryList<ElementRef<HTMLVideoElement>>;
 
   matchCode = '';
   mediaItems: MediaItemDto[] = [];
@@ -24,12 +25,20 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   currentPhoto: MediaItemDto | null = null;
   private videoUrlCache = new Map<number, string>();
   private videoBlobCache = new Map<number, string>();
+  // Section expand/collapse state
+  expandedResumo = true;
+  expandedMoments = false;
+  expandedPhotos = false;
+  // Share modal state
+  isShareModalOpen = false;
+  shareItem: MediaItemDto | null = null;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private mediaLibraryService: MediaLibraryService,
-    private downloadFormStateService: DownloadFormStateService
+    private downloadFormStateService: DownloadFormStateService,
+    private matchService: MatchService
   ) {}
 
   ngOnInit(): void {
@@ -37,6 +46,7 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
       if (params['matchCode']) {
         this.matchCode = params['matchCode'];
         this.loadAllVideos();
+        this.loadMatchDetails();
       }
     });
   }
@@ -59,9 +69,59 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Match details
+  matchDetails: FieldMatchResponseDto | null = null;
+
+  private loadMatchDetails(): void {
+    if (!this.matchCode) return;
+    this.matchService.getMatchByCode(this.matchCode).subscribe({
+      next: (match) => {
+        this.matchDetails = match;
+      },
+      error: (err) => {
+        console.warn('Failed to load match details', err);
+      }
+    });
+  }
+
+  getMatchHeaderLine(): string {
+    if (!this.matchDetails) return '';
+
+    return this.matchDetails.teamAName + ' ' + this.matchDetails.finalResult + ' ' + this.matchDetails.teamBName;
+  }
+
+  getMatchDate(): string {
+    if (!this.matchDetails?.startDateTime) return '';
+    const d = new Date(this.matchDetails.startDateTime);
+    return d.toLocaleDateString();
+  }
+
   onBackClick(): void {
     this.downloadFormStateService.clearFormState();
     this.router.navigate(['/download-video']);
+  }
+
+  // Grouped lists
+  get resumoItems(): MediaItemDto[] {
+    return (this.allItems || []).filter(item => item.type === 'video-highlight');
+  }
+
+  get momentItems(): MediaItemDto[] {
+    return (this.allItems || []).filter(item => item.type === 'goal-event' || item.type === 'highlight-event');
+  }
+
+  get photoItems(): MediaItemDto[] {
+    return (this.allItems || []).filter(item => item.type === 'photo');
+  }
+
+  toggleSection(section: 'resumo' | 'momentos' | 'fotos'): void {
+    if (section === 'resumo') {
+      this.expandedResumo = !this.expandedResumo;
+    } else if (section === 'momentos') {
+      this.expandedMoments = !this.expandedMoments;
+    } else if (section === 'fotos') {
+      this.expandedPhotos = !this.expandedPhotos;
+    }
   }
 
   getItemIcon(item: MediaItemDto): string {
@@ -123,20 +183,28 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     this.currentPreviewItem = item;
     this.isVideoPlaying = true;
 
-    if (this.videoBlobCache.has(item.id) && this.videoPlayer) {
-      this.videoPlayer.nativeElement.src = this.videoBlobCache.get(item.id)!;
-      this.videoPlayer.nativeElement.play().catch(error => {
-        console.warn('Video play failed:', error);
-      });
+    // Preload video if not cached
+    if (!this.videoBlobCache.has(item.id)) {
+      this.preloadVideo(item);
     }
+
+    // Attempt to find and play the specific video's element
+    setTimeout(() => {
+      const videos = this.itemVideos?.toArray().map(ref => ref.nativeElement) || [];
+      const target = videos.find(v => v.getAttribute('src') === this.getItemUrl(item));
+      if (target) {
+        target.classList.remove('hidden');
+        target.play().catch(() => {
+          setTimeout(() => target.play().catch(() => {}), 150);
+        });
+      }
+    }, 0);
   }
 
   toggleVideoPlayback(): void {}
 
   isVideoReady(): boolean {
-    if (!this.videoPlayer) return false;
-    const videoElement = this.videoPlayer.nativeElement;
-    return videoElement.readyState >= 2;
+    return true;
   }
 
   isItemSelected(item: MediaItemDto): boolean {
@@ -180,6 +248,14 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     return item.presignedUrl || '';
   }
 
+  getResumoThumbnailUrl(item: MediaItemDto): string {
+    // For Resumo videos, use the first photo as thumbnail if available
+    if (item.type === 'video-highlight' && this.photoItems.length > 0) {
+      return this.photoItems[0].presignedUrl || item.presignedUrl || '';
+    }
+    return item.presignedUrl || '';
+  }
+
   trackByItemId(index: number, item: MediaItemDto): number {
     return item.id;
   }
@@ -189,7 +265,13 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     this.videoBlobCache.clear();
   }
 
-  onVideoLoaded(): void {}
+  onVideoLoaded(event?: any): void {
+    const videoElement = (event?.target as HTMLVideoElement) || null;
+    if (!videoElement) return;
+    videoElement.play().catch((error) => {
+      setTimeout(() => videoElement.play().catch(() => {}), 200);
+    });
+  }
 
   onVideoEnded(event: any): void {
     const videoElement = event.target as HTMLVideoElement;
@@ -284,15 +366,27 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
       this.videoBlobCache.set(item.id, blobUrl);
-      if (this.currentPreviewItem?.id === item.id && this.videoPlayer) {
-        this.videoPlayer.nativeElement.src = blobUrl;
-        this.videoPlayer.nativeElement.play().catch(error => {
-          console.warn('Video autoplay failed:', error);
-        });
+      if (this.currentPreviewItem?.id === item.id) {
+        const videos = this.itemVideos?.toArray().map(ref => ref.nativeElement) || [];
+        const target = videos.find(v => v.getAttribute('src') === this.getItemUrl(item)) || videos.find(v => !v.classList.contains('hidden'));
+        if (target) {
+          target.src = blobUrl;
+          target.load();
+          target.play().catch((error: any) => {
+            console.warn('Video autoplay failed:', error);
+            setTimeout(() => {
+              target.play().catch((e: any) => console.warn('Retry play failed:', e));
+            }, 100);
+          });
+        }
       }
     } catch (error) {
       console.error(`Error preloading video ${item.id}:`, error);
     }
+  }
+
+  async onDownloadItem(item: MediaItemDto): Promise<void> {
+    await this.downloadItem(item);
   }
 
   private async downloadItem(item: MediaItemDto): Promise<void> {
@@ -351,6 +445,53 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
         console.error('Download failed for item', item.id, e);
       }
     }
+  }
+
+  // Build shareable URL for an item
+  private buildShareUrl(item: MediaItemDto): string {
+    if (item.presignedUrl) {
+      return item.presignedUrl;
+    }
+    if (this.isItemVideo(item)) {
+      return this.getVideoUrl(item);
+    }
+    return this.getItemUrl(item);
+  }
+
+  async copyLink(item?: MediaItemDto): Promise<void> {
+    const target = item || this.shareItem;
+    if (!target) return;
+    const url = this.buildShareUrl(target);
+    try {
+      await navigator.clipboard.writeText(url);
+      // Optional: you could surface a toast here in the future
+    } catch (e) {
+      // Fallback: use a temporary input element
+      const input = document.createElement('input');
+      input.value = url;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+    }
+  }
+
+  shareToWhatsApp(item?: MediaItemDto): void {
+    const target = item || this.shareItem;
+    if (!target) return;
+    const url = this.buildShareUrl(target);
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(url)}`;
+    window.open(waUrl, '_blank');
+  }
+
+  openShareModal(item: MediaItemDto): void {
+    this.shareItem = item;
+    this.isShareModalOpen = true;
+  }
+
+  closeShareModal(): void {
+    this.isShareModalOpen = false;
+    this.shareItem = null;
   }
 }
 

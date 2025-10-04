@@ -24,64 +24,111 @@
 
         <div class="library-section" *ngIf="!isLoadingEvents && !errorMessage && allItems.length > 0">
           <div class="library-header">
-            <h2 class="library-title">GALERIA: {{ matchCode }}</h2>
+            <h2 class="library-title">{{ getMatchHeaderLine() }}</h2>
+            <p class="">{{ getMatchDate() }}</p>
             <div class="library-counter">{{ allItems.length }} item{{ allItems.length !== 1 ? 's' : '' }}</div>
           </div>
 
           <div class="library-content">
-            <div class="row g-3">
-              <div 
-                class="col-12 col-sm-6 col-md-4 col-lg-4"
-                [ngClass]="{ 'expanded-col': currentPreviewItem?.id === getItemId(item) }"
-                *ngFor="let item of allItems">
-                <div 
-                  class="event-card" 
-                  [class.selected]="isItemSelected(item)"
-                  [class.expanded]="currentPreviewItem?.id === getItemId(item)"
-                  (click)="onSelectItem(item)">
-                  <div class="event-header">
-                    <div class="event-icon">
-                      <span [innerHTML]="getItemIcon(item)"></span>
+            <!-- Resumo -->
+            <div *ngIf="resumoItems.length > 0">
+              <div class="row g-3">
+                <div class="col-12" *ngFor="let item of resumoItems" [ngClass]="{ 'expanded-col': currentPreviewItem?.id === getItemId(item) }">
+                  <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" (click)="onSelectItem(item)">
+                    <div class="event-header">
+                      <div class="event-icon"><span [innerHTML]="getItemIcon(item)"></span></div>
+                      <div class="event-time"><p class="time-text">{{ getItemDescription(item) }}</p></div>
                     </div>
-                    <div class="event-time">
-                      <p class="time-text">{{ getItemDescription(item) }}</p>
+                    <div class="event-thumbnail" (click)="onItemClick(item, $event)">
+                      <ng-container *ngIf="isItemPhoto(item); else videoTplResumo">
+                        <img class="thumb-photo" [class.expanded-photo]="currentPreviewItem?.id === getItemId(item)" [src]="getItemUrl(item)" alt="photo" />
+                        <button class="close-photo-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                      </ng-container>
+                      <ng-template #videoTplResumo>
+                        <div class="video-thumbnail-container">
+                          <img class="thumb-photo" [src]="getResumoThumbnailUrl(item)" alt="video thumbnail" />
+                          <video 
+                            #itemVideo
+                            [src]="getItemUrl(item)"
+                            [muted]="true"
+                            [loop]="false"
+                            [autoplay]="currentPreviewItem?.id === getItemId(item)"
+                            controls
+                            class="thumb-video"
+                            [class.hidden]="currentPreviewItem?.id !== getItemId(item)"
+                            (ended)="onVideoEnded($event)"
+                            (error)="onVideoError($event)"
+                            (loadeddata)="onVideoLoaded()"
+                            (canplay)="onVideoLoaded()">
+                          </video>
+                          <button class="thumb-play-button" *ngIf="currentPreviewItem?.id !== getItemId(item)" (click)="onPreviewItem(item); $event.stopPropagation()"><i class="fas fa-play"></i></button>
+                          <button class="close-video-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                        </div>
+                      </ng-template>
                     </div>
-                    <div class="team-name">
-                      <span class="team-score" *ngIf="isItemGoal(item)">({{ getItemResult(item) }})</span>
+                    <div class="event-actions">
+                      <button class="action-button share" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i><span>Partilhar</span></button>
+                      <button class="action-button download" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i><span>Transferir</span></button>
                     </div>
                   </div>
-
-                <div class="event-thumbnail" (click)="onItemClick(item, $event)">
-                  <ng-container *ngIf="isItemPhoto(item); else videoTpl">
-                    <img 
-                      class="thumb-photo" 
-                      [class.expanded-photo]="currentPreviewItem?.id === getItemId(item)"
-                      [src]="getItemUrl(item)" 
-                      alt="photo" />
-                    <button class="close-photo-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()">
-                      <i class="fas fa-times"></i>
-                    </button>
-                  </ng-container>
-                  <ng-template #videoTpl>
-                    <video 
-                      #thumbVideo
-                      [src]="getItemUrl(item)"
-                      [muted]="true"
-                      [loop]="false"
-                      [autoplay]="currentPreviewItem?.id === getItemId(item)"
-                      controls
-                      class="thumb-video"
-                      (ended)="onVideoEnded($event)"
-                      (error)="onVideoError($event)">
-                    </video>
-                    <button class="thumb-play-button" *ngIf="currentPreviewItem?.id !== getItemId(item)" (click)="onPreviewItem(item); $event.stopPropagation()">
-                      <i class="fas fa-play"></i>
-                    </button>
-                    <button class="close-video-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()">
-                      <i class="fas fa-times"></i>
-                    </button>
-                  </ng-template>
                 </div>
+              </div>
+            </div>
+
+            <!-- Todos os Momentos -->
+            <div class="section">
+              <div class="section-header">
+                <h3>Todos os Momentos</h3>
+              </div>
+              <div class="row g-3" *ngIf="momentItems.length > 0">
+                <div class="col-12 col-sm-6 col-md-4 col-lg-4" *ngFor="let item of momentItems" [ngClass]="{ 'expanded-col': currentPreviewItem?.id === getItemId(item) }">
+                  <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" (click)="onSelectItem(item)">
+                    <div class="event-header">
+                      <div class="event-icon"><span [innerHTML]="getItemIcon(item)"></span></div>
+                      <div class="event-time"><p class="time-text">{{ getItemDescription(item) }}</p></div>
+                      <div class="team-name"><span class="team-score" *ngIf="isItemGoal(item)">({{ getItemResult(item) }})</span></div>
+                    </div>
+                    <div class="event-thumbnail" (click)="onItemClick(item, $event)">
+                      <ng-container *ngIf="isItemPhoto(item); else videoTplMomentos">
+                        <img class="thumb-photo" [class.expanded-photo]="currentPreviewItem?.id === getItemId(item)" [src]="getItemUrl(item)" alt="photo" />
+                        <button class="close-photo-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                      </ng-container>
+                      <ng-template #videoTplMomentos>
+                        <video #itemVideo [src]="getItemUrl(item)" [muted]="true" [loop]="false" [autoplay]="currentPreviewItem?.id === getItemId(item)" controls class="thumb-video" (ended)="onVideoEnded($event)" (error)="onVideoError($event)" (loadeddata)="onVideoLoaded($event)" (canplay)="onVideoLoaded($event)"></video>
+                        <button class="thumb-play-button" *ngIf="currentPreviewItem?.id !== getItemId(item)" (click)="onPreviewItem(item); $event.stopPropagation()"><i class="fas fa-play"></i></button>
+                        <button class="close-video-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                      </ng-template>
+                    </div>
+                    <div class="event-actions">
+                      <button class="action-button share" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i><span>Partilhar</span></button>
+                      <button class="action-button download" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i><span>Transferir</span></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fotos -->
+            <div class="section" *ngIf="photoItems.length > 0">
+              <div class="section-header">
+                <h3>Fotos</h3>
+              </div>
+              <div class="row g-3">
+                <div class="col-12 col-sm-6 col-md-4 col-lg-4" *ngFor="let item of photoItems" [ngClass]="{ 'expanded-col': currentPreviewItem?.id === getItemId(item) }">
+                  <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" (click)="onSelectItem(item)">
+                    <div class="event-header">
+                      <div class="event-icon"><span [innerHTML]="getItemIcon(item)"></span></div>
+                      <div class="event-time"><p class="time-text">{{ getItemDescription(item) }}</p></div>
+                    </div>
+                    <div class="event-thumbnail" (click)="onItemClick(item, $event)">
+                      <img class="thumb-photo" [class.expanded-photo]="currentPreviewItem?.id === getItemId(item)" [src]="getItemUrl(item)" alt="photo" />
+                      <button class="close-photo-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="event-actions">
+                      <button class="action-button share" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i><span>Partilhar</span></button>
+                      <button class="action-button download" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i><span>Transferir</span></button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -117,6 +164,24 @@
           <button class="back-to-download-button" (click)="onBackClick()">
             <i class="fas fa-arrow-left"></i>
             Procurar outro jogo
+          </button>
+        </div>
+      </div>
+      <!-- Share Modal -->
+      <div class="share-modal-backdrop" *ngIf="isShareModalOpen" (click)="closeShareModal()"></div>
+      <div class="share-modal" *ngIf="isShareModalOpen" (click)="$event.stopPropagation()">
+        <div class="share-modal-header">
+          <h4>Partilhar</h4>
+          <button class="close-modal" (click)="closeShareModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="share-modal-body">
+          <button class="share-option whatsapp" (click)="shareToWhatsApp(); closeShareModal()">
+            <i class="fab fa-whatsapp"></i>
+            <span>Partilhar no WhatsApp</span>
+          </button>
+          <button class="share-option copy" (click)="copyLink(); closeShareModal()">
+            <i class="fas fa-link"></i>
+            <span>Copiar ligação</span>
           </button>
         </div>
       </div>

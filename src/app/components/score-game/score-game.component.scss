@@ -1,9 +1,12 @@
 .score-game-container {
-  min-height: 100vh;
+  height: 100vh;
   background: #1a1a2e;
   padding: 20px;
   color: white;
   font-family: 'Arial', sans-serif;
+  overflow: hidden;
+  //display: flex;
+  flex-direction: column;
 }
 
 // Header Section
@@ -108,6 +111,8 @@
   margin-bottom: 1rem;
   display: flex;
   justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 // Live Indicator Container
@@ -145,6 +150,10 @@
   background: white;
   border-radius: 15px;
   color: #333;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .team {
@@ -363,6 +372,44 @@
   &:hover {
     background: linear-gradient(135deg, #ff3742 0%, #ff2e3a 100%);
     box-shadow: 0 6px 12px rgba(255, 71, 87, 0.4);
+  }
+
+  i {
+    font-size: 0.9rem;
+  }
+}
+
+.btn-edit-score {
+  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+  color: #333;
+  box-shadow: 0 3px 8px rgba(255, 193, 7, 0.3);
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  min-height: 40px;
+  border-radius: 20px;
+
+  &:hover {
+    background: linear-gradient(135deg, #ffb300 0%, #ff8f00 100%);
+    box-shadow: 0 6px 12px rgba(255, 193, 7, 0.4);
+  }
+
+  i {
+    font-size: 0.9rem;
+  }
+}
+
+.btn-save-edit {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3);
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  min-height: 40px;
+  border-radius: 20px;
+
+  &:hover {
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+    box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
   }
 
   i {

@@ -2,3 +2,194 @@
 
 
 
+/* Section layout */
+.section {
+  margin: 24px 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.match-meta {
+  margin: 8px 0 16px 0;
+  color: #444;
+}
+
+.match-meta .match-line {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.match-meta .match-date {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+/* Event actions - YouTube-like buttons */
+.event-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 18px;
+  background: transparent;
+  color: #0f0f0f;
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.action-button:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.action-button i {
+  font-size: 16px;
+}
+
+.action-button span {
+  white-space: nowrap;
+}
+
+/* Accents */
+.action-button.share i {
+  color: #25d366; /* WhatsApp green */
+}
+
+.action-button.download i {
+  color: #0f0f0f;
+}
+
+.action-button.copy i {
+  color: #606060;
+}
+
+/* Ensure full-width videos in Resumo look clean */
+.col-12 .thumb-video,
+.col-12 .thumb-photo {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Video thumbnail container for Resumo */
+.video-thumbnail-container {
+  position: relative;
+  width: 100%;
+}
+
+.video-thumbnail-container .thumb-video.hidden {
+  display: none;
+}
+
+.video-thumbnail-container .thumb-video:not(.hidden) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Share Modal */
+.share-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1040;
+}
+
+.share-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  z-index: 1050;
+  overflow: hidden;
+}
+
+.share-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.share-modal-header h4 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.close-modal {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  color: #606060;
+}
+
+.share-modal-body {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 8px;
+}
+
+.share-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fafafa;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.share-option:hover {
+  background: #f2f2f2;
+  border-color: rgba(0,0,0,0.12);
+}
+
+.share-option i {
+  font-size: 18px;
+}
+
+.share-option.whatsapp i {
+  color: #25d366;
+}
+
+.share-option.copy i {
+  color: #606060;
+}

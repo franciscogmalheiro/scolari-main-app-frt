@@ -4,10 +4,16 @@
   <div class="col-3 text-center">
     <div class="event-log team-a-log">
       <div class="events-list">
-        <div *ngFor="let event of teamAEvents" 
+        <div *ngFor="let event of teamAEvents; let i = index" 
              class="event-item"
              [class.undone]="event.isUndone">
-          {{ event.text }}
+          <span class="event-text">{{ event.text }}</span>
+          <button *ngIf="isEditMode && !event.isUndone" 
+                  class="btn btn-edit-event" 
+                  (click)="editEventClick(i, 'A', 'goal')"
+                  title="Editar evento">
+            <i class="fas fa-pencil-alt"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -17,10 +23,16 @@
   <div class="col-5 text-center">
     <div class="event-log highlight-log">
       <div class="events-list">
-        <div *ngFor="let event of highlightEvents" 
+        <div *ngFor="let event of highlightEvents; let i = index" 
              class="event-item"
              [class.undone]="event.isUndone">
-          {{ event.text }}
+          <span class="event-text">{{ event.text }}</span>
+          <button *ngIf="isEditMode && !event.isUndone" 
+                  class="btn btn-edit-event" 
+                  (click)="editEventClick(i, null, 'highlight')"
+                  title="Editar evento">
+            <i class="fas fa-pencil-alt"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -30,43 +42,19 @@
   <div class="col-3 text-center">
     <div class="event-log team-b-log">
       <div class="events-list">
-        <div *ngFor="let event of teamBEvents" 
+        <div *ngFor="let event of teamBEvents; let i = index" 
              class="event-item"
              [class.undone]="event.isUndone">
-          {{ event.text }}
+          <span class="event-text">{{ event.text }}</span>
+          <button *ngIf="isEditMode && !event.isUndone" 
+                  class="btn btn-edit-event" 
+                  (click)="editEventClick(i, 'B', 'goal')"
+                  title="Editar evento">
+            <i class="fas fa-pencil-alt"></i>
+          </button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Undo Buttons Row -->
-<div class="row justify-content-center">
-  <!-- Team A Undo -->
-  <div class="col-3 text-center">
-    <div class="undo-button-container team-a-undo">
-      <button 
-        *ngIf="showControls && teamAScore > 0" 
-        class="btn btn-undo" 
-        (click)="undoTeamA.emit()">
-        <i class="fas fa-undo"></i>
-      </button>
-    </div>
-  </div>
-
-  <!-- Empty space for highlight column -->
-  <div class="col-5 text-center">
-  </div>
-
-  <!-- Team B Undo -->
-  <div class="col-3 text-center">
-    <div class="undo-button-container team-b-undo">
-      <button 
-        *ngIf="showControls && teamBScore > 0" 
-        class="btn btn-undo" 
-        (click)="undoTeamB.emit()">
-        <i class="fas fa-undo"></i>
-      </button>
-    </div>
-  </div>
-</div>

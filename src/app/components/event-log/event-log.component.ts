@@ -5,6 +5,12 @@ interface EventItem {
   isUndone: boolean;
 }
 
+interface EditEventData {
+  index: number;
+  team: 'A' | 'B' | null;
+  eventType: 'goal' | 'highlight';
+}
+
 @Component({
   selector: 'app-event-log',
   templateUrl: './event-log.component.html',
@@ -19,7 +25,11 @@ export class EventLogComponent {
   @Input() teamBScore: number = 0;
   @Input() teamAColor: string = '#ff6b35';
   @Input() teamBColor: string = '#007bff';
+  @Input() isEditMode: boolean = false;
 
-  @Output() undoTeamA = new EventEmitter<void>();
-  @Output() undoTeamB = new EventEmitter<void>();
+  @Output() editEvent = new EventEmitter<EditEventData>();
+
+  editEventClick(index: number, team: 'A' | 'B' | null, eventType: 'goal' | 'highlight'): void {
+    this.editEvent.emit({ index, team, eventType });
+  }
 }

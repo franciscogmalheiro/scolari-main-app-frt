@@ -127,11 +127,17 @@
       [teamBScore]="teamBScore"
       [teamAColor]="teamAColor"
       [teamBColor]="teamBColor"
-      (undoTeamA)="decreaseTeamGoal('A')"
-      (undoTeamB)="decreaseTeamGoal('B')"
+      [isEditMode]="isEditMode"
+      (editEvent)="openEventEditModal($event)"
     ></app-event-log>
 
     <div class="finish-button-section" *ngIf="isMatchStarted && !isMatchFinished">
+      <button class="btn btn-edit-score" (click)="toggleEditMode()" *ngIf="!isEditMode">
+        <i class="fas fa-edit"></i> CORRIGIR
+      </button>
+      <button class="btn btn-save-edit" (click)="saveEditMode()" *ngIf="isEditMode">
+        <i class="fas fa-save"></i> GUARDAR
+      </button>
       <button class="btn btn-finish-small" (click)="finishMatch()">
         <i class="fas fa-stop"></i> TERMINAR
       </button>
@@ -224,6 +230,82 @@
       <button class="close-preview-btn" (click)="closePhotoPreview()">&times;</button>
       <h3>Match Photo</h3>
       <img *ngIf="lastCapturedPhotoUrl" [src]="lastCapturedPhotoUrl" alt="Match photo" class="photo-preview-image" />
+    </div>
+  </div>
+
+  <!-- Event Edit Modal -->
+  <div class="event-edit-modal" *ngIf="showEventEditModal">
+    <div class="event-edit-content">
+      <div class="event-edit-header">
+        <h3>Editar: {{ getCurrentEventType() | titlecase }}</h3>
+        <button class="close-edit-btn" (click)="closeEventEditModal()">&times;</button>
+      </div>
+      
+      <div class="event-edit-body">
+        <!-- Result Preview -->
+        <div class="result-preview">
+          <span class="current-result">Resultado atual: {{ teamAScore }}-{{ teamBScore }}</span>
+          <span class="separator">|</span>
+          <span class="new-result">Novo resultado: {{ getNewEventResult() }}</span>
+        </div>
+        
+        <!-- Event Type Selection -->
+        <div class="form-group">
+          <label>Tipo de Evento:</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" 
+                     name="eventType" 
+                     value="goal" 
+                     [(ngModel)]="editingEventType"
+                     [checked]="editingEventType === 'goal'">
+              <span class="radio-icon">⚽</span>
+              <span class="radio-label">Golo</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" 
+                     name="eventType" 
+                     value="highlight" 
+                     [(ngModel)]="editingEventType"
+                     [checked]="editingEventType === 'highlight'">
+              <span class="radio-icon">⭐</span>
+              <span class="radio-label">Destaque</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Team Selection (only for goals) -->
+        <div class="form-group" *ngIf="editingEventType === 'goal'">
+          <label>Equipa:</label>
+          <div class="radio-group">
+            <label class="radio-option" data-team="A">
+              <input type="radio" 
+                     name="eventTeam" 
+                     value="A" 
+                     [(ngModel)]="editingEventTeamSelection"
+                     [checked]="editingEventTeamSelection === 'A'">
+              <span class="radio-label">{{ teamAName }}</span>
+            </label>
+            <label class="radio-option" data-team="B">
+              <input type="radio" 
+                     name="eventTeam" 
+                     value="B" 
+                     [(ngModel)]="editingEventTeamSelection"
+                     [checked]="editingEventTeamSelection === 'B'">
+              <span class="radio-label">{{ teamBName }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="event-edit-controls">
+        <button class="btn btn-danger" (click)="deleteEvent()">
+          <i class="fas fa-trash"></i> Eliminar
+        </button>
+        <button class="btn btn-primary" (click)="saveEventEdit()">
+          <i class="fas fa-save"></i> Guardar
+        </button>
+      </div>
     </div>
   </div>
 </div>

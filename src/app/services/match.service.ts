@@ -60,6 +60,19 @@ export interface IndividualMatchEventDto {
   fieldCameraId?: number;
 }
 
+export interface MatchEventRequestDto {
+  matchId: number;
+  dateTime: string;
+  eventTypeId?: number;
+  eventName?: string;
+  teamName?: string;
+  result: string;
+  fieldCameraId?: number;
+  videoSegmentId?: number;
+  previewStatus?: string;
+  previewUrl?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -91,5 +104,17 @@ export class MatchService {
 
   getMatchesByField(fieldId: number): Observable<FieldMatchResponseDto[]> {
     return this.http.get<FieldMatchResponseDto[]>(`${this.API_BASE_URL}/matches/field/${fieldId}`);
+  }
+
+  getMatchByCode(matchCode: string): Observable<FieldMatchResponseDto> {
+    return this.http.get<FieldMatchResponseDto>(`${this.API_BASE_URL}/matches/code/${matchCode}`);
+  }
+
+  updateMatchEvent(eventId: number, eventData: MatchEventRequestDto): Observable<any> {
+    return this.http.put(`${this.API_BASE_URL}/match-events/${eventId}`, eventData);
+  }
+
+  deleteMatchEvent(eventId: number): Observable<any> {
+    return this.http.delete(`${this.API_BASE_URL}/match-events/${eventId}`);
   }
 } 

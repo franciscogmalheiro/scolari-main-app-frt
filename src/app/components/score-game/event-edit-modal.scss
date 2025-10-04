@@ -1,0 +1,316 @@
+// Event Edit Modal Styles
+.event-edit-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10002;
+
+  .event-edit-content {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
+    .event-edit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid #e9ecef;
+
+      h3 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #333;
+        margin: 0;
+      }
+
+      .close-edit-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #dc3545;
+        color: #fff;
+        border: 0;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: #c82333;
+          transform: scale(1.1);
+        }
+      }
+    }
+
+
+    .event-edit-body {
+      margin-bottom: 2rem;
+
+      .result-preview {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 12px;
+        border: 1px solid #dee2e6;
+        font-size: 1rem;
+        font-weight: 600;
+
+        .current-result {
+          color: #495057;
+        }
+
+        .separator {
+          color: #6c757d;
+          font-weight: 400;
+        }
+
+        .new-result {
+          color: #007bff;
+        }
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+        text-align: left;
+
+        label {
+          display: block;
+          font-weight: 600;
+          color: #333;
+          margin-bottom: 0.5rem;
+          font-size: 1rem;
+        }
+
+        .radio-group {
+          display: flex;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+
+          .radio-option {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 1.25rem 1.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex: 1;
+            min-width: 160px;
+            justify-content: center;
+            background: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+            &:hover {
+              border-color: #007bff;
+              background: rgba(0, 123, 255, 0.08);
+              transform: translateY(-2px);
+              box-shadow: 0 6px 16px rgba(0, 123, 255, 0.15);
+            }
+
+            input[type="radio"] {
+              position: absolute;
+              opacity: 0;
+              width: 0;
+              height: 0;
+              margin: 0;
+            }
+
+            // Icon styling
+            .radio-icon {
+              font-size: 1.5rem;
+              transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+              flex-shrink: 0;
+            }
+
+            // Team-specific styling
+            &[data-team="A"] {
+              &:has(input:checked) {
+                border-color: #28a745;
+                background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(40, 167, 69, 0.08) 100%);
+                box-shadow: 0 8px 20px rgba(40, 167, 69, 0.25);
+
+                .radio-label {
+                  color: #28a745;
+                  font-weight: 700;
+                }
+              }
+
+              &:hover {
+                border-color: #28a745;
+                background: rgba(40, 167, 69, 0.08);
+                box-shadow: 0 6px 16px rgba(40, 167, 69, 0.15);
+              }
+            }
+
+            &[data-team="B"] {
+              &:has(input:checked) {
+                border-color: #dc3545;
+                background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.08) 100%);
+                box-shadow: 0 8px 20px rgba(220, 53, 69, 0.25);
+
+                .radio-label {
+                  color: #dc3545;
+                  font-weight: 700;
+                }
+              }
+
+              &:hover {
+                border-color: #dc3545;
+                background: rgba(220, 53, 69, 0.08);
+                box-shadow: 0 6px 16px rgba(220, 53, 69, 0.15);
+              }
+            }
+
+            // Default selected state (for event type)
+            &:has(input:checked):not([data-team]) {
+              border-color: #007bff;
+              background: linear-gradient(135deg, rgba(0, 123, 255, 0.15) 0%, rgba(0, 123, 255, 0.08) 100%);
+              transform: translateY(-2px);
+              box-shadow: 0 8px 20px rgba(0, 123, 255, 0.25);
+
+              .radio-icon {
+                transform: scale(1.1);
+              }
+
+              .radio-label {
+                color: #007bff;
+                font-weight: 700;
+              }
+            }
+
+            .radio-label {
+              font-weight: 600;
+              color: #495057;
+              user-select: none;
+              font-size: 1rem;
+              letter-spacing: 0.3px;
+              transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+          }
+        }
+      }
+    }
+
+    .event-edit-controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-top: auto;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+
+      .btn {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        min-width: 100px;
+        justify-content: center;
+
+        &.btn-danger {
+          background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+          color: white;
+
+          &:hover {
+            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+          }
+        }
+
+
+        &.btn-primary {
+          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+          color: white;
+
+          &:hover {
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+          }
+        }
+
+        i {
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+// Responsive design for event edit modal
+@media (max-width: 768px) {
+  .event-edit-modal {
+    padding: 1rem;
+
+    .event-edit-content {
+      padding: 1.5rem;
+      margin: 0;
+      max-width: 95vw;
+      max-height: 95vh;
+
+      .event-edit-header {
+        h3 {
+          font-size: 1.5rem;
+        }
+      }
+
+      .event-edit-body {
+        .form-group {
+          .radio-group {
+            flex-direction: column;
+            gap: 0.5rem;
+
+            .radio-option {
+              width: 100%;
+              min-width: auto;
+            }
+          }
+        }
+      }
+
+      .event-edit-controls {
+        flex-direction: column;
+        gap: 0.75rem;
+
+        .btn {
+          width: 100%;
+          padding: 0.8rem 1.2rem;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+}
