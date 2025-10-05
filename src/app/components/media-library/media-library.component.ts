@@ -14,6 +14,7 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   @ViewChildren('itemVideo') itemVideos!: QueryList<ElementRef<HTMLVideoElement>>;
 
   matchCode = '';
+  isRecordingCodeRoute = false;
   mediaItems: MediaItemDto[] = [];
   allItems: MediaItemDto[] = [];
   isLoadingEvents = false;
@@ -45,17 +46,43 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     this.route.params.subscribe(params => {
       if (params['matchCode']) {
         this.matchCode = params['matchCode'];
+        this.isRecordingCodeRoute = false;
+        this.loadAllVideos();
+        this.loadMatchDetails();
+      } else if (params['recordingCode']) {
+        this.matchCode = params['recordingCode'];
+        this.isRecordingCodeRoute = true;
         this.loadAllVideos();
         this.loadMatchDetails();
       }
     });
   }
 
+  private buildPageShareUrl(): string {
+    const base = environment.publicBaseUrl && environment.publicBaseUrl.trim().length > 0
+      ? environment.publicBaseUrl.replace(/\/$/, '')
+      : window.location.origin;
+    if (this.isRecordingCodeRoute) {
+      return `${base}/media-library/recording-code/${this.matchCode}`;
+    }
+    return `${base}/media-library/${this.matchCode}`;
+  }
+
+  async onShareLibrary(): Promise<void> {
+    // Open the existing share modal but for the page URL
+    this.shareItem = null;
+    this.isShareModalOpen = true;
+  }
+
   loadAllVideos(): void {
     this.isLoadingEvents = true;
     this.errorMessage = '';
 
-    this.mediaLibraryService.getMediaLibrary(this.matchCode).subscribe({
+    const serviceCall = this.isRecordingCodeRoute 
+      ? this.mediaLibraryService.getMediaLibraryByRecordingCode(this.matchCode)
+      : this.mediaLibraryService.getMediaLibrary(this.matchCode);
+
+    serviceCall.subscribe({
       next: (mediaItems) => {
         this.mediaItems = mediaItems || [];
         this.allItems = this.mediaItems;
@@ -74,7 +101,12 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
 
   private loadMatchDetails(): void {
     if (!this.matchCode) return;
-    this.matchService.getMatchByCode(this.matchCode).subscribe({
+    
+    const serviceCall = this.isRecordingCodeRoute 
+      ? this.matchService.getMatchByRecordingCode(this.matchCode)
+      : this.matchService.getMatchByCode(this.matchCode);
+
+    serviceCall.subscribe({
       next: (match) => {
         this.matchDetails = match;
       },
@@ -460,8 +492,7 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
 
   async copyLink(item?: MediaItemDto): Promise<void> {
     const target = item || this.shareItem;
-    if (!target) return;
-    const url = this.buildShareUrl(target);
+    const url = target ? this.buildShareUrl(target) : this.buildPageShareUrl();
     try {
       await navigator.clipboard.writeText(url);
       // Optional: you could surface a toast here in the future
@@ -478,14 +509,13 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
 
   shareToWhatsApp(item?: MediaItemDto): void {
     const target = item || this.shareItem;
-    if (!target) return;
-    const url = this.buildShareUrl(target);
+    const url = target ? this.buildShareUrl(target) : this.buildPageShareUrl();
     const waUrl = `https://wa.me/?text=${encodeURIComponent(url)}`;
     window.open(waUrl, '_blank');
   }
 
-  openShareModal(item: MediaItemDto): void {
-    this.shareItem = item;
+  openShareModal(item?: MediaItemDto): void {
+    this.shareItem = item || null;
     this.isShareModalOpen = true;
   }
 

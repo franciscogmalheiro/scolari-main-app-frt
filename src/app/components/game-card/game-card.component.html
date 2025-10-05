@@ -22,5 +22,10 @@
 
     <p class="card-description">{{ gameMode.description }}</p>
 
+    <!-- Badge for disabled cards with badge text -->
+    <div *ngIf="isDisabled && gameMode.badge" class="card-badge">
+      {{ gameMode.badge }}
+    </div>
+
   </div>
 </div>

@@ -14,42 +14,26 @@
       <!-- Form Section -->
       <div class="form-section" *ngIf="!isGameValid">
         <div class="form-header">
-          <h2 class="form-title">Insere os dados do jogo</h2>
+          <h2 class="form-title">Insere o código de gravação</h2>
           <p class="form-description">
-            Para acederes à galeria de vídeos tens de inserir o ID de Jogo e o voucher adquirido junto ao responsável de campo.
+            Para acederes à galeria de vídeos tens de inserir o código de gravação fornecido pelo responsável de campo.
           </p>
         </div>
 
         <form [formGroup]="downloadForm" (ngSubmit)="onSubmit()" class="download-form">
           <div class="form-group">
-            <label for="gameId" class="form-label">ID de Jogo</label>
+            <label for="recordingCode" class="form-label">Código de Gravação</label>
             <input
               type="text"
-              id="gameId"
-              formControlName="gameId"
+              id="recordingCode"
+              formControlName="recordingCode"
               class="form-input"
-              placeholder="Insere o ID de Jogo"
-              [class.error]="downloadForm.get('gameId')?.invalid && downloadForm.get('gameId')?.touched"
+              placeholder="Insere o código de gravação"
+              [class.error]="downloadForm.get('recordingCode')?.invalid && downloadForm.get('recordingCode')?.touched"
             />
-            <div class="error-message" *ngIf="downloadForm.get('gameId')?.invalid && downloadForm.get('gameId')?.touched">
-              <span *ngIf="downloadForm.get('gameId')?.errors?.['required']">Game ID is required</span>
-              <span *ngIf="downloadForm.get('gameId')?.errors?.['minlength']">Game ID must be at least 4 characters</span>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="voucherCode" class="form-label">Voucher</label>
-            <input
-              type="text"
-              id="voucherCode"
-              formControlName="voucherCode"
-              class="form-input"
-              placeholder="Insere o voucher adquirido com o responsavel deste campo"
-              [class.error]="downloadForm.get('voucherCode')?.invalid && downloadForm.get('voucherCode')?.touched"
-            />
-            <div class="error-message" *ngIf="downloadForm.get('voucherCode')?.invalid && downloadForm.get('voucherCode')?.touched">
-              <span *ngIf="downloadForm.get('voucherCode')?.errors?.['required']">Voucher code is required</span>
-              <span *ngIf="downloadForm.get('voucherCode')?.errors?.['minlength']">Voucher code must be at least 4 characters</span>
+            <div class="error-message" *ngIf="downloadForm.get('recordingCode')?.invalid && downloadForm.get('recordingCode')?.touched">
+              <span *ngIf="downloadForm.get('recordingCode')?.errors?.['required']">Código de gravação é obrigatório</span>
+              <span *ngIf="downloadForm.get('recordingCode')?.errors?.['minlength']">Código de gravação deve ter pelo menos 4 caracteres</span>
             </div>
           </div>
 
@@ -74,9 +58,9 @@
       <div class="download-options-section" *ngIf="isGameValid">
         <div class="options-header">
           <div class="success-icon">✅</div>
-          <h2 class="options-title">Game Validated Successfully!</h2>
+          <h2 class="options-title">Código de Gravação Validado!</h2>
           <p class="options-description">
-            Redirecting to video library for game ID: <strong>{{ downloadForm.value.gameId }}</strong>
+            A redirecionar para a galeria de vídeos com o código: <strong>{{ downloadForm.value.recordingCode }}</strong>
           </p>
         </div>
 
@@ -84,7 +68,7 @@
           <div class="loading-spinner">
             <i class="fas fa-spinner fa-spin"></i>
           </div>
-          <p>Loading your video library...</p>
+          <p>A carregar a tua galeria de vídeos...</p>
         </div>
       </div>
     </div>

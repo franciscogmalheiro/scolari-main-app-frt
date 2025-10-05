@@ -27,6 +27,12 @@
 
         <div class="library-section" *ngIf="!isLoadingEvents && !errorMessage && allItems.length > 0">
           <div class="library-header">
+            <div class="library-header-left">
+              <button class="share-library-button" (click)="onShareLibrary()" title="Partilhar biblioteca">
+                <i class="fas fa-share"></i>
+                <span>Partilhar</span>
+              </button>
+            </div>
             <h2 class="library-title">GALERIA: {{ matchCode }}</h2>
             <div class="library-counter">{{ allItems.length }} item{{ allItems.length !== 1 ? 's' : '' }}</div>
           </div>
@@ -129,6 +135,25 @@
           <button class="back-to-download-button" (click)="onBackClick()">
             <i class="fas fa-arrow-left"></i>
             Procurar outro jogo
+          </button>
+        </div>
+      </div>
+
+      <!-- Share Modal -->
+      <div class="share-modal-backdrop" *ngIf="isShareModalOpen" (click)="closeShareModal()"></div>
+      <div class="share-modal" *ngIf="isShareModalOpen" (click)="$event.stopPropagation()">
+        <div class="share-modal-header">
+          <h4>Partilhar</h4>
+          <button class="close-modal" (click)="closeShareModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="share-modal-body">
+          <button class="share-option whatsapp" (click)="sharePageToWhatsApp(); closeShareModal()">
+            <i class="fab fa-whatsapp"></i>
+            <span>Partilhar no WhatsApp</span>
+          </button>
+          <button class="share-option copy" (click)="copyPageLink(); closeShareModal()">
+            <i class="fas fa-link"></i>
+            <span>Copiar ligação</span>
           </button>
         </div>
       </div>

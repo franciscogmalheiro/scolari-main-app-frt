@@ -16,23 +16,13 @@ export class HomeComponent implements OnInit {
 
   gameModes: GameMode[] = [
     {
-      id: 'score-game',
-      title: 'MARCADOR DE JOGO',
-      description: 'Controla o tempo, o marcador e regista os melhores momentos',
-      icon: '🏆',
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      buttonText: 'INICIAR MARCADOR',
-      requiresAuth: false,
-      disabled: false
-    },
-    {
       id: 'record-game',
       title: 'GRAVA O JOGO',
       description: 'Grava todo o jogo e permite que acedas ao vídeo em diferentes formatos',
       icon: '📹',
       gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
       buttonText: 'MARCADOR E GRAVAÇÃO',
-      requiresAuth: true,
+      requiresAuth: false,
       disabled: false
     },
     {
@@ -41,8 +31,8 @@ export class HomeComponent implements OnInit {
       description: 'Acede à gravação do jogo. Podes fazer download do jogo inteiro, dos melhores momentos, ou apenas dos momentos à tua escolha.',
       icon: '⬇️',
       gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-      buttonText: 'ACESSO AOS VÍDEOS',
-      requiresAuth: true,
+      buttonText: 'ACEDER A UMA GRAVAÇÃO',
+      requiresAuth: false,
       disabled: false
     },
     {
@@ -53,7 +43,8 @@ export class HomeComponent implements OnInit {
       gradient: 'linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)',
       buttonText: 'VER HISTÓRICO',
       requiresAuth: true,
-      disabled: false
+      disabled: false,
+      badge: 'APENAS UTILIZADORES REGISTADOS'
     }
   ];
 
@@ -73,10 +64,7 @@ export class HomeComponent implements OnInit {
 
   private updateGameModesDisabledState(): void {
     this.gameModes = this.gameModes.map(mode => {
-      if (mode.id === 'record-game') {
-        // Disable record-game for users with role "USER"
-        mode.disabled = this.currentUser?.role === 'USER';
-      }
+      // No specific role restrictions for game modes
       return mode;
     });
   }
@@ -96,9 +84,6 @@ export class HomeComponent implements OnInit {
 
     // Handle different game modes
     switch (gameMode.id) {
-      case 'score-game':
-        this.startScoreGame();
-        break;
       case 'record-game':
         this.startRecordGame();
         break;
@@ -109,11 +94,6 @@ export class HomeComponent implements OnInit {
         this.openMatchHistory();
         break;
     }
-  }
-
-  private startScoreGame(): void {
-    console.log('Starting Score Game...');
-    this.handleGameStart('score');
   }
 
   private startRecordGame(): void {
@@ -152,28 +132,16 @@ export class HomeComponent implements OnInit {
   private navigateToGame(mode: string, sport: Sport): void {
     console.log('Navigating to game with sport:', sport);
     
-    if (mode === 'score') {
-      // For score mode, navigate to score game
-      const queryParams = {
-        fieldId: this.currentUser?.fieldId,
-        sportId: sport.id,
-        sportName: sport.name,
-        mode: mode
-      };
-      console.log('Navigating to score-game with params:', queryParams);
-      this.router.navigate(['/score-game'], { queryParams });
-    } else {
-      // For record mode, navigate to record instructions
-      const queryParams = {
-        fieldId: this.currentUser?.fieldId,
-        sportId: sport.id,
-        sportCode: sport.code,
-        sportName: sport.name,
-        mode: mode
-      };
-      console.log('Navigating to record-instructions with params:', queryParams);
-      this.router.navigate(['/record-instructions'], { queryParams });
-    }
+    // Navigate to record instructions for the unified record mode
+    const queryParams = {
+      fieldId: this.currentUser?.fieldId,
+      sportId: sport.id,
+      sportCode: sport.code,
+      sportName: sport.name,
+      mode: mode
+    };
+    console.log('Navigating to record-instructions with params:', queryParams);
+    this.router.navigate(['/record-instructions'], { queryParams });
   }
 
   private openVideoLibrary(): void {

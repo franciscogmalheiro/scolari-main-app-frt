@@ -175,6 +175,7 @@
 .library-header {
   text-align: center;
   margin-bottom: 3rem;
+  position: relative;
   
   .library-title {
     font-size: 2rem;
@@ -197,6 +198,39 @@
     display: inline-block;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .library-header-left {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .share-library-button {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
+
+    i {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(34, 197, 94, 0.45);
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    }
   }
 }
 

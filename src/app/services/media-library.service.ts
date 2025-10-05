@@ -29,4 +29,8 @@ export class MediaLibraryService {
   getMediaLibrary(matchCode: string): Observable<MediaItemDto[]> {
     return this.http.get<MediaItemDto[]>(`${this.apiUrl}/media-library/${matchCode}`);
   }
+
+  getMediaLibraryByRecordingCode(recordingCode: string): Observable<MediaItemDto[]> {
+    return this.http.get<MediaItemDto[]>(`${this.apiUrl}/media-library/recording-code/${recordingCode}`);
+  }
 }

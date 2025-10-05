@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 
 export interface DownloadFormState {
-  gameId: string;
-  voucherCode: string;
+  recordingCode: string;
   isGameValid: boolean;
 }
 

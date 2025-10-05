@@ -2,9 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DownloadFormStateService } from '../../services/download-form-state.service';
-import { MatchService } from '../../services/match.service';
-import { VideoHighlightsService } from '../../services/video-highlights.service';
-import { forkJoin } from 'rxjs';
+import { RecordingCodeService } from '../../services/recording-code.service';
 
 interface DownloadOption {
   id: string;
@@ -24,8 +22,7 @@ export class DownloadVideoComponent implements OnInit {
   downloadForm: FormGroup;
   isLoading = false;
   isGameValid = false;
-  gameId = '';
-  voucherCode = '';
+  recordingCode = '';
   errorMessage = '';
 
   downloadOptions: DownloadOption[] = [
@@ -52,12 +49,10 @@ export class DownloadVideoComponent implements OnInit {
     private route: ActivatedRoute,
     private fb: FormBuilder,
     private downloadFormStateService: DownloadFormStateService,
-    private matchService: MatchService,
-    private videoHighlightsService: VideoHighlightsService
+    private recordingCodeService: RecordingCodeService
   ) {
     this.downloadForm = this.fb.group({
-      gameId: ['', [Validators.required, Validators.minLength(4)]],
-      voucherCode: ['', [Validators.required, Validators.minLength(4)]]
+      recordingCode: ['', [Validators.required, Validators.minLength(4)]]
     });
   }
 
@@ -65,12 +60,10 @@ export class DownloadVideoComponent implements OnInit {
     // Check if there's a saved form state to restore
     const savedState = this.downloadFormStateService.getFormState();
     if (savedState) {
-      this.gameId = savedState.gameId;
-      this.voucherCode = savedState.voucherCode;
+      this.recordingCode = savedState.recordingCode;
       this.isGameValid = savedState.isGameValid;
       this.downloadForm.patchValue({
-        gameId: this.gameId,
-        voucherCode: this.voucherCode
+        recordingCode: this.recordingCode
       });
       // Clear the saved state after restoring
       this.downloadFormStateService.clearFormState();
@@ -79,56 +72,54 @@ export class DownloadVideoComponent implements OnInit {
       this.resetForm();
     }
     
-    // Check if game ID is provided in URL
+    // Check if recording code is provided in URL
     this.route.params.subscribe(params => {
-      if (params['gameId']) {
-        this.gameId = params['gameId'];
-        this.downloadForm.patchValue({ gameId: this.gameId });
+      if (params['recordingCode']) {
+        this.recordingCode = params['recordingCode'];
+        this.downloadForm.patchValue({ recordingCode: this.recordingCode });
       }
     });
   }
 
   onSubmit(): void {
     if (this.downloadForm.valid) {
-      this.validateGame();
+      this.validateRecordingCode();
     }
   }
 
-  private validateGame(): void {
+  private validateRecordingCode(): void {
     this.isLoading = true;
     this.errorMessage = '';
 
-    const { gameId, voucherCode } = this.downloadForm.value;
+    const { recordingCode } = this.downloadForm.value;
 
-    // Simulate backend call - replace with actual API call
-    setTimeout(() => {
-      // Mock validation - replace with actual backend validation
-      if (gameId && voucherCode) {
+    this.recordingCodeService.validateRecordingCode(recordingCode).subscribe({
+      next: (recordingCodeData) => {
         this.isGameValid = true;
-        this.checkDataAvailability(gameId);
         this.isLoading = false;
         
         // Navigate directly to video library after validation
-        this.navigateToVideoLibrary(gameId);
-      } else {
-        this.errorMessage = 'Invalid game ID or voucher code. Please try again.';
+        this.navigateToVideoLibrary(recordingCode);
+      },
+      error: (error) => {
+        console.error('Error validating recording code:', error);
+        this.errorMessage = 'Código de gravação inválido. Por favor, tenta novamente.';
         this.isGameValid = false;
         this.isLoading = false;
       }
-    }, 1500);
+    });
   }
 
-  private navigateToVideoLibrary(gameId: string): void {
+  private navigateToVideoLibrary(recordingCode: string): void {
     // Save the current form state before navigating
     const currentState = {
-      gameId: this.downloadForm.value.gameId,
-      voucherCode: this.downloadForm.value.voucherCode,
+      recordingCode: this.downloadForm.value.recordingCode,
       isGameValid: this.isGameValid
     };
     this.downloadFormStateService.saveFormState(currentState);
     
-    // Navigate directly to video library
-    this.router.navigate(['/media-library', gameId]);
+    // Navigate directly to video library using recording code
+    this.router.navigate(['/media-library/recording-code', recordingCode]);
   }
 
   onDownloadOptionClick(option: DownloadOption): void {
@@ -138,15 +129,14 @@ export class DownloadVideoComponent implements OnInit {
 
     // Save the current form state before navigating
     const currentState = {
-      gameId: this.downloadForm.value.gameId,
-      voucherCode: this.downloadForm.value.voucherCode,
+      recordingCode: this.downloadForm.value.recordingCode,
       isGameValid: this.isGameValid
     };
     this.downloadFormStateService.saveFormState(currentState);
 
     // Navigate directly to video library for both options
-    const matchCode = this.downloadForm.value.gameId;
-    this.router.navigate(['/media-library', matchCode]);
+    const recordingCode = this.downloadForm.value.recordingCode;
+    this.router.navigate(['/media-library/recording-code', recordingCode]);
   }
 
   onBackClick(): void {
@@ -161,37 +151,8 @@ export class DownloadVideoComponent implements OnInit {
     this.isGameValid = false;
     this.isLoading = false;
     this.errorMessage = '';
-    this.gameId = '';
-    this.voucherCode = '';
+    this.recordingCode = '';
     this.downloadForm.reset();
   }
 
-  private checkDataAvailability(matchCode: string): void {
-    // Make both API calls to check for data availability
-    const matchEventsCall = this.matchService.getMatchEvents(matchCode);
-    const videoHighlightsCall = this.videoHighlightsService.getVideoHighlights(matchCode);
-
-    forkJoin([matchEventsCall, videoHighlightsCall]).subscribe({
-      next: ([matchEvents, videoHighlights]) => {
-        // Update button states based on data availability
-        const highlightsOption = this.downloadOptions.find(option => option.id === 'highlights');
-        const selectedMomentsOption = this.downloadOptions.find(option => option.id === 'selected-moments');
-
-        if (highlightsOption) {
-          highlightsOption.disabled = !videoHighlights || videoHighlights.length === 0;
-        }
-
-        if (selectedMomentsOption) {
-          selectedMomentsOption.disabled = !matchEvents || matchEvents.length === 0;
-        }
-      },
-      error: (error) => {
-        console.error('Error checking data availability:', error);
-        // If there's an error, disable both buttons as a safety measure
-        this.downloadOptions.forEach(option => {
-          option.disabled = true;
-        });
-      }
-    });
-  }
 } 

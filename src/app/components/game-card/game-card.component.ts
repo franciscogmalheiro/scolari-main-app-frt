@@ -9,6 +9,7 @@ export interface GameMode {
   buttonText: string;
   requiresAuth: boolean;
   disabled?: boolean;
+  badge?: string;
 }
 
 @Component({

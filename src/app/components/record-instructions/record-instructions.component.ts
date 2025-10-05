@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FieldCameraService, FieldCameraResponseDto } from '../../services/field-camera.service';
+import { RecordingCodeService, RecordingCodeDto } from '../../services/recording-code.service';
 
 @Component({
   selector: 'app-record-instructions',
@@ -10,6 +12,15 @@ import { FieldCameraService, FieldCameraResponseDto } from '../../services/field
 export class RecordInstructionsComponent implements OnInit {
   // Store the query parameters to preserve them
   private queryParams: any = {};
+  
+  // Recording code form
+  recordingCodeForm: FormGroup;
+  
+  // Recording code validation states
+  isValidatingCode = false;
+  codeValidationFailed = false;
+  codeValidationError = '';
+  validatedRecordingCode: RecordingCodeDto | null = null;
   
   // Camera health check states
   isCheckingCamera = false;
@@ -25,29 +36,78 @@ export class RecordInstructionsComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private fieldCameraService: FieldCameraService
-  ) {}
+    private fieldCameraService: FieldCameraService,
+    private recordingCodeService: RecordingCodeService,
+    private formBuilder: FormBuilder
+  ) {
+    this.recordingCodeForm = this.formBuilder.group({
+      code: ['', [Validators.required, Validators.minLength(1)]]
+    });
+  }
 
   ngOnInit(): void {
     // Capture all query parameters when component loads
     this.route.queryParams.subscribe(params => {
       this.queryParams = { ...params };
       console.log('Record instructions received params:', this.queryParams);
-      
-      // If we have a cameraId, use it directly
-      if (this.queryParams.cameraId) {
-        this.performCameraHealthCheck();
-      }
-      // If we have a fieldId, fetch cameras for that field
-      else if (this.queryParams.fieldId) {
-        this.loadCamerasForField();
-      }
-      // If neither, show error
-      else {
-        this.cameraHealthCheckFailed = true;
-        this.errorMessage = 'No field or camera information provided';
+    });
+  }
+
+  continueWithoutRecording(): void {
+    // Navigate directly to score game without recording
+    const navigationParams = { ...this.queryParams };
+    navigationParams.recordingMode = 'false';
+    this.router.navigate(['/score-game'], { queryParams: navigationParams });
+  }
+
+  validateRecordingCode(): void {
+    if (this.recordingCodeForm.invalid) {
+      return;
+    }
+
+    const code = this.recordingCodeForm.get('code')?.value;
+    if (!code) {
+      return;
+    }
+
+    this.isValidatingCode = true;
+    this.codeValidationFailed = false;
+    this.codeValidationError = '';
+
+    this.recordingCodeService.validateRecordingCode(code).subscribe({
+      next: (recordingCode) => {
+        this.isValidatingCode = false;
+        
+        if (recordingCode.isUsed) {
+          // Code exists but is already used - treat as error
+          this.codeValidationFailed = true;
+          this.codeValidationError = 'Este código de gravação já foi utilizado.';
+          this.validatedRecordingCode = null;
+        } else {
+          // Code is valid and unused, proceed with camera health check
+          this.validatedRecordingCode = recordingCode;
+          this.queryParams.fieldId = recordingCode.fieldId;
+          this.loadCamerasForField();
+        }
+      },
+      error: (error) => {
+        this.isValidatingCode = false;
+        this.codeValidationFailed = true;
+        this.codeValidationError = 'Código de gravação inválido ou não encontrado.';
+        this.validatedRecordingCode = null;
+        console.error('Recording code validation failed:', error);
       }
     });
+  }
+
+  private resetValidationStates(): void {
+    this.isValidatingCode = false;
+    this.codeValidationFailed = false;
+    this.codeValidationError = '';
+    this.validatedRecordingCode = null;
+    this.cameraHealthCheckPassed = false;
+    this.cameraHealthCheckFailed = false;
+    this.errorMessage = '';
   }
 
   loadCamerasForField(): void {
@@ -120,15 +180,30 @@ export class RecordInstructionsComponent implements OnInit {
   }
 
   onNextClick(): void {
-    // Only allow navigation if camera health check passed
+    // Check if we can proceed
     if (this.cameraHealthCheckPassed) {
-      // Add cameraId to query params if we have a selected camera
       const navigationParams = { ...this.queryParams };
-      if (this.selectedCamera && !navigationParams.cameraId) {
-        navigationParams.cameraId = this.selectedCamera.id;
+      
+      // Determine recording mode based on whether we have a validated code
+      if (this.validatedRecordingCode) {
+        // Recording mode with validated code
+        navigationParams.recordingMode = 'true';
+        
+        // Add cameraId to query params if we have a selected camera
+        if (this.selectedCamera && !navigationParams.cameraId) {
+          navigationParams.cameraId = this.selectedCamera.id;
+        }
+        
+        // Use fieldId from validated recording code
+        navigationParams.fieldId = this.validatedRecordingCode.fieldId;
+        
+        // Add recording code to mark it as used
+        navigationParams.recordingCode = this.validatedRecordingCode.code;
+      } else {
+        // Non-recording mode
+        navigationParams.recordingMode = 'false';
       }
       
-      // Preserve all query parameters when navigating to score game
       this.router.navigate(['/score-game'], { queryParams: navigationParams });
     }
   }
@@ -139,10 +214,17 @@ export class RecordInstructionsComponent implements OnInit {
   }
 
   retryCameraCheck(): void {
-    if (this.queryParams.cameraId) {
+    if (this.validatedRecordingCode) {
+      this.loadCamerasForField();
+    } else if (this.queryParams.cameraId) {
       this.performCameraHealthCheck();
     } else if (this.queryParams.fieldId) {
       this.loadCamerasForField();
     }
+  }
+
+  canProceed(): boolean {
+    // Can proceed if camera health check passed (only for recording mode)
+    return this.cameraHealthCheckPassed && !this.isCheckingCamera;
   }
 } 

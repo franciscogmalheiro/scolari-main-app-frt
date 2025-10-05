@@ -29,6 +29,9 @@ export class VideoLibraryComponent implements OnInit, OnDestroy {
   private videoUrlCache = new Map<number, string>(); // Cache for video URLs
   private videoBlobCache = new Map<number, string>(); // Cache for blob URLs
 
+  // Share modal state
+  isShareModalOpen = false;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -44,6 +47,42 @@ export class VideoLibraryComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+  onShareLibrary(): void {
+    this.isShareModalOpen = true;
+  }
+
+  closeShareModal(): void {
+    this.isShareModalOpen = false;
+  }
+
+  private buildPageShareUrl(): string {
+    const base = environment.publicBaseUrl && environment.publicBaseUrl.trim().length > 0
+      ? environment.publicBaseUrl.replace(/\/$/, '')
+      : window.location.origin;
+    return `${base}/video-library/${this.matchCode}`;
+  }
+
+  sharePageToWhatsApp(): void {
+    const url = this.buildPageShareUrl();
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(url)}`;
+    window.open(waUrl, '_blank');
+  }
+
+  async copyPageLink(): Promise<void> {
+    const url = this.buildPageShareUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch (e) {
+      const input = document.createElement('input');
+      input.value = url;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+    }
+  }
+  
 
   loadAllVideos(): void {
     this.isLoadingEvents = true;

@@ -26,6 +26,7 @@ const routes: Routes = [
   { path: 'download-video/:gameId', component: DownloadVideoComponent },
   { path: 'match-history', component: MatchHistoryComponent },
   { path: 'media-library/:matchCode', component: MediaLibraryComponent },
+  { path: 'media-library/recording-code/:recordingCode', component: MediaLibraryComponent },
   { path: 'video-library/:matchCode', redirectTo: 'media-library/:matchCode' },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [AdminGuard] },
   { path: '**', redirectTo: '/login' }

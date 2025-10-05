@@ -9,6 +9,7 @@ export interface MatchDto {
   teamBName: string;
   sportId: number;
   recordMode?: boolean;
+  recordingCode?: string;
 }
 
 export interface MatchResponse {
@@ -49,6 +50,7 @@ export interface FieldMatchResponseDto {
   sportName: string;
   matchEvents: MatchEventResponseDto[];
   recordMode: boolean;
+  recordingCode?: string;
 }
 
 export interface IndividualMatchEventDto {
@@ -106,8 +108,16 @@ export class MatchService {
     return this.http.get<FieldMatchResponseDto[]>(`${this.API_BASE_URL}/matches/field/${fieldId}`);
   }
 
+  getMatchesByUser(userId: number): Observable<FieldMatchResponseDto[]> {
+    return this.http.get<FieldMatchResponseDto[]>(`${this.API_BASE_URL}/matches/user/${userId}`);
+  }
+
   getMatchByCode(matchCode: string): Observable<FieldMatchResponseDto> {
     return this.http.get<FieldMatchResponseDto>(`${this.API_BASE_URL}/matches/code/${matchCode}`);
+  }
+
+  getMatchByRecordingCode(recordingCode: string): Observable<FieldMatchResponseDto> {
+    return this.http.get<FieldMatchResponseDto>(`${this.API_BASE_URL}/matches/recordingCode/${recordingCode}`);
   }
 
   updateMatchEvent(eventId: number, eventData: MatchEventRequestDto): Observable<any> {

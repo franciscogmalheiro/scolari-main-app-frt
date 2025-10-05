@@ -84,6 +84,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   sportId: number | null = null;
   fieldName: string = '';
   sportName: string = '';
+  recordingCode: string | null = null;
 
   constructor(
     private router: Router, 
@@ -104,11 +105,13 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     const params = this.route.snapshot.queryParams;
     console.log('Received query params (snapshot):', params);
     
-    this.isRecordingMode = params['mode'] === 'record';
+    // Check for new recordingMode parameter first, fallback to old mode parameter
+    this.isRecordingMode = params['recordingMode'] === 'true' || params['mode'] === 'record';
     this.fieldId = params['fieldId'] ? Number(params['fieldId']) : null;
     this.sportId = params['sportId'] ? Number(params['sportId']) : null;
     this.fieldName = params['fieldName'] || '';
     this.sportName = params['sportName'] || '';
+    this.recordingCode = params['recordingCode'] || null;
     
     console.log('Game mode:', this.isRecordingMode ? 'Recording' : 'Score only');
     console.log('Field ID:', this.fieldId, 'Sport ID:', this.sportId);
@@ -117,11 +120,12 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     // Also subscribe for any changes
     this.route.queryParams.subscribe(params => {
       console.log('Received query params (subscription):', params);
-      this.isRecordingMode = params['mode'] === 'record';
+      this.isRecordingMode = params['recordingMode'] === 'true' || params['mode'] === 'record';
       this.fieldId = params['fieldId'] ? Number(params['fieldId']) : null;
       this.sportId = params['sportId'] ? Number(params['sportId']) : null;
       this.fieldName = params['fieldName'] || '';
       this.sportName = params['sportName'] || '';
+      this.recordingCode = params['recordingCode'] || null;
       console.log('Updated - Field ID:', this.fieldId, 'Sport ID:', this.sportId);
     });
   }
@@ -169,7 +173,8 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
         teamAName: this.teamAName,
         teamBName: this.teamBName,
         sportId: this.sportId,
-        recordMode: this.isRecordingMode
+        recordMode: this.isRecordingMode,
+        recordingCode: this.recordingCode || undefined
       };
 
       this.matchService.createMatch(matchData).subscribe({
@@ -580,6 +585,15 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   // Close QR modal
   onCloseQrModal(): void {
     this.showQrModal = false;
+  }
+
+  // Navigate to video library with recording code
+  onAccessVideo(): void {
+    if (this.recordingCode) {
+      this.router.navigate(['/media-library/recording-code', this.recordingCode]);
+    } else {
+      console.error('No recording code available for video access');
+    }
   }
 
   // Photo capture methods

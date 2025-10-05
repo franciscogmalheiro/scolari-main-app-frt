@@ -24,6 +24,12 @@
 
         <div class="library-section" *ngIf="!isLoadingEvents && !errorMessage && allItems.length > 0">
           <div class="library-header">
+            <div class="library-header-left">
+              <button class="share-library-button" (click)="onShareLibrary()" title="Partilhar biblioteca">
+                <i class="fas fa-share"></i>
+                <span>Partilhar</span>
+              </button>
+            </div>
             <h2 class="library-title">{{ getMatchHeaderLine() }}</h2>
             <p class="">{{ getMatchDate() }}</p>
             <div class="library-counter">{{ allItems.length }} item{{ allItems.length !== 1 ? 's' : '' }}</div>
@@ -76,11 +82,11 @@
             </div>
 
             <!-- Todos os Momentos -->
-            <div class="section">
+            <div class="section" *ngIf="momentItems.length > 0">
               <div class="section-header">
                 <h3>Todos os Momentos</h3>
               </div>
-              <div class="row g-3" *ngIf="momentItems.length > 0">
+              <div class="row g-3">
                 <div class="col-12 col-sm-6 col-md-4 col-lg-4" *ngFor="let item of momentItems" [ngClass]="{ 'expanded-col': currentPreviewItem?.id === getItemId(item) }">
                   <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" (click)="onSelectItem(item)">
                     <div class="event-header">
