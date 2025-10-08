@@ -24,15 +24,15 @@
 
         <div class="library-section" *ngIf="!isLoadingEvents && !errorMessage && allItems.length > 0">
           <div class="library-header">
-            <div class="library-header-left">
+            <h2 class="library-title">{{ getMatchHeaderLine() }}</h2>
+            <p class="">{{ getMatchDate() }}</p>
+            <div class="mb-3">
               <button class="share-library-button" (click)="onShareLibrary()" title="Partilhar biblioteca">
                 <i class="fas fa-share"></i>
                 <span>Partilhar</span>
               </button>
             </div>
-            <h2 class="library-title">{{ getMatchHeaderLine() }}</h2>
-            <p class="">{{ getMatchDate() }}</p>
-            <div class="library-counter">{{ allItems.length }} item{{ allItems.length !== 1 ? 's' : '' }}</div>
+            <!--div class="library-counter">{{ allItems.length }} item{{ allItems.length !== 1 ? 's' : '' }}</div-->
           </div>
 
           <div class="library-content">
@@ -58,7 +58,6 @@
                             [src]="getItemUrl(item)"
                             [muted]="true"
                             [loop]="false"
-                            [autoplay]="currentPreviewItem?.id === getItemId(item)"
                             controls
                             class="thumb-video"
                             [class.hidden]="currentPreviewItem?.id !== getItemId(item)"
@@ -83,7 +82,7 @@
 
             <!-- Todos os Momentos -->
             <div class="section" *ngIf="momentItems.length > 0">
-              <div class="section-header">
+              <div class="section-header mb-4 mt-4">
                 <h3>Todos os Momentos</h3>
               </div>
               <div class="row g-3">
@@ -100,7 +99,7 @@
                         <button class="close-photo-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
                       </ng-container>
                       <ng-template #videoTplMomentos>
-                        <video #itemVideo [src]="getItemUrl(item)" [muted]="true" [loop]="false" [autoplay]="currentPreviewItem?.id === getItemId(item)" controls class="thumb-video" (ended)="onVideoEnded($event)" (error)="onVideoError($event)" (loadeddata)="onVideoLoaded($event)" (canplay)="onVideoLoaded($event)"></video>
+                        <video #itemVideo [src]="getItemUrl(item)" [muted]="true" [loop]="false" controls class="thumb-video" (ended)="onVideoEnded($event)" (error)="onVideoError($event)" (loadeddata)="onVideoLoaded($event)" (canplay)="onVideoLoaded($event)"></video>
                         <button class="thumb-play-button" *ngIf="currentPreviewItem?.id !== getItemId(item)" (click)="onPreviewItem(item); $event.stopPropagation()"><i class="fas fa-play"></i></button>
                         <button class="close-video-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
                       </ng-template>
@@ -116,7 +115,7 @@
 
             <!-- Fotos -->
             <div class="section" *ngIf="photoItems.length > 0">
-              <div class="section-header">
+              <div class="section-header mb-4 mt-4">
                 <h3>Fotos</h3>
               </div>
               <div class="row g-3">

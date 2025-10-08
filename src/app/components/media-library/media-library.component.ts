@@ -220,15 +220,12 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
       this.preloadVideo(item);
     }
 
-    // Attempt to find and play the specific video's element
+    // Reveal the video element but do not auto-play; user must click play
     setTimeout(() => {
       const videos = this.itemVideos?.toArray().map(ref => ref.nativeElement) || [];
       const target = videos.find(v => v.getAttribute('src') === this.getItemUrl(item));
       if (target) {
         target.classList.remove('hidden');
-        target.play().catch(() => {
-          setTimeout(() => target.play().catch(() => {}), 150);
-        });
       }
     }, 0);
   }
@@ -298,11 +295,7 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   }
 
   onVideoLoaded(event?: any): void {
-    const videoElement = (event?.target as HTMLVideoElement) || null;
-    if (!videoElement) return;
-    videoElement.play().catch((error) => {
-      setTimeout(() => videoElement.play().catch(() => {}), 200);
-    });
+    // Intentionally do nothing to avoid auto-play; user controls playback
   }
 
   onVideoEnded(event: any): void {
@@ -404,12 +397,7 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
         if (target) {
           target.src = blobUrl;
           target.load();
-          target.play().catch((error: any) => {
-            console.warn('Video autoplay failed:', error);
-            setTimeout(() => {
-              target.play().catch((e: any) => console.warn('Retry play failed:', e));
-            }, 100);
-          });
+          // Do not auto-play after preloading; user initiates playback
         }
       }
     } catch (error) {
@@ -510,7 +498,8 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   shareToWhatsApp(item?: MediaItemDto): void {
     const target = item || this.shareItem;
     const url = target ? this.buildShareUrl(target) : this.buildPageShareUrl();
-    const waUrl = `https://wa.me/?text=${encodeURIComponent(url)}`;
+    const shareText = encodeURI('Aqui está o vídeo da bola desta semana: ')
+    const waUrl = `https://wa.me/?text=${shareText}${encodeURIComponent(url)}`;
     window.open(waUrl, '_blank');
   }
 

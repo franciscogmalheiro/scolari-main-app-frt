@@ -6,7 +6,6 @@ import { GameSetupComponent } from './components/game-setup/game-setup.component
 import { ScoreGameComponent } from './components/score-game/score-game.component';
 import { RecordInstructionsComponent } from './components/record-instructions/record-instructions.component';
 import { DownloadVideoComponent } from './components/download-video/download-video.component';
-import { VideoLibraryComponent } from './components/video-library/video-library.component';
 import { MediaLibraryComponent } from './components/media-library/media-library.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
