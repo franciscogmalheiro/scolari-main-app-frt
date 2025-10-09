@@ -7,6 +7,16 @@
   overflow: hidden;
   //display: flex;
   flex-direction: column;
+  
+  // Account for fixed header height
+  //padding-top: calc(20px + 80px); // 20px original padding + ~80px header height
+  
+  // Enable scrolling on tablets and smaller screens
+  @media (max-width: 1024px) {
+    overflow-y: auto;
+    height: calc(100vh - 80px); // Subtract header height
+    padding-top: 20px;
+  }
 }
 
 // Header Section
@@ -103,6 +113,24 @@
   align-items: center;
   justify-content: center;
   position: relative;
+  padding: 0 1rem;
+}
+
+// Timer with buttons layout
+.timer-with-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+// Timer start section (centered)
+.timer-start-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 // Finish Button Section
@@ -113,6 +141,12 @@
   justify-content: center;
   gap: 1rem;
   flex-wrap: wrap;
+  
+  // Ensure buttons are visible and accessible on tablets
+  @media (max-width: 1024px) {
+    margin-bottom: 2rem; // Extra margin for better spacing
+    padding: 1rem 0; // Add padding for better touch targets
+  }
 }
 
 // Live Indicator Container
@@ -129,6 +163,67 @@
   color: #666;
   letter-spacing: 1px;
   text-align: center;
+  margin: 0 0.5rem;
+}
+
+// Small buttons for timer section - same size as btn-start
+.btn.btn-terminar-small,
+.btn.btn-corrigir-small,
+.btn.btn-save-edit-small {
+  background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%) !important;
+  color: white !important;
+  box-shadow: 0 3px 8px rgba(255, 71, 87, 0.3) !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.8rem !important;
+  min-height: 40px !important;
+  border-radius: 20px !important;
+  border: none !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.3px !important;
+  min-width: 80px !important;
+
+  &:hover {
+    background: linear-gradient(135deg, #ff3742 0%, #ff2e3a 100%) !important;
+    box-shadow: 0 6px 12px rgba(255, 71, 87, 0.4) !important;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  i {
+    font-size: 0.9rem !important;
+  }
+}
+
+.btn.btn-corrigir-small {
+  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%) !important;
+  color: #333 !important;
+  box-shadow: 0 3px 8px rgba(255, 193, 7, 0.3) !important;
+
+  &:hover {
+    background: linear-gradient(135deg, #ffb300 0%, #ff8f00 100%) !important;
+    box-shadow: 0 6px 12px rgba(255, 193, 7, 0.4) !important;
+  }
+}
+
+.btn.btn-save-edit-small {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  color: white !important;
+  box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3) !important;
+
+  &:hover {
+    background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%) !important;
+    box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4) !important;
+  }
 }
 
 // Final Result
@@ -154,6 +249,12 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  
+  // Allow content to scroll on tablets
+  @media (max-width: 1024px) {
+    overflow-y: auto;
+    min-height: 0; // Allow flex item to shrink
+  }
 }
 
 .team {
@@ -452,6 +553,24 @@
 
 
 
+
+// Tablet-specific improvements
+@media (max-width: 1024px) and (min-width: 769px) {
+  .score-game-container {
+    padding: 15px;
+    // Ensure proper spacing for tablet viewports
+    padding-bottom: 2rem;
+  }
+  
+  .finish-button-section {
+    // Make buttons more prominent on tablets
+    .btn {
+      min-height: 50px;
+      font-size: 1rem;
+      padding: 0.8rem 1.5rem;
+    }
+  }
+}
 
 // Responsive Design
 @media (max-width: 768px) {

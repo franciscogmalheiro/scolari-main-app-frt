@@ -201,6 +201,10 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     return item.result || '';
   }
 
+  getItemTeamName(item: MediaItemDto): string {
+    return item.teamName || '';
+  }
+
   onSelectItem(item: MediaItemDto): void {
     const isSelected = this.selectedItems.some(selected => selected.id === item.id);
     this.selectedItems = isSelected
@@ -277,12 +281,76 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     return item.presignedUrl || '';
   }
 
+  // Check if an item has null presignedUrl or is processing
+  hasNullPresignedUrl(item: MediaItemDto): boolean {
+    return !item.presignedUrl || item.presignedUrl === null;
+  }
+
+  // Check if an item is being processed (show processing wheel)
+  isItemProcessing(item: MediaItemDto): boolean {
+    return item.processingStatus === 'PROCESSING' || 
+           item.processingStatus === 'RETRYING' || 
+           item.processingStatus === 'WAITING_FOR_SEGMENTS';
+  }
+
+  // Check if an item processing failed
+  isItemProcessingFailed(item: MediaItemDto): boolean {
+    return item.processingStatus === 'PROCESSING_FAILED';
+  }
+
+  // Check if item should be disabled (processing or failed)
+  isItemDisabled(item: MediaItemDto): boolean {
+    return this.isItemProcessing(item) || this.isItemProcessingFailed(item);
+  }
+
+  // Check if any items in a section are processing (for retry button visibility)
+  hasProcessingItemsInSection(section: 'resumo' | 'momentos' | 'fotos'): boolean {
+    let items: MediaItemDto[] = [];
+    switch (section) {
+      case 'resumo':
+        items = this.resumoItems;
+        break;
+      case 'momentos':
+        items = this.momentItems;
+        break;
+      case 'fotos':
+        items = this.photoItems;
+        break;
+    }
+    return items.some(item => this.isItemProcessing(item));
+  }
+
+  // Legacy method - keeping for backward compatibility but using new status logic
+  hasNullPresignedUrlInSection(section: 'resumo' | 'momentos' | 'fotos'): boolean {
+    return this.hasProcessingItemsInSection(section);
+  }
+
+  // Retry loading for a specific section
+  retrySection(section: 'resumo' | 'momentos' | 'fotos'): void {
+    console.log(`Retrying section: ${section}`);
+    this.loadAllVideos();
+  }
+
   getResumoThumbnailUrl(item: MediaItemDto): string {
     // For Resumo videos, use the first photo as thumbnail if available
     if (item.type === 'video-highlight' && this.photoItems.length > 0) {
-      return this.photoItems[0].presignedUrl || item.presignedUrl || '';
+      return this.photoItems[0].presignedUrl || 'assets/resumo-thumnail.png';
     }
-    return item.presignedUrl || '';
+    // Fallback to default resumo thumbnail if no photo available
+    return 'assets/resumo-thumnail.png';
+  }
+
+  getMomentoThumbnailUrl(item: MediaItemDto): string {
+    // For goal events, always use golo thumbnail
+    if (item.type === 'goal-event') {
+      return 'assets/golo-thumbnail.png';
+    }
+    // For highlight events, use highlight thumbnail
+    if (item.type === 'highlight-event') {
+      return 'assets/highlight-thumbnail.png';
+    }
+    // Fallback to resumo thumbnail
+    return 'assets/resumo-thumnail.png';
   }
 
   trackByItemId(index: number, item: MediaItemDto): number {

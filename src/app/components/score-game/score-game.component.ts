@@ -106,7 +106,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     console.log('Received query params (snapshot):', params);
     
     // Check for new recordingMode parameter first, fallback to old mode parameter
-    this.isRecordingMode = params['recordingMode'] === 'true' || params['mode'] === 'record';
+    this.isRecordingMode = params['recordingMode'] === 'true';
     this.fieldId = params['fieldId'] ? Number(params['fieldId']) : null;
     this.sportId = params['sportId'] ? Number(params['sportId']) : null;
     this.fieldName = params['fieldName'] || '';
@@ -120,7 +120,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     // Also subscribe for any changes
     this.route.queryParams.subscribe(params => {
       console.log('Received query params (subscription):', params);
-      this.isRecordingMode = params['recordingMode'] === 'true' || params['mode'] === 'record';
+      this.isRecordingMode = params['recordingMode'] === 'true';
       this.fieldId = params['fieldId'] ? Number(params['fieldId']) : null;
       this.sportId = params['sportId'] ? Number(params['sportId']) : null;
       this.fieldName = params['fieldName'] || '';
@@ -686,7 +686,8 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   skipPhotoCapture(): void {
     this.isCapturingPhoto = false;
     this.photoUploadProgress = 0;
-    this.showQrModal = true;
+    // Don't show QR modal when user skips photo - just return to score display
+    this.showQrModal = false;
   }
 
   // Close the large photo preview modal

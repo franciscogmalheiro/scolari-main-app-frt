@@ -38,42 +38,70 @@
           <div class="library-content">
             <!-- Resumo -->
             <div *ngIf="resumoItems.length > 0">
+              <!-- Small processing message at top if any items are null -->
+              <div *ngIf="hasNullPresignedUrlInSection('resumo')" class="processing-notice">
+                <p class="processing-text">Alguns dos vídeos ainda estão a ser processados</p>
+                <button class="retry-button-small" (click)="retrySection('resumo')">
+                  <i class="fas fa-redo"></i>
+                  Tentar novamente
+                </button>
+              </div>
+              
               <div class="row g-3">
+                <!-- Show all items -->
                 <div class="col-12" *ngFor="let item of resumoItems" [ngClass]="{ 'expanded-col': currentPreviewItem?.id === getItemId(item) }">
-                  <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" (click)="onSelectItem(item)">
+                  <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" [class.disabled]="isItemDisabled(item)" (click)="!isItemDisabled(item) ? onSelectItem(item) : null">
                     <div class="event-header">
                       <div class="event-icon"><span [innerHTML]="getItemIcon(item)"></span></div>
-                      <div class="event-time"><p class="time-text">{{ getItemDescription(item) }}</p></div>
+                      <div class="event-time">
+                        <p class="time-text">{{ getItemDescription(item) }}</p>
+                        <p class="team-name-text" *ngIf="isItemGoal(item)">{{ getItemTeamName(item) }}</p>
+                      </div>
                     </div>
-                    <div class="event-thumbnail" (click)="onItemClick(item, $event)">
-                      <ng-container *ngIf="isItemPhoto(item); else videoTplResumo">
-                        <img class="thumb-photo" [class.expanded-photo]="currentPreviewItem?.id === getItemId(item)" [src]="getItemUrl(item)" alt="photo" />
-                        <button class="close-photo-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                    <div class="event-thumbnail" (click)="!isItemDisabled(item) ? onItemClick(item, $event) : $event.stopPropagation()">
+                      <!-- Show processing message for PROCESSING or RETRYING status -->
+                      <div *ngIf="isItemProcessing(item)" class="processing-placeholder">
+                        <i class="fas fa-spinner fa-pulse"></i>
+                        <p>A processar...</p>
+                      </div>
+
+                      <!-- Show error message for PROCESSING_FAILED status -->
+                      <div *ngIf="isItemProcessingFailed(item)" class="processing-placeholder failed">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Lamentamos, mas não foi possível extrair o vídeo deste momento</p>
+                      </div>
+                      
+                      <!-- Show normal content for RETRIEVED status -->
+                      <ng-container *ngIf="!isItemProcessing(item) && !isItemProcessingFailed(item)">
+                        <ng-container *ngIf="isItemPhoto(item); else videoTplResumo">
+                          <img class="thumb-photo" [class.expanded-photo]="currentPreviewItem?.id === getItemId(item)" [src]="getItemUrl(item)" alt="photo" />
+                          <button class="close-photo-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                        </ng-container>
+                        <ng-template #videoTplResumo>
+                          <div class="video-thumbnail-container">
+                            <img class="thumb-photo" [src]="getResumoThumbnailUrl(item)" alt="video thumbnail" />
+                            <video 
+                              #itemVideo
+                              [src]="getItemUrl(item)"
+                              [muted]="false"
+                              [loop]="false"
+                              controls
+                              class="thumb-video"
+                              [class.hidden]="currentPreviewItem?.id !== getItemId(item)"
+                              (ended)="onVideoEnded($event)"
+                              (error)="onVideoError($event)"
+                              (loadeddata)="onVideoLoaded()"
+                              (canplay)="onVideoLoaded()">
+                            </video>
+                            <button class="thumb-play-button" *ngIf="currentPreviewItem?.id !== getItemId(item)" (click)="onPreviewItem(item); $event.stopPropagation()"><i class="fas fa-play"></i></button>
+                            <button class="close-video-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                          </div>
+                        </ng-template>
                       </ng-container>
-                      <ng-template #videoTplResumo>
-                        <div class="video-thumbnail-container">
-                          <img class="thumb-photo" [src]="getResumoThumbnailUrl(item)" alt="video thumbnail" />
-                          <video 
-                            #itemVideo
-                            [src]="getItemUrl(item)"
-                            [muted]="true"
-                            [loop]="false"
-                            controls
-                            class="thumb-video"
-                            [class.hidden]="currentPreviewItem?.id !== getItemId(item)"
-                            (ended)="onVideoEnded($event)"
-                            (error)="onVideoError($event)"
-                            (loadeddata)="onVideoLoaded()"
-                            (canplay)="onVideoLoaded()">
-                          </video>
-                          <button class="thumb-play-button" *ngIf="currentPreviewItem?.id !== getItemId(item)" (click)="onPreviewItem(item); $event.stopPropagation()"><i class="fas fa-play"></i></button>
-                          <button class="close-video-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
-                        </div>
-                      </ng-template>
                     </div>
                     <div class="event-actions">
-                      <button class="action-button share" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i><span>Partilhar</span></button>
-                      <button class="action-button download" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i><span>Transferir</span></button>
+                      <button class="action-button share" [disabled]="isItemDisabled(item)" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i><span>Partilhar</span></button>
+                      <button class="action-button download" [disabled]="isItemDisabled(item)" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i><span>Transferir</span></button>
                     </div>
                   </div>
                 </div>
@@ -85,28 +113,72 @@
               <div class="section-header mb-4 mt-4">
                 <h3>Todos os Momentos</h3>
               </div>
+              
+              <!-- Small processing message at top if any items are null -->
+              <div *ngIf="hasNullPresignedUrlInSection('momentos')" class="processing-notice">
+                <p class="processing-text">Alguns dos vídeos ainda estão a ser processados</p>
+                <button class="retry-button-small" (click)="retrySection('momentos')">
+                  <i class="fas fa-redo"></i>
+                  Tentar novamente
+                </button>
+              </div>
+              
               <div class="row g-3">
+                <!-- Show all items -->
                 <div class="col-12 col-sm-6 col-md-4 col-lg-4" *ngFor="let item of momentItems" [ngClass]="{ 'expanded-col': currentPreviewItem?.id === getItemId(item) }">
-                  <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" (click)="onSelectItem(item)">
+                  <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" [class.disabled]="isItemDisabled(item)" (click)="!isItemDisabled(item) ? onSelectItem(item) : null">
                     <div class="event-header">
                       <div class="event-icon"><span [innerHTML]="getItemIcon(item)"></span></div>
-                      <div class="event-time"><p class="time-text">{{ getItemDescription(item) }}</p></div>
+                      <div class="event-time">
+                        <p class="time-text">{{ getItemDescription(item) }}</p>
+                        <p class="team-name-text" *ngIf="isItemGoal(item)">{{ getItemTeamName(item) }}</p>
+                      </div>
                       <div class="team-name"><span class="team-score" *ngIf="isItemGoal(item)">({{ getItemResult(item) }})</span></div>
                     </div>
-                    <div class="event-thumbnail" (click)="onItemClick(item, $event)">
-                      <ng-container *ngIf="isItemPhoto(item); else videoTplMomentos">
-                        <img class="thumb-photo" [class.expanded-photo]="currentPreviewItem?.id === getItemId(item)" [src]="getItemUrl(item)" alt="photo" />
-                        <button class="close-photo-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                    <div class="event-thumbnail" (click)="!isItemDisabled(item) ? onItemClick(item, $event) : $event.stopPropagation()">
+                      <!-- Show processing message for PROCESSING or RETRYING status -->
+                      <div *ngIf="isItemProcessing(item)" class="processing-placeholder">
+                        <i class="fas fa-spinner fa-pulse"></i>
+                        <p>A processar...</p>
+                      </div>
+
+                      <!-- Show error message for PROCESSING_FAILED status -->
+                      <div *ngIf="isItemProcessingFailed(item)" class="processing-placeholder failed">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Lamentamos, mas não foi possível extrair o vídeo deste momento</p>
+                      </div>
+                      
+                      <!-- Show normal content for RETRIEVED status -->
+                      <ng-container *ngIf="!isItemProcessing(item) && !isItemProcessingFailed(item)">
+                        <ng-container *ngIf="isItemPhoto(item); else videoTplMomentos">
+                          <img class="thumb-photo" [class.expanded-photo]="currentPreviewItem?.id === getItemId(item)" [src]="getItemUrl(item)" alt="photo" />
+                          <button class="close-photo-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                        </ng-container>
+                        <ng-template #videoTplMomentos>
+                          <div class="video-thumbnail-container">
+                            <img class="thumb-photo" [src]="getMomentoThumbnailUrl(item)" alt="video thumbnail" />
+                            <video 
+                              #itemVideo 
+                              [src]="getItemUrl(item)" 
+                              [muted]="false" 
+                              [loop]="false" 
+                              controls 
+                              class="thumb-video" 
+                              [class.hidden]="currentPreviewItem?.id !== getItemId(item)"
+                              (ended)="onVideoEnded($event)" 
+                              (error)="onVideoError($event)" 
+                              (loadeddata)="onVideoLoaded($event)" 
+                              (canplay)="onVideoLoaded($event)">
+                            </video>
+                            <button class="thumb-play-button" *ngIf="currentPreviewItem?.id !== getItemId(item)" (click)="onPreviewItem(item); $event.stopPropagation()"><i class="fas fa-play"></i></button>
+                            <button class="close-video-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                          </div>
+                        </ng-template>
                       </ng-container>
-                      <ng-template #videoTplMomentos>
-                        <video #itemVideo [src]="getItemUrl(item)" [muted]="true" [loop]="false" controls class="thumb-video" (ended)="onVideoEnded($event)" (error)="onVideoError($event)" (loadeddata)="onVideoLoaded($event)" (canplay)="onVideoLoaded($event)"></video>
-                        <button class="thumb-play-button" *ngIf="currentPreviewItem?.id !== getItemId(item)" (click)="onPreviewItem(item); $event.stopPropagation()"><i class="fas fa-play"></i></button>
-                        <button class="close-video-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
-                      </ng-template>
                     </div>
                     <div class="event-actions">
-                      <button class="action-button share" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i><span>Partilhar</span></button>
-                      <button class="action-button download" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i><span>Transferir</span></button>
+                      <button class="action-button share" [disabled]="isItemDisabled(item)" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i><span>Partilhar</span></button>
+                      <button class="action-button download" [disabled]="isItemDisabled(item)" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i><span>Transferir</span></button>
                     </div>
                   </div>
                 </div>
@@ -118,20 +190,49 @@
               <div class="section-header mb-4 mt-4">
                 <h3>Fotos</h3>
               </div>
+              
+              <!-- Small processing message at top if any items are null -->
+              <div *ngIf="hasNullPresignedUrlInSection('fotos')" class="processing-notice">
+                <p class="processing-text">Algumas das fotos ainda estão a ser processadas</p>
+                <button class="retry-button-small" (click)="retrySection('fotos')">
+                  <i class="fas fa-redo"></i>
+                  Tentar novamente
+                </button>
+              </div>
+              
               <div class="row g-3">
+                <!-- Show all items -->
                 <div class="col-12 col-sm-6 col-md-4 col-lg-4" *ngFor="let item of photoItems" [ngClass]="{ 'expanded-col': currentPreviewItem?.id === getItemId(item) }">
-                  <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" (click)="onSelectItem(item)">
+                  <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" [class.disabled]="isItemDisabled(item)" (click)="!isItemDisabled(item) ? onSelectItem(item) : null">
                     <div class="event-header">
                       <div class="event-icon"><span [innerHTML]="getItemIcon(item)"></span></div>
-                      <div class="event-time"><p class="time-text">{{ getItemDescription(item) }}</p></div>
+                      <div class="event-time">
+                        <p class="time-text">{{ getItemDescription(item) }}</p>
+                        <p class="team-name-text" *ngIf="isItemGoal(item)">{{ getItemTeamName(item) }}</p>
+                      </div>
                     </div>
-                    <div class="event-thumbnail" (click)="onItemClick(item, $event)">
-                      <img class="thumb-photo" [class.expanded-photo]="currentPreviewItem?.id === getItemId(item)" [src]="getItemUrl(item)" alt="photo" />
-                      <button class="close-photo-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                    <div class="event-thumbnail" (click)="!isItemDisabled(item) ? onItemClick(item, $event) : $event.stopPropagation()">
+                      <!-- Show processing message for PROCESSING or RETRYING status -->
+                      <div *ngIf="isItemProcessing(item)" class="processing-placeholder">
+                        <i class="fas fa-spinner fa-pulse"></i>
+                        <p>A processar...</p>
+                      </div>
+
+                      <!-- Show error message for PROCESSING_FAILED status -->
+                      <div *ngIf="isItemProcessingFailed(item)" class="processing-placeholder failed">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Lamentamos, mas não foi possível extrair o vídeo deste momento</p>
+                      </div>
+                      
+                      <!-- Show normal content for RETRIEVED status -->
+                      <ng-container *ngIf="!isItemProcessing(item) && !isItemProcessingFailed(item)">
+                        <img class="thumb-photo" [class.expanded-photo]="currentPreviewItem?.id === getItemId(item)" [src]="getItemUrl(item)" alt="photo" />
+                        <button class="close-photo-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
+                      </ng-container>
                     </div>
                     <div class="event-actions">
-                      <button class="action-button share" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i><span>Partilhar</span></button>
-                      <button class="action-button download" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i><span>Transferir</span></button>
+                      <button class="action-button share" [disabled]="isItemDisabled(item)" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i><span>Partilhar</span></button>
+                      <button class="action-button download" [disabled]="isItemDisabled(item)" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i><span>Transferir</span></button>
                     </div>
                   </div>
                 </div>

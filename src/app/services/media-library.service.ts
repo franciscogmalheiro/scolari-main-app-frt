@@ -16,6 +16,8 @@ export interface MediaItemDto {
   // Goal event specific properties
   result?: string;
   elapsedTime?: string;
+  teamName?: string;
+  processingStatus?: 'RETRIEVED' | 'PROCESSING' | 'RETRYING' | 'PROCESSING_FAILED' | 'WAITING_FOR_SEGMENTS';
 }
 
 @Injectable({

@@ -44,6 +44,11 @@ export class GameSetupComponent implements OnInit {
         next: (sports: Sport[]) => {
           this.sports = sports;
           this.loadingSports = false;
+          
+          // Auto-select and redirect if only one sport is available
+          if (sports.length === 1) {
+            this.autoSelectAndRedirect(sports[0]);
+          }
         },
         error: (error: any) => {
           console.error('Error loading sports for field:', error);
@@ -56,12 +61,43 @@ export class GameSetupComponent implements OnInit {
         next: (sports: Sport[]) => {
           this.sports = sports;
           this.loadingSports = false;
+          
+          // Auto-select and redirect if only one sport is available
+          if (sports.length === 1) {
+            this.autoSelectAndRedirect(sports[0]);
+          }
         },
         error: (error: any) => {
           console.error('Error loading all sports:', error);
           this.loadingSports = false;
         }
       });
+    }
+  }
+
+  private autoSelectAndRedirect(sport: Sport | GameSetupSport): void {
+    console.log('Auto-selecting sport and redirecting:', sport);
+    this.selectedSport = sport;
+    
+    if (this.gameMode === 'score') {
+      // For score mode, navigate to score game
+      const queryParams = {
+        sportId: sport.id,
+        sportName: sport.name,
+        mode: this.gameMode
+      };
+      this.router.navigate(['/score-game'], { queryParams });
+    } else {
+      // For record mode, navigate to record instructions
+      const gameSetupSport = sport as GameSetupSport;
+      const queryParams = {
+        fieldId: this.currentUser?.fieldId,
+        sportId: sport.id,
+        sportCode: gameSetupSport.code,
+        sportName: sport.name,
+        mode: this.gameMode
+      };
+      this.router.navigate(['/record-instructions'], { queryParams });
     }
   }
 

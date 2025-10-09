@@ -5,19 +5,41 @@
   <div class="main-game-section">
     <!-- Timer Display with Live Indicator or Start Button -->
     <div class="timer-section">
-      <!-- Show timer when match is started -->
-      <div class="timer-display" *ngIf="isMatchStarted">
-        {{ formatTime(secondsElapsed) }}
+      <!-- When match is started: show buttons and timer -->
+      <div *ngIf="isMatchStarted" class="timer-with-buttons">
+        <!-- Terminar button (left side) -->
+        <button 
+          *ngIf="!isMatchFinished" 
+          class="btn btn-terminar-small" 
+          (click)="finishMatch()">
+          <i class="fas fa-stop"></i> TERMINAR
+        </button>
+        
+        <!-- Timer display -->
+        <div class="timer-display">
+          {{ formatTime(secondsElapsed) }}
+        </div>
+        
+        <!-- Corrigir button (right side) -->
+        <button 
+          *ngIf="!isMatchFinished" 
+          class="btn btn-corrigir-small" 
+          [class.btn-save-edit-small]="isEditMode"
+          (click)="isEditMode ? saveEditMode() : toggleEditMode()">
+          <i class="fas" [class.fa-edit]="!isEditMode" [class.fa-save]="isEditMode"></i> 
+          {{ isEditMode ? 'GUARDAR' : 'CORRIGIR' }}
+        </button>
       </div>
-      <!-- Finish Match Button (under timer) -->
-    
-      <!-- Show start button when match hasn't started -->
-      <button 
-        *ngIf="!isMatchStarted && !isMatchFinished" 
-        class="btn btn-start" 
-        (click)="startMatch()">
-        <i class="fas fa-play"></i> COMEÇAR JOGO
-      </button>
+      
+      <!-- When match hasn't started: show centered start button -->
+      <div *ngIf="!isMatchStarted && !isMatchFinished" class="timer-start-section">
+        <button 
+          class="btn btn-start" 
+          (click)="startMatch()">
+          <i class="fas fa-play"></i> COMEÇAR JOGO
+        </button>
+      </div>
+      
       <!-- Live Indicator positioned on the right -->
       <div class="live-indicator-container" *ngIf="isRecordingMode && isMatchStarted">
         <app-live-indicator [isRecording]="isRecording"></app-live-indicator>
@@ -64,7 +86,7 @@
         <!-- Access Video Button (only shown when match is finished) -->
         <div *ngIf="isMatchFinished && isRecordingMode" class="access-video-section">
           <button class="btn btn-access-video" (click)="onAccessVideo()">
-            <i class="fas fa-video"></i> Aceder à Galeria de Jogo
+            <i class="fas fa-video"></i> Aceder aos vídeos
           </button>
         </div>
       </div>
@@ -118,7 +140,7 @@
     </div>
 
     <!-- Event Logs -->
-    <app-event-log
+    <app-event-log class="mt-3"
       [teamAEvents]="teamAEvents"
       [teamBEvents]="teamBEvents"
       [highlightEvents]="highlightEvents"
@@ -131,17 +153,6 @@
       (editEvent)="openEventEditModal($event)"
     ></app-event-log>
 
-    <div class="finish-button-section" *ngIf="isMatchStarted && !isMatchFinished">
-      <button class="btn btn-edit-score" (click)="toggleEditMode()" *ngIf="!isEditMode">
-        <i class="fas fa-edit"></i> CORRIGIR
-      </button>
-      <button class="btn btn-save-edit" (click)="saveEditMode()" *ngIf="isEditMode">
-        <i class="fas fa-save"></i> GUARDAR
-      </button>
-      <button class="btn btn-finish-small" (click)="finishMatch()">
-        <i class="fas fa-stop"></i> TERMINAR
-      </button>
-    </div>
   </div>
 
   <!-- Team Edit Modal -->
