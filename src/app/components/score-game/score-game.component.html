@@ -185,9 +185,9 @@
     (cancel)="onCancelFinishMatch()"
   ></app-confirmation-modal>
 
-  <!-- QR Code Modal (only shown in recording mode) -->
+  <!-- QR Code Modal (only shown when NOT in recording mode) -->
   <app-qr-modal
-    *ngIf="isRecordingMode"
+    *ngIf="!isRecordingMode"
     [isVisible]="showQrModal"
     [gameId]="gameId"
     [qrCodeData]="qrCodeData"

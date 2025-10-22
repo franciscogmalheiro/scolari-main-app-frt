@@ -15,8 +15,8 @@
           <thead>
             <tr>
               <th></th>
-              <th>Código</th>
-              <th>Modalidade</th>
+              <th>Código de Gravação</th>
+              <!--th>Modalidade</th-->
               <th>Início</th>
               <th>Fim</th>
               <th>Resultado</th>
@@ -28,8 +28,8 @@
                 <button *ngIf="m.recordMode" class="camera-btn" title="Aceder ao Download" (click)="goToDownload(m)">📷</button>
                 <span *ngIf="!m.recordMode" class="no-record">—</span>
               </td>
-              <td class="mono">{{ m.matchCode }}</td>
-              <td>{{ m.sportName }}</td>
+              <td class="mono">{{ m.recordingCode || 'N/A' }}</td>
+              <!--td>{{ m.sportName }}</td-->
               <td>{{ m.startDateTime | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>{{ m.finishDateTime | date:'dd/MM/yyyy HH:mm' }}</td>
               <td>{{ m.teamAName }} {{ m.finalResult }} {{ m.teamBName }}</td>

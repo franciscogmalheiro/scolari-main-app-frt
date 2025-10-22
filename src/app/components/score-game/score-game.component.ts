@@ -633,6 +633,8 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
                 this.isCapturingPhoto = false;
                 // Show large preview modal that can be closed
                 this.showPhotoPreviewModal = true;
+                // Don't show QR modal - user can access video via the button after closing preview
+                this.showQrModal = false;
                 break;
             }
           },
@@ -698,6 +700,8 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       URL.revokeObjectURL(this.lastCapturedPhotoUrl);
       this.lastCapturedPhotoUrl = null;
     }
+    // Don't show QR modal - user can now access video via the button
+    this.showQrModal = false;
   }
 
   // Edit mode methods

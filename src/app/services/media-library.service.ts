@@ -17,7 +17,7 @@ export interface MediaItemDto {
   result?: string;
   elapsedTime?: string;
   teamName?: string;
-  processingStatus?: 'RETRIEVED' | 'PROCESSING' | 'RETRYING' | 'PROCESSING_FAILED' | 'WAITING_FOR_SEGMENTS';
+  processingStatus?: 'RETRIEVED' | 'PROCESSING' | 'RETRYING' | 'PROCESSING_FAILED' | 'WAITING_FOR_SEGMENTS' | 'PENDING_EXTRACTION';
 }
 
 @Injectable({

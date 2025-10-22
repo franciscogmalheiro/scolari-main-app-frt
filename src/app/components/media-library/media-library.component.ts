@@ -289,7 +289,8 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   // Check if an item is being processed (show processing wheel)
   isItemProcessing(item: MediaItemDto): boolean {
     return item.processingStatus === 'PROCESSING' || 
-           item.processingStatus === 'RETRYING' || 
+           item.processingStatus === 'RETRYING' ||
+           item.processingStatus === 'PENDING_EXTRACTION' ||
            item.processingStatus === 'WAITING_FOR_SEGMENTS';
   }
 

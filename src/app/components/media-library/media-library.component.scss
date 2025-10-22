@@ -1,4 +1,3 @@
-/* Inlined from video-library.component.scss */
 .selected-moments-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -235,20 +234,13 @@
   }
 }
 
-/* removed carousel container */
-
-/* removed carousel navigation */
-
 .library-content {
   width: 100%;
 }
 
 .events-grid {
-  /* using Bootstrap grid now */
   width: 100%;
 }
-
-/* removed carousel animations */
 
 .event-card {
   background: rgba(255, 255, 255, 0.95);
@@ -265,18 +257,6 @@
   &.disabled {
     cursor: not-allowed;
     opacity: 0.7;
-  }
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-    border-radius: 20px;
-    pointer-events: none;
   }
   
   &:hover {
@@ -540,7 +520,7 @@
           i {
             font-size: 1.5rem;
             color: #333;
-            margin-left: 3px; // Slight offset for play icon
+            margin-left: 3px;
           }
           
           &:hover {
@@ -607,8 +587,6 @@
   }
 }
 
-/* removed carousel indicators */
-
 .selected-events-section {
   margin-top: 2rem;
   padding: 2rem;
@@ -619,18 +597,6 @@
   backdrop-filter: blur(20px);
   position: relative;
   overflow: hidden;
-  
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-    border-radius: 20px;
-    pointer-events: none;
-  }
   
   .selected-events-header {
     margin-bottom: 1.5rem;
@@ -691,18 +657,6 @@
     backdrop-filter: blur(10px);
     position: relative;
     overflow: hidden;
-    
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-      border-radius: 12px;
-      pointer-events: none;
-    }
     
     &:hover {
       border-color: rgba(59, 130, 246, 0.3);
@@ -877,7 +831,6 @@
   }
   
   .moments-card {
-    //margin: 0;
     min-height: 500px;
     border-radius: 0;
   }
@@ -992,7 +945,6 @@
   }
 }
 
-/* Section layout */
 .section {
   margin: 24px 0;
   padding-top: 12px;
@@ -1028,7 +980,6 @@
   color: #666;
 }
 
-/* Event actions - YouTube-like buttons */
 .event-actions {
   display: flex;
   align-items: center;
@@ -1074,9 +1025,8 @@
   white-space: nowrap;
 }
 
-/* Accents */
 .action-button.share i {
-  color: #25d366; /* WhatsApp green */
+  color: #25d366;
 }
 
 .action-button.download i {
@@ -1087,7 +1037,6 @@
   color: #606060;
 }
 
-/* Ensure full-width videos in Resumo look clean */
 .col-12 .thumb-video,
 .col-12 .thumb-photo {
   width: 100%;
@@ -1095,7 +1044,6 @@
   display: block;
 }
 
-/* Video thumbnail container for Resumo */
 .video-thumbnail-container {
   position: relative;
   width: 100%;
@@ -1114,7 +1062,6 @@
   object-fit: cover;
 }
 
-/* Share Modal */
 .share-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1193,7 +1140,6 @@
   color: #606060;
 }
 
-// Small processing notice at top of sections
 .processing-notice {
   text-align: center;
   padding: 1rem 1.5rem;
@@ -1233,7 +1179,6 @@
   }
 }
 
-// Processing placeholder inside event cards
 .processing-placeholder {
   display: flex;
   flex-direction: column;
