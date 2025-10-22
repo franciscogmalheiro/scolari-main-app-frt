@@ -88,10 +88,12 @@
                               controls
                               class="thumb-video"
                               [class.hidden]="currentPreviewItem?.id !== getItemId(item)"
+                              [attr.data-item-id]="getItemId(item)"
                               (ended)="onVideoEnded($event)"
                               (error)="onVideoError($event)"
                               (loadeddata)="onVideoLoaded()"
-                              (canplay)="onVideoLoaded()">
+                              (canplay)="onVideoLoaded()"
+                              (play)="onVideoPlay($event)">
                             </video>
                             <button class="thumb-play-button" *ngIf="currentPreviewItem?.id !== getItemId(item)" (click)="onPreviewItem(item); $event.stopPropagation()"><i class="fas fa-play"></i></button>
                             <button class="close-video-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>
@@ -165,10 +167,12 @@
                               controls 
                               class="thumb-video" 
                               [class.hidden]="currentPreviewItem?.id !== getItemId(item)"
+                              [attr.data-item-id]="getItemId(item)"
                               (ended)="onVideoEnded($event)" 
                               (error)="onVideoError($event)" 
                               (loadeddata)="onVideoLoaded($event)" 
-                              (canplay)="onVideoLoaded($event)">
+                              (canplay)="onVideoLoaded($event)"
+                              (play)="onVideoPlay($event)">
                             </video>
                             <button class="thumb-play-button" *ngIf="currentPreviewItem?.id !== getItemId(item)" (click)="onPreviewItem(item); $event.stopPropagation()"><i class="fas fa-play"></i></button>
                             <button class="close-video-button" *ngIf="currentPreviewItem?.id === getItemId(item)" (click)="currentPreviewItem = null; $event.stopPropagation()"><i class="fas fa-times"></i></button>

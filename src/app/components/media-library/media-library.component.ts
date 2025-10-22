@@ -219,17 +219,20 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     this.currentPreviewItem = item;
     this.isVideoPlaying = true;
 
-    // Preload video if not cached
-    if (!this.videoBlobCache.has(item.id)) {
-      this.preloadVideo(item);
-    }
-
-    // Reveal the video element but do not auto-play; user must click play
+    // Reveal the video element but don't load the source yet
     setTimeout(() => {
       const videos = this.itemVideos?.toArray().map(ref => ref.nativeElement) || [];
-      const target = videos.find(v => v.getAttribute('src') === this.getItemUrl(item));
+      const target = videos.find(v => v.getAttribute('data-item-id') === item.id.toString());
       if (target) {
         target.classList.remove('hidden');
+        // Only set source if video is already cached
+        if (this.videoBlobCache.has(item.id)) {
+          target.src = this.videoBlobCache.get(item.id)!;
+          target.load();
+        } else if (item.presignedUrl) {
+          target.src = item.presignedUrl;
+          target.load();
+        }
       }
     }, 0);
   }
@@ -365,6 +368,55 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
 
   onVideoLoaded(event?: any): void {
     // Intentionally do nothing to avoid auto-play; user controls playback
+  }
+
+  onVideoPlay(event: any): void {
+    const videoElement = event.target as HTMLVideoElement;
+    const itemId = parseInt(videoElement.getAttribute('data-item-id') || '0');
+    
+    // If this video hasn't been cached yet, cache it now
+    if (itemId && !this.videoBlobCache.has(itemId)) {
+      this.cacheVideoOnPlay(itemId, videoElement);
+    }
+  }
+
+  private async cacheVideoOnPlay(itemId: number, videoElement: HTMLVideoElement): Promise<void> {
+    const item = this.allItems.find(i => i.id === itemId);
+    if (!item) return;
+
+    try {
+      // Get the current source URL
+      const currentSrc = videoElement.src;
+      if (!currentSrc || currentSrc === 'about:blank') return;
+
+      // Fetch the video and create blob URL
+      const response = await fetch(currentSrc, { method: 'GET', mode: 'cors' });
+      if (!response.ok) {
+        console.warn(`Failed to cache video ${itemId}: ${response.status}`);
+        return;
+      }
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      
+      // Cache the blob URL
+      this.videoBlobCache.set(itemId, blobUrl);
+      
+      // Update the video source to use the cached blob
+      const currentTime = videoElement.currentTime;
+      const wasPlaying = !videoElement.paused;
+      
+      videoElement.src = blobUrl;
+      videoElement.load();
+      
+      // Restore playback state
+      if (wasPlaying) {
+        videoElement.currentTime = currentTime;
+        videoElement.play().catch(console.error);
+      }
+    } catch (error) {
+      console.error(`Error caching video ${itemId}:`, error);
+    }
   }
 
   onVideoEnded(event: any): void {
