@@ -72,4 +72,31 @@ export class MatchHistoryComponent implements OnInit {
       this.router.navigate(['/video-library', match.matchCode]);
     }
   }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    const months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+    
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${day} ${month} de ${year} - ${hours}:${minutes}`;
+  }
+
+  getDurationInMinutes(match: FieldMatchResponseDto): number {
+    if (!match.startDateTime || !match.finishDateTime) {
+      return 0;
+    }
+    
+    const start = new Date(match.startDateTime);
+    const finish = new Date(match.finishDateTime);
+    const diffMs = finish.getTime() - start.getTime();
+    return Math.round(diffMs / (1000 * 60));
+  }
 }
