@@ -39,7 +39,9 @@ export class FieldCameraManagementComponent implements OnInit {
       ipAddress: ['', [Validators.required, Validators.pattern(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$/)]],
       username: ['', [Validators.required, Validators.maxLength(50)]],
       password: ['', [Validators.required, Validators.maxLength(255)]],
-      port: [8000, [Validators.required, Validators.min(1), Validators.max(65535)]]
+      port: [8000, [Validators.required, Validators.min(1), Validators.max(65535)]],
+      position: ['', [Validators.required]],
+      zoom: ['', [Validators.maxLength(100)]]
     });
   }
 
@@ -64,7 +66,8 @@ export class FieldCameraManagementComponent implements OnInit {
 
   openCreateModal(): void {
     this.cameraForm.reset({
-      port: 8000
+      port: 8000,
+      position: ''
     });
     this.showCreateModal = true;
     this.errorMessage = '';
@@ -79,7 +82,9 @@ export class FieldCameraManagementComponent implements OnInit {
       ipAddress: camera.ipAddress,
       username: camera.username,
       password: camera.password,
-      port: camera.port
+      port: camera.port,
+      position: camera.position,
+      zoom: camera.zoom || ''
     });
     this.showEditModal = true;
     this.errorMessage = '';

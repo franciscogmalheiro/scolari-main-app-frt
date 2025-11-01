@@ -60,6 +60,7 @@ export interface IndividualMatchEventDto {
   teamName?: string;
   result: string;
   fieldCameraId?: number;
+  isZoomRequired: boolean;
 }
 
 export interface MatchEventRequestDto {

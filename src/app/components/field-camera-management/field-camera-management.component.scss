@@ -155,6 +155,7 @@
   min-height: 400px;
   margin-bottom: 2rem;
   overflow-y: auto;
+  overflow-x: auto; /* allow horizontal scroll when columns overflow */
   max-height: 600px;
 }
 
@@ -162,6 +163,7 @@
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+  min-width: 1000px; /* ensure all columns show; scroll horizontally if needed */
 }
 
 .cameras-table thead {
@@ -194,14 +196,7 @@
   vertical-align: middle;
 }
 
-// Table column widths for better space utilization
-.cameras-table th:nth-child(1), .cameras-table td:nth-child(1) { width: 15%; } /* Camera Name */
-.cameras-table th:nth-child(2), .cameras-table td:nth-child(2) { width: 15%; } /* Model */
-.cameras-table th:nth-child(3), .cameras-table td:nth-child(3) { width: 15%; } /* IP Address */
-.cameras-table th:nth-child(4), .cameras-table td:nth-child(4) { width: 8%; }  /* Port */
-.cameras-table th:nth-child(5), .cameras-table td:nth-child(5) { width: 12%; } /* Username */
-.cameras-table th:nth-child(6), .cameras-table td:nth-child(6) { width: 15%; } /* Created */
-.cameras-table th:nth-child(7), .cameras-table td:nth-child(7) { width: 20%; } /* Actions */
+
 
 .camera-row:hover {
   background: rgba(255, 255, 255, 0.05);
@@ -239,6 +234,7 @@
 .camera-actions {
   display: flex;
   gap: 0.5rem;
+  white-space: nowrap; /* keep action buttons on one line */
 }
 
 .action-btn {
@@ -271,6 +267,11 @@
 
 .action-icon {
   font-size: 1rem;
+}
+
+.action-label {
+  margin-left: 0.25rem;
+  font-size: 0.8rem;
 }
 
 // Empty state
@@ -385,6 +386,22 @@
   color: white;
   font-size: 0.9rem;
   transition: all 0.3s ease;
+}
+
+// Ensure select dropdown is readable when opened
+.form-group select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.form-group select option {
+  background: #ffffff; /* dropdown list background */
+  color: #1a1a2e;      /* dark text for readability */
+}
+
+.form-group select option[disabled] {
+  color: rgba(0, 0, 0, 0.5);
 }
 
 .form-group input:focus,

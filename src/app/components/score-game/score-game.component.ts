@@ -40,6 +40,9 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   fieldCameraId: number | null = null; // Field camera ID for recording mode
   qrCodeData = '';
   isRecordingMode = false;
+  // Attacking team selection for recording mode
+  showAttackingTeamModal = false;
+  attackingTeamAtScolariGoal: 'A' | 'B' | null = null;
   
   // Team properties
   teamAName = 'COLETES';
@@ -140,6 +143,12 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
   // Timer functions
   startMatch(): void {
+    // In recording mode, ensure attacking team is selected before starting
+    if (this.isRecordingMode && this.attackingTeamAtScolariGoal === null) {
+      this.showAttackingTeamModal = true;
+      return;
+    }
+
     if (this.events.length > 0) {
       this.showStartConfirmModal = true;
       return;
@@ -195,6 +204,17 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       // Cannot start match without sport data (required for backend)
       console.error('Cannot start match: Sport data is required');
       return;
+    }
+  }
+
+  chooseAttackingTeam(team: 'A' | 'B'): void {
+    this.attackingTeamAtScolariGoal = team;
+    this.showAttackingTeamModal = false;
+    // After choosing, proceed with normal start flow
+    if (this.events.length > 0) {
+      this.showStartConfirmModal = true;
+    } else {
+      this.doStartMatch();
     }
   }
 
@@ -522,13 +542,23 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Determine if zoom is required: true when the event belongs to the team NOT attacking Scolari goal
+    let isZoomRequired = false;
+    if (event.team && this.attackingTeamAtScolariGoal) {
+      const attackingTeamName = this.attackingTeamAtScolariGoal === 'A' ? this.teamAName : this.teamBName;
+      if (event.eventName !== 'start' && event.eventName !== 'finish') {
+        isZoomRequired = event.team !== attackingTeamName;
+      }
+    }
+
     const eventData: IndividualMatchEventDto = {
       matchId: this.matchId,
       dateTime: event.dateTime,
       eventName: event.eventName,
       teamName: event.team || undefined,
       result: event.result,
-      fieldCameraId: this.fieldId || undefined
+      fieldCameraId: this.fieldId || undefined,
+      isZoomRequired: isZoomRequired
     };
 
     this.matchService.sendIndividualEvent(eventData).subscribe({

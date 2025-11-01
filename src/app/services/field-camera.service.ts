@@ -11,6 +11,8 @@ export interface FieldCameraDto {
   username: string;
   password: string;
   port?: number;
+  zoom?: string;
+  position: 'SCOLARI_GOAL' | 'OPPOSITE_TO_SCOLARI_GOAL';
 }
 
 export interface FieldCameraResponseDto {
@@ -22,6 +24,8 @@ export interface FieldCameraResponseDto {
   username: string;
   password: string;
   port: number;
+  zoom?: string;
+  position: 'SCOLARI_GOAL' | 'OPPOSITE_TO_SCOLARI_GOAL';
   createdAt: string;
   updatedAt: string;
 }

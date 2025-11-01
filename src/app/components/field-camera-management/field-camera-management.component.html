@@ -42,9 +42,10 @@
           <th>Model</th>
           <th>IP Address</th>
           <th>Port</th>
-          <th>Username</th>
-          <th>Created</th>
+          <th>Position</th>
+          <th>Zoom</th>
           <th>Actions</th>
+
         </tr>
       </thead>
       <tbody>
@@ -53,20 +54,22 @@
           <td class="camera-model">{{ camera.cameraModel }}</td>
           <td class="camera-ip">{{ camera.ipAddress }}</td>
           <td class="camera-port">{{ camera.port }}</td>
-          <td class="camera-username">{{ camera.username }}</td>
-          <td class="camera-date">{{ camera.createdAt | date:'short' }}</td>
+          <td class="camera-position">{{ camera.position }}</td>
+          <td class="camera-zoom">{{ camera.zoom || '-' }}</td>
           <td class="camera-actions">
-            <button class="action-btn health-btn" (click)="checkCameraHealth(camera.id)" [disabled]="healthCheckInProgressId === camera.id" title="Check Camera Health">
-              <span *ngIf="healthCheckInProgressId === camera.id" class="action-icon">⏳</span>
-              <span *ngIf="healthCheckInProgressId !== camera.id" class="action-icon">🩺</span>
-            </button>
             <button class="action-btn edit-btn" (click)="openEditModal(camera)" title="Edit Camera">
               <span class="action-icon">✏️</span>
             </button>
+  
             <button class="action-btn delete-btn" (click)="openDeleteModal(camera)" title="Delete Camera">
               <span class="action-icon">🗑️</span>
             </button>
-          </td>
+          <button class="action-btn health-btn" (click)="checkCameraHealth(camera.id)" [disabled]="healthCheckInProgressId === camera.id" title="Check Camera Health">
+            <span *ngIf="healthCheckInProgressId === camera.id" class="action-icon">⏳</span>
+            <span *ngIf="healthCheckInProgressId !== camera.id" class="action-icon">🩺</span>
+          </button>
+        </td>
+
         </tr>
       </tbody>
     </table>
@@ -170,6 +173,22 @@
         </div>
 
         <div class="form-group">
+          <label for="position">Position *</label>
+          <select 
+            id="position"
+            formControlName="position"
+            [class.error]="cameraForm.get('position')?.invalid && cameraForm.get('position')?.touched"
+          >
+            <option value="" disabled>Select position</option>
+            <option value="SCOLARI_GOAL">SCOLARI_GOAL</option>
+            <option value="OPPOSITE_TO_SCOLARI_GOAL">OPPOSITE_TO_SCOLARI_GOAL</option>
+          </select>
+          <div *ngIf="cameraForm.get('position')?.invalid && cameraForm.get('position')?.touched" class="error-text">
+            <span>Position is required</span>
+          </div>
+        </div>
+
+        <div class="form-group">
           <label for="port">Port *</label>
           <input 
             type="number" 
@@ -183,6 +202,20 @@
           <div *ngIf="cameraForm.get('port')?.invalid && cameraForm.get('port')?.touched" class="error-text">
             <span *ngIf="cameraForm.get('port')?.errors?.['required']">Port is required</span>
             <span *ngIf="cameraForm.get('port')?.errors?.['min'] || cameraForm.get('port')?.errors?.['max']">Port must be between 1 and 65535</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="zoom">Zoom</label>
+          <input 
+            type="text" 
+            id="zoom"
+            formControlName="zoom"
+            placeholder="Enter zoom level (optional)"
+            [class.error]="cameraForm.get('zoom')?.invalid && cameraForm.get('zoom')?.touched"
+          >
+          <div *ngIf="cameraForm.get('zoom')?.invalid && cameraForm.get('zoom')?.touched" class="error-text">
+            <span *ngIf="cameraForm.get('zoom')?.errors?.['maxlength']">Zoom must be at most 100 characters</span>
           </div>
         </div>
 
@@ -284,6 +317,22 @@
         </div>
 
         <div class="form-group">
+          <label for="edit-position">Position *</label>
+          <select 
+            id="edit-position"
+            formControlName="position"
+            [class.error]="cameraForm.get('position')?.invalid && cameraForm.get('position')?.touched"
+          >
+            <option value="" disabled>Select position</option>
+            <option value="SCOLARI_GOAL">SCOLARI_GOAL</option>
+            <option value="OPPOSITE_TO_SCOLARI_GOAL">OPPOSITE_TO_SCOLARI_GOAL</option>
+          </select>
+          <div *ngIf="cameraForm.get('position')?.invalid && cameraForm.get('position')?.touched" class="error-text">
+            <span>Position is required</span>
+          </div>
+        </div>
+
+        <div class="form-group">
           <label for="edit-port">Port *</label>
           <input 
             type="number" 
@@ -297,6 +346,20 @@
           <div *ngIf="cameraForm.get('port')?.invalid && cameraForm.get('port')?.touched" class="error-text">
             <span *ngIf="cameraForm.get('port')?.errors?.['required']">Port is required</span>
             <span *ngIf="cameraForm.get('port')?.errors?.['min'] || cameraForm.get('port')?.errors?.['max']">Port must be between 1 and 65535</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-zoom">Zoom</label>
+          <input 
+            type="text" 
+            id="edit-zoom"
+            formControlName="zoom"
+            placeholder="Enter zoom level (optional)"
+            [class.error]="cameraForm.get('zoom')?.invalid && cameraForm.get('zoom')?.touched"
+          >
+          <div *ngIf="cameraForm.get('zoom')?.invalid && cameraForm.get('zoom')?.touched" class="error-text">
+            <span *ngIf="cameraForm.get('zoom')?.errors?.['maxlength']">Zoom must be at most 100 characters</span>
           </div>
         </div>
 
