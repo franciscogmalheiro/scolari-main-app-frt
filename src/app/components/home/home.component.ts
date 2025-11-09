@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService, User, Sport } from '../../services/auth.service';
 import { GameMode } from '../game-card/game-card.component';
 import { environment } from '../../../environments/environment';
+import { RecordingCodeService } from '../../services/recording-code.service';
 
 @Component({
   selector: 'app-home',
@@ -13,42 +14,49 @@ export class HomeComponent implements OnInit {
   currentUser: User | null = null;
   isAuthenticated = false;
   appVersion: string = environment.appVersion;
+  recordingCode = '';
+  isSearching = false;
+  searchErrorMessage = '';
 
   gameModes: GameMode[] = [
     {
       id: 'record-game',
-      title: 'GRAVA O JOGO',
-      description: 'Grava todo o jogo e permite que acedas ao vídeo em diferentes formatos',
-      icon: '📹',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-      buttonText: 'MARCADOR E GRAVAÇÃO',
+      title: 'MARCADOR E GRAVAÇÃO',
+      description: 'Grava o jogo, aponta os golos e melhores momentos para que os possas rever no final',
+      icon: 'fas fa-video',
+      gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+      buttonText: 'Ir para marcador',
       requiresAuth: false,
       disabled: false
     },
     {
       id: 'download-video',
-      title: 'DOWNLOAD DO VÍDEO',
-      description: 'Acede à gravação do jogo. Podes fazer download do jogo inteiro, dos melhores momentos, ou apenas dos momentos à tua escolha.',
-      icon: '⬇️',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      title: 'ACEDER A UMA GRAVAÇÃO',
+      description: 'Podes rever, partilhar e fazer download do resumo, dos golos e dos melhores momentos.',
+      icon: 'fas fa-download',
+      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       buttonText: 'ACEDER A UMA GRAVAÇÃO',
       requiresAuth: false,
       disabled: false
     },
     {
       id: 'match-history',
-      title: 'HISTÓRICO DE JOGOS',
-      description: 'Consulta os jogos anteriores do teu campo e acede rapidamente aos vídeos.',
-      icon: '🗂️',
-      gradient: 'linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)',
-      buttonText: 'VER HISTÓRICO',
+      title: 'HISTÓRICO DE JOGOS E GOLOS',
+      description: 'Consulta o teu histórico de jogos e aos resumos, golos e melhores momentos.',
+      icon: 'fas fa-history',
+      gradient: 'linear-gradient(135deg, #f09819 0%, #edde5d 100%)',
+      buttonText: 'Ver histórico',
       requiresAuth: true,
       disabled: false,
       badge: 'APENAS UTILIZADORES REGISTADOS'
     }
   ];
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    private recordingCodeService: RecordingCodeService
+  ) {}
 
   ngOnInit(): void {
     console.log('Home component initialized');
@@ -86,9 +94,6 @@ export class HomeComponent implements OnInit {
     switch (gameMode.id) {
       case 'record-game':
         this.startRecordGame();
-        break;
-      case 'download-video':
-        this.openVideoLibrary();
         break;
       case 'match-history':
         this.openMatchHistory();
@@ -144,9 +149,25 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['/record-instructions'], { queryParams });
   }
 
-  private openVideoLibrary(): void {
-    console.log('Opening Video Library...');
-    this.router.navigate(['/download-video']);
+  onSearchRecordingCode(code: string): void {
+    if (!code || code.length < 4) {
+      return;
+    }
+
+    this.isSearching = true;
+    this.searchErrorMessage = '';
+
+    this.recordingCodeService.validateRecordingCode(code).subscribe({
+      next: () => {
+        // Code is valid, navigate directly to media library
+        this.router.navigate(['/media-library/recording-code', code]);
+      },
+      error: (error) => {
+        console.error('Error validating recording code:', error);
+        this.searchErrorMessage = 'Código de gravação inválido. Por favor, tenta novamente.';
+        this.isSearching = false;
+      }
+    });
   }
 
   private openMatchHistory(): void {

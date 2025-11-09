@@ -5,7 +5,6 @@ import { HomeComponent } from './components/home/home.component';
 import { GameSetupComponent } from './components/game-setup/game-setup.component';
 import { ScoreGameComponent } from './components/score-game/score-game.component';
 import { RecordInstructionsComponent } from './components/record-instructions/record-instructions.component';
-import { DownloadVideoComponent } from './components/download-video/download-video.component';
 import { MediaLibraryComponent } from './components/media-library/media-library.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
@@ -21,8 +20,6 @@ const routes: Routes = [
   { path: 'game-setup', component: GameSetupComponent },
   { path: 'score-game', component: ScoreGameComponent },
   { path: 'record-instructions', component: RecordInstructionsComponent },
-  { path: 'download-video', component: DownloadVideoComponent },
-  { path: 'download-video/:gameId', component: DownloadVideoComponent },
   { path: 'match-history', component: MatchHistoryComponent },
   { path: 'media-library/:matchCode', component: MediaLibraryComponent },
   { path: 'media-library/recording-code/:recordingCode', component: MediaLibraryComponent },

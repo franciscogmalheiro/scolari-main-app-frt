@@ -34,6 +34,9 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   isShareModalOpen = false;
   shareItem: MediaItemDto | null = null;
 
+  // Store bound fullscreen change handler for cleanup
+  private fullscreenChangeHandler = () => this.handleFullscreenChange();
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -56,6 +59,12 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
         this.loadMatchDetails();
       }
     });
+
+    // Listen for fullscreen exit events to reset preview state
+    document.addEventListener('fullscreenchange', this.fullscreenChangeHandler);
+    document.addEventListener('webkitfullscreenchange', this.fullscreenChangeHandler);
+    document.addEventListener('mozfullscreenchange', this.fullscreenChangeHandler);
+    document.addEventListener('MSFullscreenChange', this.fullscreenChangeHandler);
   }
 
   private buildPageShareUrl(): string {
@@ -130,7 +139,7 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
 
   onBackClick(): void {
     this.downloadFormStateService.clearFormState();
-    this.router.navigate(['/download-video']);
+    this.router.navigate(['/home']);
   }
 
   // Grouped lists
@@ -216,10 +225,10 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     if (!item.presignedUrl) {
       return;
     }
-    this.currentPreviewItem = item;
     this.isVideoPlaying = true;
 
-    // Reveal the video element but don't load the source yet
+    // Reveal the video element and load the source, then go fullscreen and play
+    // Don't set currentPreviewItem to avoid expanding the card
     setTimeout(() => {
       const videos = this.itemVideos?.toArray().map(ref => ref.nativeElement) || [];
       const target = videos.find(v => v.getAttribute('data-item-id') === item.id.toString());
@@ -232,6 +241,41 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
         } else if (item.presignedUrl) {
           target.src = item.presignedUrl;
           target.load();
+        }
+
+        // Request fullscreen and play when video is ready
+        const playAndFullscreen = () => {
+          // Request fullscreen
+          if (target.requestFullscreen) {
+            target.requestFullscreen().then(() => {
+              target.play().catch(console.error);
+            }).catch(console.error);
+          } else if ((target as any).webkitRequestFullscreen) {
+            (target as any).webkitRequestFullscreen();
+            target.play().catch(console.error);
+          } else if ((target as any).mozRequestFullScreen) {
+            (target as any).mozRequestFullScreen();
+            target.play().catch(console.error);
+          } else if ((target as any).msRequestFullscreen) {
+            (target as any).msRequestFullscreen();
+            target.play().catch(console.error);
+          } else {
+            // Fallback: just play if fullscreen is not supported
+            target.play().catch(console.error);
+          }
+        };
+
+        // Wait for video to be ready before playing
+        if (target.readyState >= 2) {
+          // Video already has enough data
+          playAndFullscreen();
+        } else {
+          // Wait for video to load
+          const onCanPlay = () => {
+            playAndFullscreen();
+            target.removeEventListener('canplay', onCanPlay);
+          };
+          target.addEventListener('canplay', onCanPlay);
         }
       }
     }, 0);
@@ -248,16 +292,125 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   }
 
   openPhoto(photo: MediaItemDto): void {
-    this.currentPreviewItem = photo;
+    if (!photo.presignedUrl) {
+      return;
+    }
+
+    // Create a fullscreen container for the photo
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '100%';
+    container.style.height = '100%';
+    container.style.backgroundColor = 'rgba(0, 0, 0, 0.95)';
+    container.style.display = 'flex';
+    container.style.alignItems = 'center';
+    container.style.justifyContent = 'center';
+    container.style.zIndex = '9999';
+    container.style.cursor = 'pointer';
+
+    const img = document.createElement('img');
+    img.src = photo.presignedUrl;
+    img.style.maxWidth = '100%';
+    img.style.maxHeight = '100%';
+    img.style.objectFit = 'contain';
+    img.style.userSelect = 'none';
+
+    // Close button
+    const closeButton = document.createElement('button');
+    closeButton.innerHTML = '<i class="fas fa-times"></i>';
+    closeButton.style.position = 'absolute';
+    closeButton.style.top = '20px';
+    closeButton.style.right = '20px';
+    closeButton.style.background = 'rgba(0, 0, 0, 0.7)';
+    closeButton.style.border = 'none';
+    closeButton.style.borderRadius = '50%';
+    closeButton.style.width = '40px';
+    closeButton.style.height = '40px';
+    closeButton.style.color = 'white';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.fontSize = '1.2rem';
+    closeButton.style.display = 'flex';
+    closeButton.style.alignItems = 'center';
+    closeButton.style.justifyContent = 'center';
+    closeButton.style.zIndex = '10000';
+
+    const closeFullscreen = () => {
+      if (document.fullscreenElement) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+          (document as any).webkitExitFullscreen();
+        } else if ((document as any).mozCancelFullScreen) {
+          (document as any).mozCancelFullScreen();
+        } else if ((document as any).msExitFullscreen) {
+          (document as any).msExitFullscreen();
+        }
+      }
+      document.body.removeChild(container);
+    };
+
+    closeButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeFullscreen();
+    });
+
+    container.addEventListener('click', (e) => {
+      if (e.target === container) {
+        closeFullscreen();
+      }
+    });
+
+    container.appendChild(img);
+    container.appendChild(closeButton);
+    document.body.appendChild(container);
+
+    // Request fullscreen on the container
+    const requestFullscreen = () => {
+      if (container.requestFullscreen) {
+        container.requestFullscreen().catch(console.error);
+      } else if ((container as any).webkitRequestFullscreen) {
+        (container as any).webkitRequestFullscreen();
+      } else if ((container as any).mozRequestFullScreen) {
+        (container as any).mozRequestFullScreen();
+      } else if ((container as any).msRequestFullscreen) {
+        (container as any).msRequestFullscreen();
+      }
+    };
+
+    // Request fullscreen immediately
+    requestFullscreen();
+
+    // Also listen for fullscreen exit to clean up
+    const handleFullscreenExit = () => {
+      if (!document.fullscreenElement && 
+          !(document as any).webkitFullscreenElement && 
+          !(document as any).mozFullScreenElement && 
+          !(document as any).msFullscreenElement) {
+        if (container.parentNode) {
+          document.body.removeChild(container);
+        }
+        document.removeEventListener('fullscreenchange', handleFullscreenExit);
+        document.removeEventListener('webkitfullscreenchange', handleFullscreenExit);
+        document.removeEventListener('mozfullscreenchange', handleFullscreenExit);
+        document.removeEventListener('MSFullscreenChange', handleFullscreenExit);
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenExit);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenExit);
+    document.addEventListener('mozfullscreenchange', handleFullscreenExit);
+    document.addEventListener('MSFullscreenChange', handleFullscreenExit);
   }
 
   onItemClick(item: MediaItemDto, $event: MouseEvent): void {
+    $event.stopPropagation();
     if (this.isItemPhoto(item)) {
       this.openPhoto(item);
       return;
     }
     this.onPreviewItem(item);
-    $event.stopPropagation();
   }
 
   getItemId(item: MediaItemDto): number {
@@ -364,6 +517,33 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.videoBlobCache.forEach(blobUrl => URL.revokeObjectURL(blobUrl));
     this.videoBlobCache.clear();
+
+    // Remove fullscreen event listeners
+    document.removeEventListener('fullscreenchange', this.fullscreenChangeHandler);
+    document.removeEventListener('webkitfullscreenchange', this.fullscreenChangeHandler);
+    document.removeEventListener('mozfullscreenchange', this.fullscreenChangeHandler);
+    document.removeEventListener('MSFullscreenChange', this.fullscreenChangeHandler);
+  }
+
+  private handleFullscreenChange(): void {
+    // Check if we exited fullscreen
+    if (!document.fullscreenElement && 
+        !(document as any).webkitFullscreenElement && 
+        !(document as any).mozFullScreenElement && 
+        !(document as any).msFullscreenElement) {
+      // Reset preview state when exiting fullscreen
+      this.currentPreviewItem = null;
+      this.isVideoPlaying = false;
+      
+      // Hide all video elements that were shown
+      const videos = this.itemVideos?.toArray().map(ref => ref.nativeElement) || [];
+      videos.forEach(video => {
+        if (!video.classList.contains('hidden')) {
+          video.classList.add('hidden');
+          video.pause();
+        }
+      });
+    }
   }
 
   onVideoLoaded(event?: any): void {

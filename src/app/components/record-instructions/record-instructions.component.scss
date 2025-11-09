@@ -1,6 +1,6 @@
 .record-instructions-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
   display: flex;
   flex-direction: column;
 }
@@ -14,13 +14,14 @@
 }
 
 .instructions-card {
-  background: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   padding: 3rem;
   max-width: 600px;
   width: 100%;
   text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .card-header {
@@ -29,8 +30,10 @@
   .card-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #333;
+    color: #ffffff;
     margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
   }
   
   .recording-icon {
@@ -47,9 +50,10 @@
 .recording-code-section {
   margin-bottom: 2rem;
   padding: 2rem;
-  background: #f8f9fa;
-  border-radius: 15px;
-  border: 2px solid #e9ecef;
+  background: white;
+  border-radius: 20px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
   
   .section-header {
     text-align: center;
@@ -57,23 +61,27 @@
     
     h3 {
       font-size: 1.5rem;
-      font-weight: 600;
-      color: #333;
+      font-weight: 700;
+      color: #667eea;
       margin-bottom: 1rem;
     }
     
     .description {
       font-size: 1rem;
-      color: #666;
+      color: #555;
       line-height: 1.5;
-      margin: 0;
+      margin: 0 auto;
+      max-width: 100%;
     }
   }
   
   .code-input-group {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin: 0 auto 1rem auto;
+    max-width: 100%;
+    width: 100%;
+    justify-content: center;
     
     @media (max-width: 768px) {
       flex-direction: column;
@@ -83,17 +91,23 @@
       flex: 1;
       padding: 1rem;
       border: 2px solid #e9ecef;
-      border-radius: 10px;
+      border-radius: 12px;
+      background: #f8f9fa;
+      color: #333;
       font-size: 1rem;
-      transition: border-color 0.3s ease;
+      font-weight: 500;
+      transition: all 0.3s ease;
       
       &:focus {
         outline: none;
         border-color: #667eea;
+        background: white;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
       }
       
       &.error {
-        border-color: #dc3545;
+        border-color: #ff6b6b;
+        background: #ffebee;
       }
       
       &::placeholder {
@@ -102,26 +116,27 @@
     }
     
     .validate-button {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 1rem 2rem;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
       min-width: 120px;
+      flex-shrink: 0;
       
       &:hover:not(:disabled) {
-        transform: translateY(-1px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
       }
       
       &:disabled {
-        background: #ccc;
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         cursor: not-allowed;
-        opacity: 0.6;
+        opacity: 0.3;
       }
       
       .spinner {
@@ -139,11 +154,16 @@
   .validation-error {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    color: #dc3545;
+    color: #ff6b6b;
     font-size: 0.9rem;
     font-weight: 500;
     margin-bottom: 1rem;
+    background: #ffebee;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #ff6b6b;
     
     .error-icon {
       font-size: 1rem;
@@ -170,43 +190,6 @@
   }
 }
 
-// Continue without recording button (in footer)
-.continue-button {
-  background: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 50px;
-  padding: 1rem 2.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  
-  &:hover:not(:disabled) {
-    background: #5a6268;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
-  }
-  
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-  
-  .button-icon {
-    font-size: 1.2rem;
-    transition: transform 0.3s ease;
-  }
-  
-  &:hover:not(:disabled) .button-icon {
-    transform: translateX(-5px);
-  }
-}
-
 // Instruction Items
 .instruction-items {
   margin-bottom: 2rem;
@@ -214,11 +197,10 @@
   h3 {
     font-size: 1.3rem;
     font-weight: 600;
-    color: #333;
+    color: #ffffff;
     text-align: center;
     margin-bottom: 1.5rem;
     padding: 1rem;
-  
   }
 }
 
@@ -233,7 +215,7 @@
   }
   
   .instruction-number {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: rgba(255, 255, 255, 0.2);
     color: white;
     width: 40px;
     height: 40px;
@@ -245,12 +227,13 @@
     font-size: 1.2rem;
     margin-right: 1.5rem;
     flex-shrink: 0;
+    border: 2px solid rgba(255, 255, 255, 0.3);
   }
   
   .instruction-text {
     font-size: 1.1rem;
     line-height: 1.6;
-    color: #555;
+    color: rgba(255, 255, 255, 0.9);
     flex: 1;
   }
 }
@@ -259,9 +242,10 @@
 .camera-health-section {
   margin-top: 2rem;
   padding: 1.5rem;
-  border-radius: 15px;
-  background: #f8f9fa;
-  border: 2px solid #e9ecef;
+  border-radius: 20px;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   
   .health-check-header {
     margin-bottom: 1rem;
@@ -269,7 +253,7 @@
     h3 {
       font-size: 1.3rem;
       font-weight: 600;
-      color: #333;
+      color: #1e293b;
       margin: 0;
     }
   }
@@ -279,17 +263,18 @@
     align-items: center;
     gap: 0.75rem;
     padding: 1rem;
-    border-radius: 10px;
+    border-radius: 12px;
     font-weight: 500;
     
     &.loading {
-      background: #e3f2fd;
-      color: #1976d2;
+      background: rgba(59, 130, 246, 0.1);
+      color: #1e40af;
+      border: 1px solid rgba(59, 130, 246, 0.3);
       
       .spinner {
         width: 20px;
         height: 20px;
-        border: 2px solid #1976d2;
+        border: 2px solid #1e40af;
         border-top: 2px solid transparent;
         border-radius: 50%;
         animation: spin 1s linear infinite;
@@ -297,25 +282,26 @@
     }
     
     &.success {
-      background: #e8f5e8;
-      color: #2e7d32;
+      background: rgba(34, 197, 94, 0.1);
+      color: #15803d;
+      border: 1px solid rgba(34, 197, 94, 0.3);
       
       .status-icon {
         font-size: 1.2rem;
       }
       
       .camera-info {
-        
         small {
-          color: #388e3c;
+          color: #15803d;
           font-style: italic;
         }
       }
     }
     
     &.error {
-      background: #ffebee;
-      color: #c62828;
+      background: rgba(239, 68, 68, 0.1);
+      color: #dc2626;
+      border: 1px solid rgba(239, 68, 68, 0.3);
       
       .status-icon {
         font-size: 1.2rem;
@@ -323,9 +309,9 @@
       
       .retry-button {
         margin-left: auto;
-        background: #f44336;
+        background: #dc2626;
         color: white;
-        border: none;
+        border: 1px solid #dc2626;
         border-radius: 20px;
         padding: 0.5rem 1rem;
         font-size: 0.9rem;
@@ -334,8 +320,10 @@
         transition: all 0.3s ease;
         
         &:hover {
-          background: #d32f2f;
+          background: #b91c1c;
+          border-color: #b91c1c;
           transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
         }
       }
     }
@@ -354,9 +342,9 @@
   gap: 1rem;
   
   .back-button {
-    background: #6c757d;
-    color: white;
-    border: none;
+    background: white;
+    color: #dc3545;
+    border: 2px solid #dc3545;
     border-radius: 50px;
     padding: 1rem 2rem;
     font-size: 1.1rem;
@@ -368,13 +356,15 @@
     gap: 0.5rem;
     
     &:hover {
-      background: #5a6268;
+      background: #f8f9fa;
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
+      box-shadow: 0 10px 20px rgba(220, 53, 69, 0.2);
     }
     
     .button-arrow {
       font-size: 1.2rem;
+      font-weight: 700;
+      color: #dc3545;
       transition: transform 0.3s ease;
     }
     
@@ -383,8 +373,35 @@
     }
   }
   
+  .continue-button {
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    
+    &:hover:not(:disabled) {
+      background: #5a6268;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
+    }
+    
+    &:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+  
   .next-button {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
     color: white;
     border: none;
     border-radius: 50px;
@@ -399,7 +416,7 @@
     
     &:hover:not(.disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(240, 147, 251, 0.3);
+      box-shadow: 0 10px 20px rgba(17, 153, 142, 0.4);
     }
     
     &.disabled {

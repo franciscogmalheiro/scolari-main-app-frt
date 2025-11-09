@@ -9,51 +9,16 @@
 // Hero Banner Section
 .hero-banner {
   position: relative;
-  height: 40vh;
-  min-height: 300px;
+  padding: 4rem 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-}
-
-.banner-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400"><defs><linearGradient id="stadium" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23000;stop-opacity:1" /><stop offset="100%" style="stop-color:%23033;stop-opacity:1" /></linearGradient><pattern id="field" width="100" height="50" patternUnits="userSpaceOnUse"><rect width="100" height="50" fill="url(%23stadium)"/><path d="M 50 0 L 50 50 M 0 25 L 100 25" stroke="rgba(255,255,255,0.1)" stroke-width="1" fill="none"/></pattern></defs><rect width="1200" height="400" fill="url(%23field)"/></svg>');
-  background-size: cover;
-  background-position: center;
-}
-
-.banner-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+  text-align: center;
 }
 
 .banner-content {
-  position: relative;
-  z-index: 2;
-  text-align: center;
   max-width: 800px;
-  padding: 0 2rem;
-}
-
-.banner-logo-image {
-  height: 35vh;
-  width: auto;
-  filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.4));
-  transition: transform 0.3s ease;
-}
-
-.banner-logo-image:hover {
-  transform: scale(1.05);
+  width: 100%;
 }
 
 .banner-title {
@@ -61,45 +26,16 @@
   font-weight: 900;
   color: white;
   margin: 0 0 1rem 0;
-  text-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
-  letter-spacing: 4px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  letter-spacing: 2px;
 }
 
-.banner-description {
+.banner-slogan {
   font-size: 1.3rem;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
   line-height: 1.6;
   font-weight: 300;
-}
-
-.banner-decoration {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-}
-
-.decoration-circle {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  opacity: 0.3;
-}
-
-.decoration-circle.left {
-  top: 20%;
-  left: 10%;
-  background: radial-gradient(circle, #00ff88 0%, transparent 70%);
-}
-
-.decoration-circle.right {
-  bottom: 20%;
-  right: 10%;
-  background: radial-gradient(circle, #00ccff 0%, transparent 70%);
 }
 
 // Game Modes Section
@@ -237,15 +173,14 @@
 // Responsive Design
 @media (max-width: 768px) {
   .hero-banner {
-    height: 35vh;
-    min-height: 250px;
+    padding: 3rem 2rem;
   }
   
-  .banner-logo-image {
-    height: 20vh;
+  .banner-title {
+    font-size: 3rem;
   }
   
-  .banner-description {
+  .banner-slogan {
     font-size: 1.1rem;
   }
   
@@ -270,15 +205,14 @@
 
 @media (max-width: 480px) {
   .hero-banner {
-    height: 30vh;
-    min-height: 200px;
+    padding: 2rem 1rem;
   }
   
-  .banner-logo-image {
-    height: 18vh;
+  .banner-title {
+    font-size: 2.5rem;
   }
   
-  .banner-description {
+  .banner-slogan {
     font-size: 1rem;
   }
   

@@ -19,7 +19,6 @@ import { RecordInstructionsComponent } from './components/record-instructions/re
 import { QrModalComponent } from './components/qr-modal/qr-modal.component';
 import { LiveIndicatorComponent } from './components/live-indicator/live-indicator.component';
 import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
-import { DownloadVideoComponent } from './components/download-video/download-video.component';
 import { GameSetupComponent } from './components/game-setup/game-setup.component';
 import { MediaLibraryComponent } from './components/media-library/media-library.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
@@ -43,7 +42,6 @@ import { MatchHistoryComponent } from './components/match-history/match-history.
     QrModalComponent,
     LiveIndicatorComponent,
     ConfirmationModalComponent,
-    DownloadVideoComponent,
     GameSetupComponent,
     MediaLibraryComponent,
     AdminDashboardComponent,

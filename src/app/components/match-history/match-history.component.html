@@ -6,41 +6,144 @@
       <p class="subtitle">Consulta e acede rapidamente às gravações</p>
     </section>
 
-    <section class="table-card">
-      <div *ngIf="isLoading" class="loading">A carregar…</div>
-      <div *ngIf="!isLoading && errorMessage" class="error">{{ errorMessage }}</div>
+    <div *ngIf="isLoading" class="loading">A carregar…</div>
+    <div *ngIf="!isLoading && errorMessage" class="error">{{ errorMessage }}</div>
 
-      <div *ngIf="!isLoading && !errorMessage && matches.length" class="table-wrapper">
-        <table class="match-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Código</th>
-              <!--th>Modalidade</th-->
-              <th>Início</th>
-              <th>Duração</th>
-              <th>Resultado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let m of matches">
-              <td class="actions">
-                <button *ngIf="m.recordMode" class="camera-btn" title="Aceder ao Download" (click)="goToDownload(m)">📷</button>
-                <span *ngIf="!m.recordMode" class="no-record">—</span>
-              </td>
-              <td class="mono">{{ m.recordingCode || 'N/A' }}</td>
-              <!--td>{{ m.sportName }}</td-->
-              <td>{{ formatDate(m.startDateTime) }}</td>
-              <td>{{ getDurationInMinutes(m) }} min</td>
-              <td>{{ m.teamAName }} {{ m.finalResult }} {{ m.teamBName }}</td>
-              
-            </tr>
-          </tbody>
-        </table>
+    <div *ngIf="!isLoading && !errorMessage && displayedMatches.length" class="matches-container">
+      <div class="match-card" *ngFor="let m of displayedMatches">
+        <div class="match-card-left">
+          <div class="recording-code">{{ m.recordingCode || 'N/A' }}</div>
+          <div class="match-info">
+            <div class="match-date">{{ formatDate(m.startDateTime) }}</div>
+            <div class="match-duration">{{ getDurationInMinutes(m) }} min</div>
+          </div>
+        </div>
+        <div class="match-card-center">
+          <div class="match-result">
+            {{ m.teamAName }} {{ m.finalResult }} {{ m.teamBName }}
+          </div>
+        </div>
+        <div class="match-card-right">
+          <button 
+            *ngIf="m.recordMode" 
+            class="media-library-btn" 
+            title="Aceder à Biblioteca de Media" 
+            (click)="goToDownload(m)">
+            <i class="fas fa-video"></i>
+            <span class="btn-text">Galeria</span>
+          </button>
+          <span *ngIf="!m.recordMode" class="no-record">Sem gravação</span>
+        </div>
       </div>
 
-      <div *ngIf="!isLoading && !errorMessage && !matches.length" class="empty">Sem jogos ainda.</div>
-    </section>
+      <div *ngIf="hasMoreMatches()" class="load-more-container">
+        <button class="load-more-btn" (click)="loadMore()">
+          Carregar mais
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage && !matches.length" class="empty">Sem jogos ainda.</div>
+
+    <!-- Meus golos section (only for USER role) -->
+    <div *ngIf="isUserRole()" class="my-goals-section mt-4">
+      <div class="section-header-goals">
+        <h2 class="goals-title">Meus golos</h2>
+      </div>
+
+      <div *ngIf="isLoadingGoals" class="loading">A carregar golos…</div>
+      <div *ngIf="!isLoadingGoals && goalsError" class="error">{{ goalsError }}</div>
+
+      <div *ngIf="!isLoadingGoals && !goalsError && displayedGoals.length" class="goals-container">
+        <div class="row g-3">
+          <div class="col-12 col-sm-6 col-md-4 col-lg-4" *ngFor="let goal of displayedGoals">
+          <div class="event-card" [class.selected]="isItemSelected(goal)" [class.disabled]="isItemDisabled(goal)" (click)="!isItemDisabled(goal) ? onSelectItem(goal) : null">
+            <div class="event-header">
+              <div class="event-icon"><span [innerHTML]="getItemIcon(goal)"></span></div>
+              <div class="event-time">
+                <p class="time-text">{{ getItemDescription(goal) }}</p>
+                <p class="team-name-text" *ngIf="isItemGoalOrHighlight(goal) && getMatchResult(goal)">{{ getMatchResult(goal) }}</p>
+              </div>
+            </div>
+            <div class="event-thumbnail" (click)="!isItemDisabled(goal) ? onItemClick(goal, $event) : $event.stopPropagation()">
+              <!-- Show processing message -->
+              <div *ngIf="isItemProcessing(goal)" class="processing-placeholder">
+                <i class="fas fa-spinner fa-pulse"></i>
+                <p>A processar...</p>
+              </div>
+
+              <!-- Show error message -->
+              <div *ngIf="isItemProcessingFailed(goal)" class="processing-placeholder failed">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Lamentamos, mas não foi possível extrair o vídeo deste momento</p>
+              </div>
+
+              <!-- Show normal content -->
+              <ng-container *ngIf="!isItemProcessing(goal) && !isItemProcessingFailed(goal)">
+                <ng-container *ngIf="isItemPhoto(goal); else videoTemplate">
+                  <img class="thumb-photo" [src]="getItemUrl(goal)" alt="photo" />
+                </ng-container>
+                <ng-template #videoTemplate>
+                  <div class="video-thumbnail-container">
+                    <img class="thumb-photo" [src]="getMomentoThumbnailUrl(goal)" alt="video thumbnail" />
+                    <video 
+                      #itemVideo
+                      [src]="getItemUrl(goal)"
+                      [muted]="false"
+                      [loop]="false"
+                      controls
+                      class="thumb-video"
+                      [class.hidden]="currentPreviewItem?.id !== getItemId(goal)"
+                      [attr.data-item-id]="getItemId(goal)"
+                      (ended)="onVideoEnded($event)"
+                      (error)="onVideoError($event)"
+                      (loadeddata)="onVideoLoaded()"
+                      (canplay)="onVideoLoaded()"
+                      (play)="onVideoPlay($event)">
+                    </video>
+                    <button class="thumb-play-button" *ngIf="currentPreviewItem?.id !== getItemId(goal)" (click)="onPreviewItem(goal); $event.stopPropagation()"><i class="fas fa-play"></i></button>
+                  </div>
+                </ng-template>
+              </ng-container>
+            </div>
+            <div class="event-actions">
+              <button class="action-button share" [disabled]="isItemDisabled(goal)" title="Partilhar" (click)="openShareModal(goal); $event.stopPropagation()"><i class="fas fa-share"></i></button>
+              <button class="action-button download" [disabled]="isItemDisabled(goal)" title="Transferir" (click)="onDownloadItem(goal); $event.stopPropagation()"><i class="fas fa-download"></i></button>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        <div *ngIf="hasMoreGoals()" class="load-more-container">
+          <button class="load-more-btn" (click)="loadMoreGoals()">
+            Carregar mais
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoadingGoals && !goalsError && myGoals.length === 0" class="empty">Sem golos ainda.</div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="share-modal-backdrop" *ngIf="isShareModalOpen" (click)="closeShareModal()"></div>
+    <div class="share-modal" *ngIf="isShareModalOpen" (click)="$event.stopPropagation()">
+      <div class="share-modal-header">
+        <h4>Partilhar</h4>
+        <button class="close-button" (click)="closeShareModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="share-modal-body">
+        <button class="share-option" (click)="copyLink()">
+          <i class="fas fa-link"></i>
+          <span>Copiar Link</span>
+        </button>
+        <button class="share-option" (click)="shareToWhatsApp()">
+          <i class="fab fa-whatsapp"></i>
+          <span>WhatsApp</span>
+        </button>
+      </div>
+    </div>
   </main>
 </div>
 

@@ -18,6 +18,12 @@ export interface MediaItemDto {
   elapsedTime?: string;
   teamName?: string;
   processingStatus?: 'RETRIEVED' | 'PROCESSING' | 'RETRYING' | 'PROCESSING_FAILED' | 'WAITING_FOR_SEGMENTS' | 'PENDING_EXTRACTION';
+  videoSegmentId?: number; // ID to use when associating with a user
+  
+  // Match result properties
+  teamAName?: string;
+  finalResult?: string;
+  teamBName?: string;
 }
 
 @Injectable({
@@ -34,5 +40,13 @@ export class MediaLibraryService {
 
   getMediaLibraryByRecordingCode(recordingCode: string): Observable<MediaItemDto[]> {
     return this.http.get<MediaItemDto[]>(`${this.apiUrl}/media-library/recording-code/${recordingCode}`);
+  }
+
+  getUserVideoSegments(userId: number): Observable<MediaItemDto[]> {
+    return this.http.get<MediaItemDto[]>(`${this.apiUrl}/users/${userId}/video-segments`);
+  }
+
+  addMatchEventToUser(matchEventId: number, userId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/match-events/${matchEventId}/users/${userId}`, {});
   }
 }

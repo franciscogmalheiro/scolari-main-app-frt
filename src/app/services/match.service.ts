@@ -128,4 +128,8 @@ export class MatchService {
   deleteMatchEvent(eventId: number): Observable<any> {
     return this.http.delete(`${this.API_BASE_URL}/match-events/${eventId}`);
   }
+
+  addMatchToUser(matchCode: string, userId: number): Observable<any> {
+    return this.http.post(`${this.API_BASE_URL}/matches/code/${matchCode}/users/${userId}`, {});
+  }
 } 

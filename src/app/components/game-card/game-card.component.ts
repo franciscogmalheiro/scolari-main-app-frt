@@ -20,12 +20,35 @@ export interface GameMode {
 export class GameCardComponent {
   @Input() gameMode!: GameMode;
   @Input() isAuthenticated = false;
+  @Input() recordingCode = '';
+  @Input() isSearching = false;
+  @Input() searchErrorMessage = '';
   @Output() cardClick = new EventEmitter<GameMode>();
+  @Output() searchSubmit = new EventEmitter<string>();
+  @Output() recordingCodeChange = new EventEmitter<string>();
 
   onCardClick(): void {
+    // Don't emit card click for download-video card (it has search input instead)
+    if (this.gameMode.id === 'download-video') {
+      return;
+    }
     if (!this.isDisabled) {
       this.cardClick.emit(this.gameMode);
     }
+  }
+
+  onSearchSubmit(): void {
+    if (this.recordingCode && this.recordingCode.length >= 4 && !this.isSearching) {
+      this.searchSubmit.emit(this.recordingCode);
+    }
+  }
+
+  onRecordingCodeChange(value: string): void {
+    this.recordingCodeChange.emit(value);
+  }
+
+  get isDownloadVideoCard(): boolean {
+    return this.gameMode.id === 'download-video';
   }
 
   get isDisabled(): boolean {

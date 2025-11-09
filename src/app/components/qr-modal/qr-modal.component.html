@@ -25,7 +25,7 @@
         <h3 class="game-id-label">ID do Jogo:</h3>
         <div class="game-id">{{ gameId || 'XXXX' }}</div>
         <div class="download-link">
-          <a href="/download-video/{{ gameId }}" class="download-button">
+          <a [routerLink]="['/media-library/recording-code', gameId]" class="download-button">
             <i class="fas fa-download"></i>
             Aceder ao Vídeo
           </a>

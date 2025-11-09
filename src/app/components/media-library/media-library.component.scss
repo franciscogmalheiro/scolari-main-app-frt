@@ -1,6 +1,6 @@
 .selected-moments-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
   display: flex;
   flex-direction: column;
 }
@@ -207,6 +207,14 @@
     transform: translateY(-50%);
   }
 
+  .library-header-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
   .share-library-button {
     background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
     color: white;
@@ -232,6 +240,47 @@
       background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
     }
   }
+
+  .add-to-games-button {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+
+    i {
+      font-size: 1rem;
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(59, 130, 246, 0.45);
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    &.added {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
+
+      &:hover {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        box-shadow: 0 10px 24px rgba(34, 197, 94, 0.45);
+      }
+    }
+  }
 }
 
 .library-content {
@@ -243,46 +292,69 @@
 }
 
 .event-card {
-  background: rgba(255, 255, 255, 0.95);
   border-radius: 20px;
   padding: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   width: 100%;
   cursor: pointer;
-  backdrop-filter: blur(20px);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 
   &.disabled {
     cursor: not-allowed;
-    opacity: 0.7;
-  }
-  
-  &:hover {
-    border-color: rgba(59, 130, 246, 0.3);
-    box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1);
-    transform: translateY(-8px);
-    background: rgba(255, 255, 255, 0.98);
-  }
-  
-  &.selected {
-    border-color: rgba(16, 185, 129, 0.8);
-    background: rgba(166, 219, 166, 0.82);
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35), 0 15px 35px rgba(16, 185, 129, 0.25);
-    transform: translateY(-4px);
+    opacity: 0.6;
   }
 
-  &.expanded {
-    box-shadow: 0 25px 50px rgba(59, 130, 246, 0.2), 0 0 0 1px rgba(59, 130, 246, 0.15);
-    transform: translateY(-12px);
-    background: rgba(255, 255, 255, 0.98);
-  }
-}
+  // Resumo cards - Green gradient
+  &.resumo-card {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 
-.expanded-col {
-  flex: 0 0 100%;
-  max-width: 100%;
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(17, 153, 142, 0.4);
+    }
+
+    &.selected {
+      background: linear-gradient(135deg, #1aa89e 0%, #48ff8d 100%);
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 0 3px rgba(17, 153, 142, 0.35), 0 15px 35px rgba(17, 153, 142, 0.25);
+    }
+  }
+
+  // Moment cards - Purple gradient
+  &.moment-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    }
+
+    &.selected {
+      background: linear-gradient(135deg, #7c8ef0 0%, #8a5fb8 100%);
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.35), 0 15px 35px rgba(102, 126, 234, 0.25);
+    }
+  }
+
+  // Photo cards - Orange gradient
+  &.photo-card {
+    background: linear-gradient(135deg, #f09819 0%, #edde5d 100%);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(240, 152, 25, 0.4);
+    }
+
+    &.selected {
+      background: linear-gradient(135deg, #f5a623 0%, #f0d866 100%);
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 0 3px rgba(240, 152, 25, 0.35), 0 15px 35px rgba(240, 152, 25, 0.25);
+    }
+  }
+
 }
 
 .event-thumbnail {
@@ -309,14 +381,6 @@
     background: #000;
     display: block;
     transition: all 0.3s ease;
-
-    &.expanded-photo {
-      aspect-ratio: unset;
-      height: auto;
-      max-height: 600px;
-      min-height: 300px;
-      object-fit: contain;
-    }
   }
   
   &:hover .thumb-video {
@@ -356,32 +420,6 @@
     }
   }
 
-  .close-video-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    border: none;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 10;
-    
-    i {
-      color: white;
-      font-size: 0.9rem;
-    }
-    
-    &:hover {
-      background: rgba(0, 0, 0, 0.9);
-      transform: scale(1.1);
-    }
-  }
 }
 
 .event-header {
@@ -396,24 +434,35 @@
   .event-icon {
     font-size: 2.2rem;
     flex-shrink: 0;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    color: #ffffff;
+
+    i {
+      color: #ffffff;
+    }
+
+    // Goal icon - black
+    i.fa-futbol {
+      color: #000000;
+    }
+
+    // Highlight icon - yellow
+    i.fa-star {
+      color: #fbbf24;
+    }
   }
   
   .event-time {
     .time-text {
       font-size: 1.2rem;
-      color: #1e293b;
+      color: #ffffff;
       margin: 0;
       font-weight: 700;
-      background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
     }
 
     .team-name-text {
       font-size: 0.9rem;
-      color: #475569;
+      color: rgba(255, 255, 255, 0.9);
       margin: 0.25rem 0 0 0;
       font-weight: 600;
     }
@@ -421,171 +470,21 @@
   
   .team-name {
     font-size: 1rem;
-    color: #475569;
+    color: rgba(255, 255, 255, 0.9);
     font-weight: 600;
     text-align: center;
   }
 }
 
 .team-score {
-  color: #10b981;
   font-weight: 700;
   margin-right: 0.5rem;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: white;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.event-details {
-  .event-actions {
-    .preview-button {
-      width: auto;
-      min-width: 120px;
-      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 0.8rem 1.5rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      margin: 0 auto;
-      
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
-      }
-
-      &:disabled {
-        background: #6c757d;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-        
-        &:hover {
-          transform: none;
-          box-shadow: none;
-        }
-      }
-    }
-  }
-
-  .video-preview-section {
-    margin-top: 1rem;
-    
-    .video-container {
-      position: relative;
-      width: 100%;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #000;
-      aspect-ratio: 16 / 9;
-      
-      .preview-video {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        display: block;
-      }
-      
-      .video-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        
-        .play-button {
-          background: rgba(255, 255, 255, 0.9);
-          border: none;
-          border-radius: 50%;
-          width: 60px;
-          height: 60px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          
-          i {
-            font-size: 1.5rem;
-            color: #333;
-            margin-left: 3px;
-          }
-          
-          &:hover {
-            background: white;
-            transform: scale(1.1);
-          }
-        }
-      }
-      
-      .pause-overlay {
-        background: transparent;
-        cursor: pointer;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        
-        &:hover {
-          opacity: 1;
-          background: rgba(0, 0, 0, 0.3);
-        }
-        
-        .pause-indicator {
-          background: rgba(255, 255, 255, 0.9);
-          border-radius: 50%;
-          width: 60px;
-          height: 60px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          
-          i {
-            font-size: 1.5rem;
-            color: #333;
-          }
-        }
-      }
-      
-      .close-video-button {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(0, 0, 0, 0.7);
-        border: none;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        z-index: 10;
-        
-        i {
-          color: white;
-          font-size: 0.9rem;
-        }
-        
-        &:hover {
-          background: rgba(0, 0, 0, 0.9);
-          transform: scale(1.1);
-        }
-      }
-    }
-  }
-}
 
 .selected-events-section {
   margin-top: 2rem;
@@ -963,11 +862,12 @@
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: 0.2px;
+  color: #ffffff;
 }
 
 .match-meta {
   margin: 8px 0 16px 0;
-  color: #444;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .match-meta .match-line {
@@ -977,7 +877,7 @@
 
 .match-meta .match-date {
   font-size: 0.95rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .event-actions {
@@ -986,14 +886,17 @@
   gap: 8px;
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .action-button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 6px 12px;
+  min-width: 36px;
+  height: 36px;
   border: none;
   border-radius: 18px;
   background: transparent;
@@ -1005,7 +908,7 @@
 }
 
 .action-button:hover {
-  background: rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .action-button:disabled {
@@ -1026,15 +929,27 @@
 }
 
 .action-button.share i {
-  color: #25d366;
+  color: #ffffff;
 }
 
 .action-button.download i {
-  color: #0f0f0f;
+  color: #ffffff;
 }
 
 .action-button.copy i {
-  color: #606060;
+  color: #ffffff;
+}
+
+.action-button.goals i {
+  color: #ffffff;
+}
+
+.action-button.goals.added i {
+  color: #ffffff;
+}
+
+.action-button.goals i.fas.fa-star {
+  color: #ffffff;
 }
 
 .col-12 .thumb-video,
@@ -1184,17 +1099,19 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f8f9fa;
-  color: #6c757d;
+  background: rgba(0, 0, 0, 0.5);
+  color: rgba(255, 255, 255, 0.9);
   aspect-ratio: 16 / 9;
   width: 100% ;
   height: auto;
   padding: 1rem;
+  border-radius: 16px;
   
   i {
     font-size: 2rem;
     margin-bottom: 0.5rem;
-    opacity: 0.6;
+    opacity: 0.9;
+    color: rgba(255, 255, 255, 0.9);
   }
   
   p {
@@ -1204,17 +1121,18 @@
   }
 
   &.failed {
-    background: #fee;
-    color: #dc3545;
+    background: rgba(255, 107, 107, 0.2);
+    color: #ff6b6b;
     
     i {
-      color: #dc3545;
-      opacity: 0.8;
+      color: #ff6b6b;
+      opacity: 0.9;
     }
 
     p {
       font-weight: 500;
       font-size: 0.85rem;
+      color: #ff6b6b;
     }
   }
 }

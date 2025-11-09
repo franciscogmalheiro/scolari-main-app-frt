@@ -26,10 +26,20 @@
           <div class="library-header">
             <h2 class="library-title">{{ getMatchHeaderLine() }}</h2>
             <p class="">{{ getMatchDate() }}</p>
-            <div class="mb-3">
+            <div class="mb-3 library-header-buttons">
               <button class="share-library-button" (click)="onShareLibrary()" title="Partilhar biblioteca">
                 <i class="fas fa-share"></i>
                 <span>Partilhar</span>
+              </button>
+              <button 
+                *ngIf="isUserRole()" 
+                class="add-to-games-button" 
+                [class.added]="isMatchAddedToGames"
+                (click)="onAddToMyGames()" 
+                [title]="isMatchAddedToGames ? 'Jogo adicionado aos seus jogos' : 'Adicionar aos meus jogos'"
+                [disabled]="isMatchAddedToGames">
+                <i [class.fas]="true" [class.fa-check]="isMatchAddedToGames" [class.fa-plus]="!isMatchAddedToGames"></i>
+                <span>{{ isMatchAddedToGames ? 'Adicionado aos meus jogos' : 'Adicionar aos meus jogos' }}</span>
               </button>
             </div>
             <!--div class="library-counter">{{ allItems.length }} item{{ allItems.length !== 1 ? 's' : '' }}</div-->
@@ -50,7 +60,7 @@
               <div class="row g-3">
                 <!-- Show all items -->
                 <div class="col-12" *ngFor="let item of resumoItems" [ngClass]="{ 'expanded-col': currentPreviewItem?.id === getItemId(item) }">
-                  <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" [class.disabled]="isItemDisabled(item)" (click)="!isItemDisabled(item) ? onSelectItem(item) : null">
+                  <div class="event-card resumo-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" [class.disabled]="isItemDisabled(item)" (click)="!isItemDisabled(item) ? onSelectItem(item) : null">
                     <div class="event-header">
                       <div class="event-icon"><span [innerHTML]="getItemIcon(item)"></span></div>
                       <div class="event-time">
@@ -102,8 +112,17 @@
                       </ng-container>
                     </div>
                     <div class="event-actions">
-                      <button class="action-button share" [disabled]="isItemDisabled(item)" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i><span>Partilhar</span></button>
-                      <button class="action-button download" [disabled]="isItemDisabled(item)" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i><span>Transferir</span></button>
+                      <button class="action-button share" [disabled]="isItemDisabled(item)" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i></button>
+                      <button class="action-button download" [disabled]="isItemDisabled(item)" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i></button>
+                      <button 
+                        *ngIf="isUserRole() && (item.type === 'goal-event' || item.type === 'highlight-event')" 
+                        class="action-button goals" 
+                        [class.added]="isVideoSegmentAdded(item)"
+                        [disabled]="isItemDisabled(item) || isVideoSegmentAdded(item)" 
+                        [title]="isVideoSegmentAdded(item) ? 'Adicionado aos meus golos' : 'Adicionar aos meus golos'" 
+                        (click)="onAddToMyGoals(item); $event.stopPropagation()">
+                        <i [class.fas]="isVideoSegmentAdded(item)" [class.far]="!isVideoSegmentAdded(item)" [class.fa-star]="true"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -128,7 +147,7 @@
               <div class="row g-3">
                 <!-- Show all items -->
                 <div class="col-12 col-sm-6 col-md-4 col-lg-4" *ngFor="let item of momentItems" [ngClass]="{ 'expanded-col': currentPreviewItem?.id === getItemId(item) }">
-                  <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" [class.disabled]="isItemDisabled(item)" (click)="!isItemDisabled(item) ? onSelectItem(item) : null">
+                  <div class="event-card moment-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" [class.disabled]="isItemDisabled(item)" (click)="!isItemDisabled(item) ? onSelectItem(item) : null">
                     <div class="event-header">
                       <div class="event-icon"><span [innerHTML]="getItemIcon(item)"></span></div>
                       <div class="event-time">
@@ -181,8 +200,17 @@
                       </ng-container>
                     </div>
                     <div class="event-actions">
-                      <button class="action-button share" [disabled]="isItemDisabled(item)" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i><span>Partilhar</span></button>
-                      <button class="action-button download" [disabled]="isItemDisabled(item)" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i><span>Transferir</span></button>
+                      <button class="action-button share" [disabled]="isItemDisabled(item)" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i></button>
+                      <button class="action-button download" [disabled]="isItemDisabled(item)" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i></button>
+                      <button 
+                        *ngIf="isUserRole() && (item.type === 'goal-event' || item.type === 'highlight-event')" 
+                        class="action-button goals" 
+                        [class.added]="isVideoSegmentAdded(item)"
+                        [disabled]="isItemDisabled(item) || isVideoSegmentAdded(item)" 
+                        [title]="isVideoSegmentAdded(item) ? 'Adicionado aos meus golos' : 'Adicionar aos meus golos'" 
+                        (click)="onAddToMyGoals(item); $event.stopPropagation()">
+                        <i [class.fas]="isVideoSegmentAdded(item)" [class.far]="!isVideoSegmentAdded(item)" [class.fa-star]="true"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -207,7 +235,7 @@
               <div class="row g-3">
                 <!-- Show all items -->
                 <div class="col-12 col-sm-6 col-md-4 col-lg-4" *ngFor="let item of photoItems" [ngClass]="{ 'expanded-col': currentPreviewItem?.id === getItemId(item) }">
-                  <div class="event-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" [class.disabled]="isItemDisabled(item)" (click)="!isItemDisabled(item) ? onSelectItem(item) : null">
+                  <div class="event-card photo-card" [class.selected]="isItemSelected(item)" [class.expanded]="currentPreviewItem?.id === getItemId(item)" [class.disabled]="isItemDisabled(item)" (click)="!isItemDisabled(item) ? onSelectItem(item) : null">
                     <div class="event-header">
                       <div class="event-icon"><span [innerHTML]="getItemIcon(item)"></span></div>
                       <div class="event-time">
@@ -235,8 +263,17 @@
                       </ng-container>
                     </div>
                     <div class="event-actions">
-                      <button class="action-button share" [disabled]="isItemDisabled(item)" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i><span>Partilhar</span></button>
-                      <button class="action-button download" [disabled]="isItemDisabled(item)" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i><span>Transferir</span></button>
+                      <button class="action-button share" [disabled]="isItemDisabled(item)" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i></button>
+                      <button class="action-button download" [disabled]="isItemDisabled(item)" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i></button>
+                      <button 
+                        *ngIf="isUserRole() && (item.type === 'goal-event' || item.type === 'highlight-event')" 
+                        class="action-button goals" 
+                        [class.added]="isVideoSegmentAdded(item)"
+                        [disabled]="isItemDisabled(item) || isVideoSegmentAdded(item)" 
+                        [title]="isVideoSegmentAdded(item) ? 'Adicionado aos meus golos' : 'Adicionar aos meus golos'" 
+                        (click)="onAddToMyGoals(item); $event.stopPropagation()">
+                        <i [class.fas]="isVideoSegmentAdded(item)" [class.far]="!isVideoSegmentAdded(item)" [class.fa-star]="true"></i>
+                      </button>
                     </div>
                   </div>
                 </div>

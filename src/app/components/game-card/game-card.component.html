@@ -1,31 +1,63 @@
 <div class="game-card" 
      [class.disabled]="isDisabled"
+     [class.download-video-card]="isDownloadVideoCard"
      [style.background]="gameMode.gradient"
      (click)="onCardClick()"
      [title]="getDisabledTooltip()">
   
   <div class="card-content">
-    <div class="card-icon">
-      <span [innerHTML]="gameMode.icon"></span>
-    </div>
-    
-    <!--h3 class="card-title">{{ gameMode.title }}</h3-->
-    
-    <button class="card-button" [disabled]="isDisabled">
-      <span *ngIf="!isDisabled">{{ gameMode.buttonText }}</span>
-      <span *ngIf="isDisabled" class="locked-button">
-        <span class="lock-icon">🔒</span>
-        {{ gameMode.buttonText }}
-      </span>
-      <span class="button-arrow"></span>
-    </button>
-
+    <!-- Title and description for all cards -->
+    <h3 class="card-title">
+      <i [class]="gameMode.icon"></i>
+      <span>{{ gameMode.title }}</span>
+    </h3>
     <p class="card-description">{{ gameMode.description }}</p>
 
-    <!-- Badge for disabled cards with badge text -->
-    <div *ngIf="isDisabled && gameMode.badge" class="card-badge">
-      {{ gameMode.badge }}
-    </div>
+    <!-- Search input for download-video card -->
+    <form *ngIf="isDownloadVideoCard" (ngSubmit)="onSearchSubmit()" class="search-form" (click)="$event.stopPropagation()">
+      <div class="search-input-group">
+        <input
+          type="text"
+          [value]="recordingCode"
+          (input)="onRecordingCodeChange($any($event.target).value)"
+          name="recordingCode"
+          class="search-input"
+          placeholder="Código de gravação"
+          [disabled]="isSearching"
+          (keyup.enter)="onSearchSubmit()"
+        />
+        <button 
+          type="submit" 
+          class="search-button"
+          [disabled]="!recordingCode || recordingCode.length < 4 || isSearching">
+          <span *ngIf="!isSearching">
+            <i class="fas fa-search"></i>
+          </span>
+          <span *ngIf="isSearching" class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+          </span>
+        </button>
+      </div>
+      <div class="error-message" *ngIf="searchErrorMessage">
+        {{ searchErrorMessage }}
+      </div>
+    </form>
+    
+    <!-- Regular button for other cards -->
+    <ng-container *ngIf="!isDownloadVideoCard">
+      <button class="card-button" [disabled]="isDisabled">
+        <span *ngIf="!isDisabled">{{ gameMode.buttonText }}</span>
+        <span *ngIf="isDisabled" class="locked-button">
+          <i class="fas fa-lock"></i>
+          {{ gameMode.buttonText }}
+        </span>
+        <span class="button-arrow"></span>
+      </button>
+      <!-- Badge for disabled cards with badge text -->
+      <div *ngIf="isDisabled && gameMode.badge" class="card-badge">
+        {{ gameMode.badge }}
+      </div>
+    </ng-container>
 
   </div>
 </div>

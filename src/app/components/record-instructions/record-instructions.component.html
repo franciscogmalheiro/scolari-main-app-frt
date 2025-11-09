@@ -111,7 +111,7 @@
 
       <div class="card-footer">
         <button class="back-button" (click)="onBackClick()">
-          <span class="button-arrow">←</span>
+          <span class="button-arrow">&lt;</span>
           <span>Voltar</span>
         </button>
         
@@ -121,7 +121,6 @@
           class="continue-button"
           (click)="continueWithoutRecording()"
           [disabled]="isValidatingCode">
-          <span class="button-icon">📊</span>
           <span>Continuar sem gravação</span>
         </button>
         
@@ -132,8 +131,8 @@
           [class.disabled]="!canProceed()"
           [disabled]="!canProceed()"
           (click)="onNextClick()">
-          <span>Próximo</span>
-          <span class="button-arrow">→</span>
+          <span>Gravar jogo</span>
+          <span class="button-arrow">></span>
         </button>
       </div>
     </div>

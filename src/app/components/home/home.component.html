@@ -4,17 +4,9 @@
   <main class="main-content">
     <!-- Hero Banner Section -->
     <section class="hero-banner">
-      <div class="banner-background">
-        <div class="banner-overlay"></div>
-      </div>
       <div class="banner-content">
-        <div class="banner-logo">
-          <img src="assets/scolari-logo.png" alt="Scolari Logo" class="banner-logo-image">
-        </div>
-        <div class="banner-decoration">
-          <div class="decoration-circle left"></div>
-          <div class="decoration-circle right"></div>
-        </div>
+        <h1 class="banner-title">SCOLARI</h1>
+        <p class="banner-slogan">Grava, marca e revê e os melhores momentos dos teus jogos</p>
       </div>
     </section>
 
@@ -30,7 +22,12 @@
           *ngFor="let gameMode of gameModes"
           [gameMode]="gameMode"
           [isAuthenticated]="isAuthenticated"
-          (cardClick)="onGameCardClick($event)">
+          [recordingCode]="recordingCode"
+          [isSearching]="isSearching"
+          [searchErrorMessage]="searchErrorMessage"
+          (cardClick)="onGameCardClick($event)"
+          (searchSubmit)="onSearchRecordingCode($event)"
+          (recordingCodeChange)="recordingCode = $event">
         </app-game-card>
       </div>
     </section>
@@ -46,11 +43,11 @@
           <p class="footer-tagline">Todos querem o vídeo, ninguém quer filmar</p>
         </div>
         
-        <div class="social-links">
+        <!--div class="social-links">
           <a href="#" class="social-link">🐦</a>
           <a href="#" class="social-link">📷</a>
           <a href="#" class="social-link">📺</a>
-        </div>
+        </div-->
         
         <div class="copyright">
           © 2025 Scolari Video App. All rights reserved. App version: {{ appVersion }}
