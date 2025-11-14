@@ -29,7 +29,9 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {
+    scrollPositionRestoration: 'top' // Always scroll to top on navigation
+  })],
   exports: [RouterModule],
   providers: [GuestGuard, InitialRedirectGuard]
 })

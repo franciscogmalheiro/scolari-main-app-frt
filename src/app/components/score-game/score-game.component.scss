@@ -1,20 +1,19 @@
 .score-game-container {
-  height: 100vh;
-  background: #1a1a2e;
+  background: white;
   padding: 20px;
-  color: white;
+  color: #333;
   font-family: 'Arial', sans-serif;
   overflow: hidden;
   //display: flex;
   flex-direction: column;
-  
-  // Account for fixed header height
-  //padding-top: calc(20px + 80px); // 20px original padding + ~80px header height
+  // Remove body padding-top by using negative margin
+  margin-top: calc(-1 * var(--header-height));
+  height: calc(100vh + var(--header-height));
   
   // Enable scrolling on tablets and smaller screens
   @media (max-width: 1024px) {
     overflow-y: auto;
-    height: calc(100vh - 80px); // Subtract header height
+    height: calc(100vh + var(--header-height));
     padding-top: 20px;
   }
 }
@@ -123,6 +122,12 @@
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
+  
+  // Reduce gap on smaller screens for better fit
+  @media (max-width: 480px) {
+    gap: 0.3rem;
+    padding: 0 0.5rem;
+  }
 }
 
 // Timer start section (centered)
@@ -151,10 +156,9 @@
 
 // Live Indicator Container
 .live-indicator-container {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .timer-display {
@@ -164,6 +168,12 @@
   letter-spacing: 1px;
   text-align: center;
   margin: 0 0.5rem;
+  
+  // Reduce margin on smaller screens
+  @media (max-width: 480px) {
+    margin: 0 0.3rem;
+    font-size: 1.3rem;
+  }
 }
 
 // Small buttons for timer section - same size as btn-start
@@ -201,6 +211,20 @@
 
   i {
     font-size: 0.9rem !important;
+  }
+  
+  // Responsive styles for smaller screens
+  @media (max-width: 480px) {
+    padding: 0.4rem 0.7rem !important;
+    font-size: 0.65rem !important;
+    min-height: 36px !important;
+    min-width: 80px !important;
+    gap: 0.3rem !important;
+    letter-spacing: 0.2px !important;
+    
+    i {
+      font-size: 0.7rem !important;
+    }
   }
 }
 

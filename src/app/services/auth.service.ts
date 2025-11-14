@@ -184,16 +184,38 @@ export class AuthService {
   // Check if token is valid (in real app, this would verify the JWT signature)
   isTokenValid(): boolean {
     const token = this.getToken();
-    if (!token) return false;
+    if (!token) {
+      console.log('isTokenValid: No token found');
+      return false;
+    }
     
     try {
       // For JWT tokens, we can decode the payload to check expiration
       const payload = this.decodeJwtPayload(token);
-      if (!payload) return false;
+      if (!payload) {
+        console.log('isTokenValid: Failed to decode token payload');
+        return false;
+      }
+      
+      console.log('isTokenValid: Token payload:', payload);
+      
+      // If token doesn't have expiration, consider it valid (some tokens don't expire)
+      if (!payload.exp) {
+        console.log('isTokenValid: Token has no expiration field, considering valid');
+        return true;
+      }
       
       const now = Math.floor(Date.now() / 1000);
-      return payload.exp > now;
-    } catch {
+      const isValid = payload.exp > now;
+      console.log('isTokenValid: Token exp:', payload.exp, 'Current time:', now, 'Valid:', isValid);
+      
+      if (!isValid) {
+        console.log('isTokenValid: Token expired. Expiration was:', new Date(payload.exp * 1000));
+      }
+      
+      return isValid;
+    } catch (error) {
+      console.error('isTokenValid: Error validating token:', error);
       return false;
     }
   }

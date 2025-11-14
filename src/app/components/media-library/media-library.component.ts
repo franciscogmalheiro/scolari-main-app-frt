@@ -4,6 +4,7 @@ import { MediaLibraryService, MediaItemDto } from '../../services/media-library.
 import { DownloadFormStateService } from '../../services/download-form-state.service';
 import { environment } from '../../../environments/environment';
 import { MatchService, FieldMatchResponseDto } from '../../services/match.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-media-library',
@@ -33,6 +34,10 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   // Share modal state
   isShareModalOpen = false;
   shareItem: MediaItemDto | null = null;
+  // Track if match has been added to user's games
+  isMatchAddedToGames = false;
+  // Track which match events have been added to user's goals
+  addedMatchEvents = new Set<number>();
 
   // Store bound fullscreen change handler for cleanup
   private fullscreenChangeHandler = () => this.handleFullscreenChange();
@@ -42,7 +47,8 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private mediaLibraryService: MediaLibraryService,
     private downloadFormStateService: DownloadFormStateService,
-    private matchService: MatchService
+    private matchService: MatchService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -812,6 +818,54 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   closeShareModal(): void {
     this.isShareModalOpen = false;
     this.shareItem = null;
+  }
+
+  isUserRole(): boolean {
+    const user = this.authService.currentUserValue;
+    return user?.role === 'USER';
+  }
+
+  isVideoSegmentAdded(item: MediaItemDto): boolean {
+    // Check if the item has a videoSegmentId and if it's in our added set
+    if (item.id) {
+      return this.addedMatchEvents.has(item.id);
+    }
+    return false;
+  }
+
+  onAddToMyGoals(item: MediaItemDto): void {
+    const user = this.authService.currentUserValue;
+    if (!user || !item.id) {
+      return;
+    }
+
+    this.mediaLibraryService.addMatchEventToUser(item.id, user.id).subscribe({
+      next: () => {
+        // Add to our tracking set
+        if (item.id) {
+          this.addedMatchEvents.add(item.id);
+        }
+      },
+      error: (error) => {
+        console.error('Error adding video segment to user goals:', error);
+      }
+    });
+  }
+
+  onAddToMyGames(): void {
+    const user = this.authService.currentUserValue;
+    if (!user || !this.matchCode) {
+      return;
+    }
+
+    this.matchService.addMatchToUser(this.matchCode, user.id).subscribe({
+      next: () => {
+        this.isMatchAddedToGames = true;
+      },
+      error: (error) => {
+        console.error('Error adding match to user games:', error);
+      }
+    });
   }
 }
 

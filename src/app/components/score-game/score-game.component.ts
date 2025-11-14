@@ -30,6 +30,8 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   secondsElapsed = 0;
   isMatchStarted = false;
   isMatchFinished = false;
+  // Wake lock to prevent screen from turning off
+  private wakeLock: any = null;
   // Recording properties
   isRecording = false;
   showQrModal = false;
@@ -97,10 +99,18 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Reset scroll position to top when component initializes
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
     this.updateDateDisplay();
     this.checkGameMode();
     // Prevent body scrolling when on score game page
     document.body.classList.add('no-scroll');
+    
+    // Listen for visibility changes to reacquire wake lock if needed
+    document.addEventListener('visibilitychange', this.handleVisibilityChange);
   }
 
   private checkGameMode(): void {
@@ -137,6 +147,10 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
     }
+    // Release wake lock when component is destroyed
+    this.releaseWakeLock();
+    // Remove visibility change listener
+    document.removeEventListener('visibilitychange', this.handleVisibilityChange);
     // Re-enable body scrolling when leaving score game page
     document.body.classList.remove('no-scroll');
   }
@@ -235,6 +249,9 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.events.push(startEvent);
     this.sendEventToBackend(startEvent);
 
+    // Request wake lock to prevent screen from turning off
+    this.requestWakeLock();
+
     const startTime = Date.now();
     this.timerInterval = setInterval(() => {
       const currentTime = Date.now();
@@ -260,6 +277,9 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.isMatchFinished = true;
     this.showControls = false;
     this.showFinalResult = true;
+    
+    // Release wake lock when match finishes
+    this.releaseWakeLock();
 
     const finishEvent: MatchEvent = {
       dateTime: new Date().toISOString(),
@@ -921,4 +941,55 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       }
     }
   }
+
+  // Wake Lock API methods to prevent screen from turning off
+  private async requestWakeLock(): Promise<void> {
+    // Check if Wake Lock API is supported
+    const nav = navigator as any;
+    if ('wakeLock' in nav && nav.wakeLock) {
+      try {
+        // Request a screen wake lock
+        this.wakeLock = await nav.wakeLock.request('screen');
+        console.log('Wake lock acquired successfully');
+        
+        // Listen for release events (e.g., when user switches tabs or screen locks)
+        if (this.wakeLock) {
+          this.wakeLock.addEventListener('release', () => {
+            console.log('Wake lock was released');
+            // If match is still active, try to reacquire the wake lock
+            if (this.isMatchStarted && !this.isMatchFinished) {
+              this.requestWakeLock();
+            }
+          });
+        }
+      } catch (err: any) {
+        // Wake lock request failed (e.g., user denied permission or feature not available)
+        console.warn('Wake lock request failed:', err.message);
+        // Continue without wake lock - the app will still function
+      }
+    } else {
+      console.warn('Wake Lock API is not supported in this browser');
+    }
+  }
+
+  private releaseWakeLock(): void {
+    if (this.wakeLock) {
+      this.wakeLock.release()
+        .then(() => {
+          console.log('Wake lock released successfully');
+          this.wakeLock = null;
+        })
+        .catch((err: any) => {
+          console.warn('Error releasing wake lock:', err);
+          this.wakeLock = null;
+        });
+    }
+  }
+
+  private handleVisibilityChange = (): void => {
+    // If the page becomes visible again and match is active, reacquire wake lock
+    if (!document.hidden && this.isMatchStarted && !this.isMatchFinished && !this.wakeLock) {
+      this.requestWakeLock();
+    }
+  };
 }

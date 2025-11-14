@@ -447,8 +447,23 @@
   font-weight: 600;
   color: #ffffff;
   text-align: center;
-  word-wrap: break-word;
-  hyphens: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  white-space: nowrap;
+  
+  .team-name {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  
+  .result-score {
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
 }
 
 .match-card-right {
@@ -580,9 +595,21 @@
   .match-result {
     font-size: 0.95rem;
     text-align: center;
-    word-wrap: break-word;
-    hyphens: auto;
+    gap: 0.4rem;
     line-height: 1.4;
+    // Try to keep on one line, but allow wrapping at logical points
+    flex-wrap: wrap;
+    
+    .team-name,
+    .result-score {
+      white-space: nowrap;
+      // Prevent breaking within team names or score
+      display: inline-block;
+    }
+    
+    // On mobile, stack vertically: teamA on first line, result on second, teamB on third
+    flex-direction: column;
+    gap: 0.2rem;
   }
 
   .match-card-right {

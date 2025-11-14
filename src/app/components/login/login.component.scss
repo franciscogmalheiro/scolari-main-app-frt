@@ -1,11 +1,13 @@
 .login-container {
-  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
   overflow: hidden;
+  // Remove body padding-top by using negative margin
+  margin-top: calc(-1 * var(--header-height));
+  min-height: calc(100vh + var(--header-height));
 }
 
 .login-background {
