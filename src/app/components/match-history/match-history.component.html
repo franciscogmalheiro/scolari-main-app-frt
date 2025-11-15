@@ -26,14 +26,23 @@
           </div>
         </div>
         <div class="match-card-right">
-          <button 
-            *ngIf="m.recordMode" 
-            class="media-library-btn" 
-            title="Aceder à Biblioteca de Media" 
-            (click)="goToDownload(m)">
-            <i class="fas fa-video"></i>
-            <span class="btn-text">Galeria</span>
-          </button>
+          <div class="match-actions">
+            <button 
+              *ngIf="m.recordMode" 
+              class="media-library-btn" 
+              title="Aceder à Biblioteca de Media" 
+              (click)="goToDownload(m)">
+              <i class="fas fa-video"></i>
+              <span class="btn-text">Galeria</span>
+            </button>
+            <button 
+              *ngIf="isUserRole()" 
+              class="remove-match-btn" 
+              title="Remover dos meus jogos" 
+              (click)="onRemoveMatch(m, $event)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
           <span *ngIf="!m.recordMode" class="no-record">Sem gravação</span>
         </div>
       </div>
@@ -111,6 +120,7 @@
             <div class="event-actions">
               <button class="action-button share" [disabled]="isItemDisabled(goal)" title="Partilhar" (click)="openShareModal(goal); $event.stopPropagation()"><i class="fas fa-share"></i></button>
               <button class="action-button download" [disabled]="isItemDisabled(goal)" title="Transferir" (click)="onDownloadItem(goal); $event.stopPropagation()"><i class="fas fa-download"></i></button>
+              <button class="action-button remove" title="Remover dos meus golos" (click)="onRemoveGoal(goal, $event)"><i class="fas fa-times"></i></button>
             </div>
           </div>
         </div>
@@ -146,6 +156,17 @@
         </button>
       </div>
     </div>
+
+    <!-- Confirmation Modal -->
+    <app-confirmation-modal
+      [isVisible]="isConfirmationModalOpen"
+      [title]="confirmationTitle"
+      [message]="confirmationMessage"
+      confirmText="Confirmar"
+      cancelText="Cancelar"
+      (confirm)="onConfirmDelete()"
+      (cancel)="onCancelDelete()">
+    </app-confirmation-modal>
   </main>
 </div>
 

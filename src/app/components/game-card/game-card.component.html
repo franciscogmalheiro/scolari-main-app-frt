@@ -45,6 +45,10 @@
     
     <!-- Regular button for other cards -->
     <ng-container *ngIf="!isDownloadVideoCard">
+      <!-- Badge for disabled cards with badge text -->
+      <div *ngIf="isDisabled && gameMode.badge" class="card-badge">
+        {{ gameMode.badge }}
+      </div>
       <button class="card-button" [disabled]="isDisabled">
         <span *ngIf="!isDisabled">{{ gameMode.buttonText }}</span>
         <span *ngIf="isDisabled" class="locked-button">
@@ -53,10 +57,7 @@
         </span>
         <span class="button-arrow"></span>
       </button>
-      <!-- Badge for disabled cards with badge text -->
-      <div *ngIf="isDisabled && gameMode.badge" class="card-badge">
-        {{ gameMode.badge }}
-      </div>
+      
     </ng-container>
 
   </div>

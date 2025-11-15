@@ -573,6 +573,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
     const eventData: IndividualMatchEventDto = {
       matchId: this.matchId,
+      recordingCode: this.recordingCode || undefined,
       dateTime: event.dateTime,
       eventName: event.eventName,
       teamName: event.team || undefined,

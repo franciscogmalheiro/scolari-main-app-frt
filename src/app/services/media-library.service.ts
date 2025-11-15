@@ -42,11 +42,15 @@ export class MediaLibraryService {
     return this.http.get<MediaItemDto[]>(`${this.apiUrl}/media-library/recording-code/${recordingCode}`);
   }
 
-  getUserVideoSegments(userId: number): Observable<MediaItemDto[]> {
-    return this.http.get<MediaItemDto[]>(`${this.apiUrl}/users/${userId}/video-segments`);
+  getUserVideoSegments(): Observable<MediaItemDto[]> {
+    return this.http.get<MediaItemDto[]>(`${this.apiUrl}/users/video-segments`);
   }
 
-  addMatchEventToUser(matchEventId: number, userId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/match-events/${matchEventId}/users/${userId}`, {});
+  addMatchEventToUser(matchEventId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/match-events/${matchEventId}/users`, {});
+  }
+
+  removeMatchEventFromUser(matchEventId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/match-events/${matchEventId}/users`);
   }
 }

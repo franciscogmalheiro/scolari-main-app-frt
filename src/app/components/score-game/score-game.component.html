@@ -75,15 +75,9 @@
       </div>
 
       <!-- Score Display -->
-      <div class="col-5 text-center">
+      <div class="col-5 text-center px-0">
         <div class="score">
           {{ teamAScore }} - {{ teamBScore }}
-        </div>
-        <!-- Access Video Button (only shown when match is finished) -->
-        <div *ngIf="isMatchFinished && isRecordingMode" class="access-video-section">
-          <button class="btn btn-access-video" (click)="onAccessVideo()">
-            <i class="fas fa-video"></i> Aceder aos vídeos
-          </button>
         </div>
       </div>
 
@@ -110,6 +104,17 @@
         </div>
       </div>
     </div>
+
+     <!-- Access Video Button (only shown when match is finished) -->
+    <div class="row align-items-center justify-content-center mb-4">
+      <div class="col-12 text-center">
+        <div *ngIf="isMatchFinished && isRecordingMode" class="access-video-section">
+          <button class="btn btn-start" (click)="onAccessVideo()">
+            <i class="fas fa-video"></i> Aceder aos vídeos
+          </button>
+        </div>
+      </div>
+   </div>
 
     <!-- Action Buttons Row -->
     <div class="row align-items-center justify-content-center mb-4" *ngIf="showControls">

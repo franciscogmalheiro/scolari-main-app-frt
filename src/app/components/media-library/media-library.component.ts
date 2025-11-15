@@ -14,7 +14,7 @@ import { AuthService } from '../../services/auth.service';
 export class MediaLibraryComponent implements OnInit, OnDestroy {
   @ViewChildren('itemVideo') itemVideos!: QueryList<ElementRef<HTMLVideoElement>>;
 
-  matchCode = '';
+  recordingCode = '';
   isRecordingCodeRoute = false;
   mediaItems: MediaItemDto[] = [];
   allItems: MediaItemDto[] = [];
@@ -53,13 +53,14 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
-      if (params['matchCode']) {
-        this.matchCode = params['matchCode'];
+      console.log('params', params);
+      if (params['recordingCode']) {
+        this.recordingCode = params['recordingCode'];
         this.isRecordingCodeRoute = false;
         this.loadAllVideos();
         this.loadMatchDetails();
       } else if (params['recordingCode']) {
-        this.matchCode = params['recordingCode'];
+        this.recordingCode = params['recordingCode'];
         this.isRecordingCodeRoute = true;
         this.loadAllVideos();
         this.loadMatchDetails();
@@ -78,9 +79,9 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
       ? environment.publicBaseUrl.replace(/\/$/, '')
       : window.location.origin;
     if (this.isRecordingCodeRoute) {
-      return `${base}/media-library/recording-code/${this.matchCode}`;
+      return `${base}/media-library/recording-code/${this.recordingCode}`;
     }
-    return `${base}/media-library/${this.matchCode}`;
+    return `${base}/media-library/${this.recordingCode}`;
   }
 
   async onShareLibrary(): Promise<void> {
@@ -94,8 +95,8 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     const serviceCall = this.isRecordingCodeRoute 
-      ? this.mediaLibraryService.getMediaLibraryByRecordingCode(this.matchCode)
-      : this.mediaLibraryService.getMediaLibrary(this.matchCode);
+      ? this.mediaLibraryService.getMediaLibraryByRecordingCode(this.recordingCode)
+      : this.mediaLibraryService.getMediaLibrary(this.recordingCode);
 
     serviceCall.subscribe({
       next: (mediaItems) => {
@@ -115,11 +116,11 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   matchDetails: FieldMatchResponseDto | null = null;
 
   private loadMatchDetails(): void {
-    if (!this.matchCode) return;
+    if (!this.recordingCode) return;
     
     const serviceCall = this.isRecordingCodeRoute 
-      ? this.matchService.getMatchByRecordingCode(this.matchCode)
-      : this.matchService.getMatchByCode(this.matchCode);
+      ? this.matchService.getMatchByRecordingCode(this.recordingCode)
+      : this.matchService.getMatchByCode(this.recordingCode);
 
     serviceCall.subscribe({
       next: (match) => {
@@ -834,12 +835,11 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   }
 
   onAddToMyGoals(item: MediaItemDto): void {
-    const user = this.authService.currentUserValue;
-    if (!user || !item.id) {
+    if (!item.id) {
       return;
     }
 
-    this.mediaLibraryService.addMatchEventToUser(item.id, user.id).subscribe({
+    this.mediaLibraryService.addMatchEventToUser(item.id).subscribe({
       next: () => {
         // Add to our tracking set
         if (item.id) {
@@ -853,12 +853,11 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   }
 
   onAddToMyGames(): void {
-    const user = this.authService.currentUserValue;
-    if (!user || !this.matchCode) {
+    if (!this.recordingCode) {
       return;
     }
 
-    this.matchService.addMatchToUser(this.matchCode, user.id).subscribe({
+    this.matchService.addMatchToUser(this.recordingCode).subscribe({
       next: () => {
         this.isMatchAddedToGames = true;
       },

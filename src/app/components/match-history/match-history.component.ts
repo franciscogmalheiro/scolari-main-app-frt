@@ -34,6 +34,13 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
   isShareModalOpen = false;
   shareItem: MediaItemDto | null = null;
   
+  // Confirmation modal state
+  isConfirmationModalOpen = false;
+  confirmationTitle = '';
+  confirmationMessage = '';
+  confirmationType: 'match' | 'goal' | null = null;
+  confirmationItem: FieldMatchResponseDto | MediaItemDto | null = null;
+  
   // Store bound fullscreen change handler for cleanup
   private fullscreenChangeHandler = () => this.handleFullscreenChange();
 
@@ -51,7 +58,7 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
         this.loadMatches(user);
         // Load user goals if role is USER
         if (user.role === 'USER') {
-          this.loadUserGoals(user.id);
+          this.loadUserGoals();
         }
       } else {
         this.errorMessage = 'User not available.';
@@ -96,7 +103,7 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
     
     if (user.role === 'USER') {
       // For users with role "USER", call the user endpoint
-      matchObservable = this.matchService.getMatchesByUser(user.id);
+      matchObservable = this.matchService.getMatchesByUser();
     } else {
       // For other roles (FIELD, ADMIN), call the field endpoint
       if (user.fieldId) {
@@ -171,11 +178,11 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
   }
 
   // Meus golos methods
-  loadUserGoals(userId: number): void {
+  loadUserGoals(): void {
     this.isLoadingGoals = true;
     this.goalsError = '';
 
-    this.mediaLibraryService.getUserVideoSegments(userId).subscribe({
+    this.mediaLibraryService.getUserVideoSegments().subscribe({
       next: (goals) => {
         this.myGoals = goals || [];
         this.updateDisplayedGoals();
@@ -257,7 +264,7 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
 
   getMatchResult(item: MediaItemDto): string {
     if (item.teamAName && item.finalResult && item.teamBName) {
-      return `${item.teamAName} ${item.finalResult} ${item.teamBName}`;
+      return `${item.type === 'goal-event' ? '(' + item.result + ')' : ''} ${item.teamAName} ${item.finalResult} ${item.teamBName}`;
     }
     return '';
   }
@@ -567,5 +574,76 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
     container.appendChild(img);
     container.appendChild(closeButton);
     document.body.appendChild(container);
+  }
+
+  // Delete functionality
+  onRemoveMatch(match: FieldMatchResponseDto, event: Event): void {
+    event.stopPropagation();
+    this.confirmationType = 'match';
+    this.confirmationItem = match;
+    this.confirmationTitle = 'Remover Jogo';
+    this.confirmationMessage = `Tem a certeza que deseja remover o jogo "${match.teamAName} vs ${match.teamBName}" dos seus jogos?`;
+    this.isConfirmationModalOpen = true;
+  }
+
+  onRemoveGoal(goal: MediaItemDto, event: Event): void {
+    event.stopPropagation();
+    this.confirmationType = 'goal';
+    this.confirmationItem = goal;
+    this.confirmationTitle = 'Remover Golo';
+    this.confirmationMessage = 'Tem a certeza que deseja remover este golo dos seus golos?';
+    this.isConfirmationModalOpen = true;
+  }
+
+  onConfirmDelete(): void {
+    if (!this.confirmationType || !this.confirmationItem) {
+      return;
+    }
+
+    if (this.confirmationType === 'match') {
+      const match = this.confirmationItem as FieldMatchResponseDto;
+      this.matchService.removeMatchFromUser(match.id).subscribe({
+        next: () => {
+          // Remove from local array
+          this.matches = this.matches.filter(m => m.id !== match.id);
+          this.updateDisplayedMatches();
+          this.closeConfirmationModal();
+        },
+        error: (err) => {
+          console.error('Error removing match from user:', err);
+          this.closeConfirmationModal();
+        }
+      });
+    } else if (this.confirmationType === 'goal') {
+      const goal = this.confirmationItem as MediaItemDto;
+      if (!goal.id) {
+        this.closeConfirmationModal();
+        return;
+      }
+      this.mediaLibraryService.removeMatchEventFromUser(goal.id).subscribe({
+        next: () => {
+          // Remove from local array
+          this.myGoals = this.myGoals.filter(g => g.id !== goal.id);
+          this.updateDisplayedGoals();
+          this.closeConfirmationModal();
+        },
+        error: (err) => {
+          console.error('Error removing goal from user:', err);
+          this.closeConfirmationModal();
+        }
+      });
+    }
+  }
+
+  onCancelDelete(): void {
+    this.closeConfirmationModal();
+  }
+
+  closeConfirmationModal(): void {
+    this.isConfirmationModalOpen = false;
+    this.confirmationType = null;
+    this.confirmationItem = null;
+    this.confirmationTitle = '';
+    this.confirmationMessage = '';
   }
 }

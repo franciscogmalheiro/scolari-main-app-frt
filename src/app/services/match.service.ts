@@ -55,6 +55,7 @@ export interface FieldMatchResponseDto {
 
 export interface IndividualMatchEventDto {
   matchId: number;
+  recordingCode?: string;
   dateTime: string;
   eventName: string;
   teamName?: string;
@@ -93,9 +94,6 @@ export class MatchService {
     return this.http.post(`${this.API_BASE_URL}/match-events/upload/${matchId}`, payload);
   }
 
-  getMatchEvents(matchCode: string): Observable<MatchEventResponseDto[]> {
-    return this.http.get<MatchEventResponseDto[]>(`${this.API_BASE_URL}/match-events/match/code/${matchCode}?eventTypes=GOAL,HIGHLIGHT`);
-  }
 
   finishMatch(matchCode: string, finalResult: string): Observable<any> {
     return this.http.post(`${this.API_BASE_URL}/matches/finish/${matchCode}`, { finalResult });
@@ -109,8 +107,8 @@ export class MatchService {
     return this.http.get<FieldMatchResponseDto[]>(`${this.API_BASE_URL}/matches/field/${fieldId}`);
   }
 
-  getMatchesByUser(userId: number): Observable<FieldMatchResponseDto[]> {
-    return this.http.get<FieldMatchResponseDto[]>(`${this.API_BASE_URL}/matches/user/${userId}`);
+  getMatchesByUser(): Observable<FieldMatchResponseDto[]> {
+    return this.http.get<FieldMatchResponseDto[]>(`${this.API_BASE_URL}/matches/user`);
   }
 
   getMatchByCode(matchCode: string): Observable<FieldMatchResponseDto> {
@@ -129,7 +127,15 @@ export class MatchService {
     return this.http.delete(`${this.API_BASE_URL}/match-events/${eventId}`);
   }
 
-  addMatchToUser(matchCode: string, userId: number): Observable<any> {
-    return this.http.post(`${this.API_BASE_URL}/matches/code/${matchCode}/users/${userId}`, {});
+  addMatchToUser(matchCode: string): Observable<any> {
+    return this.http.post(`${this.API_BASE_URL}/matches/code/${matchCode}/users`, {});
+  }
+
+  addMatchToUserById(matchId: number): Observable<any> {
+    return this.http.post(`${this.API_BASE_URL}/matches/${matchId}/users`, {});
+  }
+
+  removeMatchFromUser(matchId: number): Observable<any> {
+    return this.http.delete(`${this.API_BASE_URL}/matches/${matchId}/users`);
   }
 } 
