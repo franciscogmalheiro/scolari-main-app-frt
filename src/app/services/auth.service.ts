@@ -30,8 +30,8 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface AuthResponse {
@@ -116,14 +116,14 @@ export class AuthService {
     }
   }
 
-  async register(username: string, email: string, password: string, firstName: string, lastName: string): Promise<boolean> {
+  async register(username: string, email: string, password: string, firstName?: string, lastName?: string): Promise<boolean> {
     try {
       const registerRequest: RegisterRequest = {
         username,
         email,
         password,
-        firstName,
-        lastName
+        ...(firstName && { firstName }),
+        ...(lastName && { lastName })
       };
 
       const response = await this.http.post(

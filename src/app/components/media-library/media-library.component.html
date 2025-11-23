@@ -32,17 +32,26 @@
                 <span>Partilhar</span>
               </button>
               <button 
-                *ngIf="isUserRole()" 
                 class="add-to-games-button" 
                 [class.added]="isMatchAddedToGames"
                 (click)="onAddToMyGames()" 
-                [title]="isMatchAddedToGames ? 'Jogo adicionado aos seus jogos' : 'Adicionar aos meus jogos'"
-                [disabled]="isMatchAddedToGames">
-                <i [class.fas]="true" [class.fa-check]="isMatchAddedToGames" [class.fa-plus]="!isMatchAddedToGames"></i>
-                <span>{{ isMatchAddedToGames ? 'Adicionado aos meus jogos' : 'Adicionar aos meus jogos' }}</span>
+                [title]="isMatchAddedToGames ? 'Remover jogo dos favoritos' : 'Adicionar jogo aos favoritos'">
+                <i [class.fas]="true" [class.fa-star]="true"></i>
+                <span>{{ isMatchAddedToGames ? 'Remover jogo dos favoritos' : 'Adicionar jogo aos favoritos' }}</span>
               </button>
             </div>
             <!--div class="library-counter">{{ allItems.length }} item{{ allItems.length !== 1 ? 's' : '' }}</div-->
+          </div>
+
+          <!-- Registration message for non-authenticated users -->
+          <div class="registration-message" *ngIf="!isAuthenticated()">
+            <p>
+              <i class="fas fa-exclamation-circle registration-icon"></i>
+              <span>
+                Cria o teu histórico adicionando os teus jogos e melhores momentos aos favoritos. 
+                <a (click)="navigateToRegistration(); $event.preventDefault()" class="registration-link">Regista-te</a> para usufruir desta funcionalidade.
+              </span>
+            </p>
           </div>
 
           <div class="library-content">
@@ -50,11 +59,7 @@
             <div *ngIf="resumoItems.length > 0">
               <!-- Small processing message at top if any items are null -->
               <div *ngIf="hasNullPresignedUrlInSection('resumo')" class="processing-notice">
-                <p class="processing-text">Alguns dos vídeos ainda estão a ser processados</p>
-                <button class="retry-button-small" (click)="retrySection('resumo')">
-                  <i class="fas fa-redo"></i>
-                  Tentar novamente
-                </button>
+                <p class="processing-text">Alguns dos vídeos ainda estão a ser processados, aguard um momento</p>
               </div>
               
               <div class="row g-3">
@@ -115,11 +120,11 @@
                       <button class="action-button share" [disabled]="isItemDisabled(item)" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i></button>
                       <button class="action-button download" [disabled]="isItemDisabled(item)" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i></button>
                       <button 
-                        *ngIf="isUserRole() && (item.type === 'goal-event' || item.type === 'highlight-event')" 
+                        *ngIf="item.type === 'goal-event' || item.type === 'highlight-event'" 
                         class="action-button goals" 
                         [class.added]="isVideoSegmentAdded(item)"
-                        [disabled]="isItemDisabled(item) || isVideoSegmentAdded(item)" 
-                        [title]="isVideoSegmentAdded(item) ? 'Adicionado aos meus golos' : 'Adicionar aos meus golos'" 
+                        [disabled]="isItemDisabled(item)" 
+                        [title]="isVideoSegmentAdded(item) ? 'Remover dos meus golos' : 'Adicionar aos meus golos'" 
                         (click)="onAddToMyGoals(item); $event.stopPropagation()">
                         <i [class.fas]="isVideoSegmentAdded(item)" [class.far]="!isVideoSegmentAdded(item)" [class.fa-star]="true"></i>
                       </button>
@@ -132,16 +137,12 @@
             <!-- Todos os Momentos -->
             <div class="section" *ngIf="momentItems.length > 0">
               <div class="section-header mb-4 mt-4">
-                <h3>Todos os Momentos</h3>
+                <h3>Golos e melhores momentos</h3>
               </div>
               
               <!-- Small processing message at top if any items are null -->
               <div *ngIf="hasNullPresignedUrlInSection('momentos')" class="processing-notice">
-                <p class="processing-text">Alguns dos vídeos ainda estão a ser processados</p>
-                <button class="retry-button-small" (click)="retrySection('momentos')">
-                  <i class="fas fa-redo"></i>
-                  Tentar novamente
-                </button>
+                <p class="processing-text">Alguns dos vídeos ainda estão a ser processados, aguarda um momento</p>
               </div>
               
               <div class="row g-3">
@@ -203,11 +204,11 @@
                       <button class="action-button share" [disabled]="isItemDisabled(item)" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i></button>
                       <button class="action-button download" [disabled]="isItemDisabled(item)" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i></button>
                       <button 
-                        *ngIf="isUserRole() && (item.type === 'goal-event' || item.type === 'highlight-event')" 
+                        *ngIf="item.type === 'goal-event' || item.type === 'highlight-event'" 
                         class="action-button goals" 
                         [class.added]="isVideoSegmentAdded(item)"
-                        [disabled]="isItemDisabled(item) || isVideoSegmentAdded(item)" 
-                        [title]="isVideoSegmentAdded(item) ? 'Adicionado aos meus golos' : 'Adicionar aos meus golos'" 
+                        [disabled]="isItemDisabled(item)" 
+                        [title]="isVideoSegmentAdded(item) ? 'Remover dos meus golos' : 'Adicionar aos meus golos'" 
                         (click)="onAddToMyGoals(item); $event.stopPropagation()">
                         <i [class.fas]="isVideoSegmentAdded(item)" [class.far]="!isVideoSegmentAdded(item)" [class.fa-star]="true"></i>
                       </button>
@@ -226,10 +227,6 @@
               <!-- Small processing message at top if any items are null -->
               <div *ngIf="hasNullPresignedUrlInSection('fotos')" class="processing-notice">
                 <p class="processing-text">Algumas das fotos ainda estão a ser processadas</p>
-                <button class="retry-button-small" (click)="retrySection('fotos')">
-                  <i class="fas fa-redo"></i>
-                  Tentar novamente
-                </button>
               </div>
               
               <div class="row g-3">
@@ -266,11 +263,11 @@
                       <button class="action-button share" [disabled]="isItemDisabled(item)" title="Partilhar" (click)="openShareModal(item); $event.stopPropagation()"><i class="fas fa-share"></i></button>
                       <button class="action-button download" [disabled]="isItemDisabled(item)" title="Transferir" (click)="onDownloadItem(item); $event.stopPropagation()"><i class="fas fa-download"></i></button>
                       <button 
-                        *ngIf="isUserRole() && (item.type === 'goal-event' || item.type === 'highlight-event')" 
+                        *ngIf="item.type === 'goal-event' || item.type === 'highlight-event'" 
                         class="action-button goals" 
                         [class.added]="isVideoSegmentAdded(item)"
-                        [disabled]="isItemDisabled(item) || isVideoSegmentAdded(item)" 
-                        [title]="isVideoSegmentAdded(item) ? 'Adicionado aos meus golos' : 'Adicionar aos meus golos'" 
+                        [disabled]="isItemDisabled(item)" 
+                        [title]="isVideoSegmentAdded(item) ? 'Remover dos meus golos' : 'Adicionar aos meus golos'" 
                         (click)="onAddToMyGoals(item); $event.stopPropagation()">
                         <i [class.fas]="isVideoSegmentAdded(item)" [class.far]="!isVideoSegmentAdded(item)" [class.fa-star]="true"></i>
                       </button>
@@ -333,10 +330,46 @@
         </div>
       </div>
 
+      <!-- Registration Modal -->
+      <div class="share-modal-backdrop" *ngIf="isRegistrationModalOpen" (click)="closeRegistrationModal()"></div>
+      <div class="share-modal registration-modal" *ngIf="isRegistrationModalOpen" (click)="$event.stopPropagation()">
+        <div class="share-modal-header">
+          <h4>Registo necessário</h4>
+          <button class="close-modal" (click)="closeRegistrationModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="share-modal-body">
+          <p class="registration-modal-message">
+            <i class="fas fa-exclamation-circle registration-icon"></i>
+            <span>
+              <a (click)="navigateToRegistration(); $event.preventDefault()" class="registration-link">
+                Regista-te</a> para adicionar aos favoritos.
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Information Modal for First-Time Logged-In Users -->
+      <div class="share-modal-backdrop" *ngIf="isInfoModalOpen" (click)="closeInfoModal()"></div>
+      <div class="share-modal info-modal" *ngIf="isInfoModalOpen" (click)="$event.stopPropagation()">
+        <div class="share-modal-header">
+          <h4>Bem-vindo!</h4>
+          <button class="close-modal" (click)="closeInfoModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="share-modal-body">
+          <p class="info-modal-message">
+            <i class="fas fa-info-circle info-icon"></i>
+            <span>
+              Como utilizador registado, constroi o teu histórico de jogos, golos e melhores momentos, adicionando-os aos favoritos.
+            </span>
+          </p>
+          <img src="assets/favorite-instructions.jpeg" alt="Favorite instructions" class="info-modal-image" />
+        </div>
+      </div>
+
       <div class="card-footer" *ngIf="!isLoadingEvents && !errorMessage && allItems.length > 0">
         <button class="download-selected-button" [disabled]="getSelectedCount() === 0" (click)="onDownloadSelected()">
           <i class="fas fa-download"></i>
-          Download {{ getSelectedCount() }} Item{{ getSelectedCount() !== 1 ? 's' : '' }}
+          Download {{ getSelectedCount() }} Vídeo{{ getSelectedCount() !== 1 ? 's' : '' }}
         </button>
       </div>
     </div>

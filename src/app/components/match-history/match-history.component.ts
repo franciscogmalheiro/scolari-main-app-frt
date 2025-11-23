@@ -221,7 +221,7 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
       case 'goal-event':
         return '<i class="fas fa-futbol"></i>';
       case 'highlight-event':
-        return '<i class="fas fa-star"></i>';
+        return '<i class="fas fa-hands-clapping"></i>';
       case 'video-highlight':
         return '<i class="fas fa-video"></i>';
       default:
@@ -582,7 +582,7 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
     this.confirmationType = 'match';
     this.confirmationItem = match;
     this.confirmationTitle = 'Remover Jogo';
-    this.confirmationMessage = `Tem a certeza que deseja remover o jogo "${match.teamAName} vs ${match.teamBName}" dos seus jogos?`;
+    this.confirmationMessage = `Tem a certeza que deseja remover o jogo "${match.teamAName} ${match.finalResult} ${match.teamBName}" dos seus jogos?`;
     this.isConfirmationModalOpen = true;
   }
 

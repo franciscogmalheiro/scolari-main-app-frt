@@ -5,6 +5,7 @@ import { DownloadFormStateService } from '../../services/download-form-state.ser
 import { environment } from '../../../environments/environment';
 import { MatchService, FieldMatchResponseDto } from '../../services/match.service';
 import { AuthService } from '../../services/auth.service';
+import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-media-library',
@@ -36,8 +37,16 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   shareItem: MediaItemDto | null = null;
   // Track if match has been added to user's games
   isMatchAddedToGames = false;
-  // Track which match events have been added to user's goals
-  addedMatchEvents = new Set<number>();
+  // Registration popup state
+  isRegistrationModalOpen = false;
+  // Information modal state for first-time logged-in users
+  isInfoModalOpen = false;
+  private readonly INFO_MODAL_SEEN_KEY = 'media_library_info_modal_seen';
+
+  // Polling for processing videos
+  private pollingSubscription?: Subscription;
+  private readonly POLLING_INTERVAL_MS = 30000; // 30 seconds
+  private processingItemIds = new Set<number>(); // Track IDs of items that are processing
 
   // Store bound fullscreen change handler for cleanup
   private fullscreenChangeHandler = () => this.handleFullscreenChange();
@@ -72,16 +81,40 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     document.addEventListener('webkitfullscreenchange', this.fullscreenChangeHandler);
     document.addEventListener('mozfullscreenchange', this.fullscreenChangeHandler);
     document.addEventListener('MSFullscreenChange', this.fullscreenChangeHandler);
+
+    // Check if we should show the info modal for first-time logged-in users
+    this.checkAndShowInfoModal();
+  }
+
+  private checkAndShowInfoModal(): void {
+    // Only show for authenticated users
+    if (!this.isAuthenticated()) {
+      return;
+    }
+
+    // Check if user has already seen the modal
+    const hasSeenModal = localStorage.getItem(this.INFO_MODAL_SEEN_KEY) === 'true';
+    
+    if (!hasSeenModal) {
+      // Show modal after a short delay to ensure page is loaded
+      setTimeout(() => {
+        this.isInfoModalOpen = true;
+      }, 500);
+    }
+  }
+
+  closeInfoModal(): void {
+    this.isInfoModalOpen = false;
+    // Mark as seen in localStorage
+    localStorage.setItem(this.INFO_MODAL_SEEN_KEY, 'true');
   }
 
   private buildPageShareUrl(): string {
     const base = environment.publicBaseUrl && environment.publicBaseUrl.trim().length > 0
       ? environment.publicBaseUrl.replace(/\/$/, '')
       : window.location.origin;
-    if (this.isRecordingCodeRoute) {
-      return `${base}/media-library/recording-code/${this.recordingCode}`;
-    }
-    return `${base}/media-library/${this.recordingCode}`;
+    return `${base}/media-library/recording-code/${this.recordingCode}`;
+  
   }
 
   async onShareLibrary(): Promise<void> {
@@ -103,6 +136,9 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
         this.mediaItems = mediaItems || [];
         this.allItems = this.mediaItems;
         this.isLoadingEvents = false;
+        // Update tracking of processing items and start/stop polling
+        this.updateProcessingItemsTracking();
+        this.managePolling();
       },
       error: (error) => {
         console.error('Error loading media library:', error);
@@ -110,6 +146,99 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
         this.isLoadingEvents = false;
       }
     });
+  }
+
+  // Update only processing items without reloading the whole component
+  private updateProcessingItems(): void {
+    if (!this.recordingCode) return;
+
+    const serviceCall = this.isRecordingCodeRoute 
+      ? this.mediaLibraryService.getMediaLibraryByRecordingCode(this.recordingCode)
+      : this.mediaLibraryService.getMediaLibrary(this.recordingCode);
+
+    serviceCall.subscribe({
+      next: (mediaItems) => {
+        const updatedItems = mediaItems || [];
+        
+        // Create a map of new items by ID for quick lookup
+        const newItemsMap = new Map<number, MediaItemDto>();
+        updatedItems.forEach(item => newItemsMap.set(item.id, item));
+
+        // Update items that were previously processing (or are currently processing)
+        // This ensures we update cards that transition from processing to ready
+        const itemsToUpdate = new Set<number>();
+        this.allItems.forEach(item => {
+          if (this.processingItemIds.has(item.id)) {
+            itemsToUpdate.add(item.id);
+          }
+        });
+        // Also check for items in the new data that are processing
+        updatedItems.forEach(item => {
+          if (this.isItemProcessing(item)) {
+            itemsToUpdate.add(item.id);
+          }
+        });
+
+        // Update only the items we're tracking
+        this.allItems = this.allItems.map(existingItem => {
+          if (itemsToUpdate.has(existingItem.id)) {
+            const updatedItem = newItemsMap.get(existingItem.id);
+            if (updatedItem) {
+              // Preserve selection state if item was selected
+              const wasSelected = this.selectedItems.some(selected => selected.id === existingItem.id);
+              if (wasSelected) {
+                // Update the selected item reference
+                const selectedIndex = this.selectedItems.findIndex(selected => selected.id === existingItem.id);
+                if (selectedIndex >= 0) {
+                  this.selectedItems[selectedIndex] = updatedItem;
+                }
+              }
+              return updatedItem;
+            }
+          }
+          return existingItem;
+        });
+
+        // Keep mediaItems in sync with allItems
+        this.mediaItems = [...this.allItems];
+
+        // Update processing items tracking after merge
+        this.updateProcessingItemsTracking();
+        
+        // Stop polling if no items are processing anymore
+        this.managePolling();
+      },
+      error: (error) => {
+        console.error('Error updating processing items:', error);
+        // Don't show error to user for background polling failures
+      }
+    });
+  }
+
+  // Track which items are currently in processing status
+  private updateProcessingItemsTracking(): void {
+    this.processingItemIds.clear();
+    this.allItems.forEach(item => {
+      if (this.isItemProcessing(item)) {
+        this.processingItemIds.add(item.id);
+      }
+    });
+  }
+
+  // Start or stop polling based on whether there are processing items
+  private managePolling(): void {
+    const hasProcessingItems = this.processingItemIds.size > 0;
+
+    if (hasProcessingItems && !this.pollingSubscription) {
+      // Start polling
+      this.pollingSubscription = interval(this.POLLING_INTERVAL_MS).subscribe(() => {
+        this.updateProcessingItems();
+      });
+    } else if (!hasProcessingItems && this.pollingSubscription) {
+      // Stop polling
+      this.pollingSubscription.unsubscribe();
+      this.pollingSubscription = undefined;
+    }
   }
 
   // Match details
@@ -125,6 +254,8 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     serviceCall.subscribe({
       next: (match) => {
         this.matchDetails = match;
+        // Update isMatchAddedToGames based on isFavorite flag from API
+        this.isMatchAddedToGames = match.isFavorite === true;
       },
       error: (err) => {
         console.warn('Failed to load match details', err);
@@ -140,8 +271,21 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
 
   getMatchDate(): string {
     if (!this.matchDetails?.startDateTime) return '';
-    const d = new Date(this.matchDetails.startDateTime);
-    return d.toLocaleDateString();
+    return this.formatDate(this.matchDetails.startDateTime);
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    
+    return `${day} ${month}, ${year}`;
   }
 
   onBackClick(): void {
@@ -175,15 +319,15 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   getItemIcon(item: MediaItemDto): string {
     switch (item.type) {
       case 'photo':
-        return '📷';
+        return '<i class="fas fa-camera"></i>';
       case 'goal-event':
-        return '⚽';
+        return '<i class="fas fa-futbol"></i>';
       case 'highlight-event':
-        return '⭐';
+        return '<i class="fas fa-hands-clapping"></i>';
       case 'video-highlight':
-        return '🎬';
+        return '<i class="fas fa-film"></i>';
       default:
-        return '📁';
+        return '<i class="fas fa-folder"></i>';
     }
   }
 
@@ -489,11 +633,6 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     return this.hasProcessingItemsInSection(section);
   }
 
-  // Retry loading for a specific section
-  retrySection(section: 'resumo' | 'momentos' | 'fotos'): void {
-    console.log(`Retrying section: ${section}`);
-    this.loadAllVideos();
-  }
 
   getResumoThumbnailUrl(item: MediaItemDto): string {
     // For Resumo videos, use the first photo as thumbnail if available
@@ -522,6 +661,12 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Stop polling
+    if (this.pollingSubscription) {
+      this.pollingSubscription.unsubscribe();
+      this.pollingSubscription = undefined;
+    }
+
     this.videoBlobCache.forEach(blobUrl => URL.revokeObjectURL(blobUrl));
     this.videoBlobCache.clear();
 
@@ -826,12 +971,13 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     return user?.role === 'USER';
   }
 
+  isAuthenticated(): boolean {
+    return this.authService.isAuthenticated;
+  }
+
   isVideoSegmentAdded(item: MediaItemDto): boolean {
-    // Check if the item has a videoSegmentId and if it's in our added set
-    if (item.id) {
-      return this.addedMatchEvents.has(item.id);
-    }
-    return false;
+    // Use the isFavorite flag from the backend
+    return item.isFavorite === true;
   }
 
   onAddToMyGoals(item: MediaItemDto): void {
@@ -839,31 +985,100 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.mediaLibraryService.addMatchEventToUser(item.id).subscribe({
-      next: () => {
-        // Add to our tracking set
-        if (item.id) {
-          this.addedMatchEvents.add(item.id);
-        }
-      },
-      error: (error) => {
-        console.error('Error adding video segment to user goals:', error);
-      }
-    });
-  }
-
-  onAddToMyGames(): void {
-    if (!this.recordingCode) {
+    // Check if user is authenticated
+    if (!this.isAuthenticated()) {
+      this.isRegistrationModalOpen = true;
       return;
     }
 
-    this.matchService.addMatchToUser(this.recordingCode).subscribe({
-      next: () => {
-        this.isMatchAddedToGames = true;
-      },
-      error: (error) => {
-        console.error('Error adding match to user games:', error);
-      }
+    const isCurrentlyAdded = this.isVideoSegmentAdded(item);
+
+    if (isCurrentlyAdded) {
+      // Remove from favorites
+      this.mediaLibraryService.removeMatchEventFromUser(item.id).subscribe({
+        next: () => {
+          // Update the isFavorite flag on the item
+          item.isFavorite = false;
+        },
+        error: (error) => {
+          console.error('Error removing video segment from user goals:', error);
+        }
+      });
+    } else {
+      // Add to favorites
+      this.mediaLibraryService.addMatchEventToUser(item.id).subscribe({
+        next: () => {
+          // Update the isFavorite flag on the item
+          item.isFavorite = true;
+        },
+        error: (error) => {
+          console.error('Error adding video segment to user goals:', error);
+        }
+      });
+    }
+  }
+
+  onAddToMyGames(): void {
+    if (!this.recordingCode || !this.matchDetails) {
+      return;
+    }
+
+    // Check if user is authenticated
+    if (!this.isAuthenticated()) {
+      this.isRegistrationModalOpen = true;
+      return;
+    }
+
+    const isCurrentlyAdded = this.isMatchAddedToGames;
+
+    if (isCurrentlyAdded) {
+      // Remove from favorites
+      this.matchService.removeMatchFromUser(this.matchDetails.id).subscribe({
+        next: () => {
+          this.isMatchAddedToGames = false;
+          // Update the matchDetails to reflect the change
+          if (this.matchDetails) {
+            this.matchDetails.isFavorite = false;
+          }
+        },
+        error: (error) => {
+          console.error('Error removing match from user games:', error);
+        }
+      });
+    } else {
+      // Add to favorites
+      this.matchService.addMatchToUser(this.recordingCode).subscribe({
+        next: () => {
+          this.isMatchAddedToGames = true;
+          // Update the matchDetails to reflect the change
+          if (this.matchDetails) {
+            this.matchDetails.isFavorite = true;
+          }
+        },
+        error: (error) => {
+          console.error('Error adding match to user games:', error);
+        }
+      });
+    }
+  }
+
+  openRegistrationModal(): void {
+    this.isRegistrationModalOpen = true;
+  }
+
+  closeRegistrationModal(): void {
+    this.isRegistrationModalOpen = false;
+  }
+
+  navigateToRegistration(): void {
+    this.closeRegistrationModal();
+    // Get current URL to redirect back after registration
+    const currentUrl = this.router.url;
+    this.router.navigate(['/login'], { 
+      queryParams: { 
+        mode: 'register',
+        returnUrl: currentUrl
+      } 
     });
   }
 }

@@ -9,7 +9,7 @@
 
     <div class="auth-section">
       <div *ngIf="isAuthenticated" class="user-info">
-        <span class="user-name">Bem-vindo, {{ currentUser?.firstName }}</span>
+        <span class="user-name">Bem-vindo, {{ currentUser?.username }}</span>
         <button *ngIf="currentUser?.role === 'ADMIN'" routerLink="/admin" class="admin-btn">Admin Panel</button>
         <!-- Logout button (text) for larger screens -->
         <button (click)="logout()" class="logout-btn logout-text-btn">Logout</button>

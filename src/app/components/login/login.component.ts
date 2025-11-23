@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -18,7 +18,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
@@ -29,9 +30,7 @@ export class LoginComponent implements OnInit {
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]],
-      firstName: ['', [Validators.required, Validators.minLength(2)]],
-      lastName: ['', [Validators.required, Validators.minLength(2)]]
+      confirmPassword: ['', [Validators.required]]
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -41,6 +40,13 @@ export class LoginComponent implements OnInit {
     // if (this.authService.isAuthenticated) {
     //   this.router.navigate(['/home']);
     // }
+    
+    // Check for registration mode query parameter
+    this.route.queryParams.subscribe(params => {
+      if (params['mode'] === 'register') {
+        this.isLoginMode = false;
+      }
+    });
   }
 
   toggleMode(): void {
@@ -91,11 +97,34 @@ export class LoginComponent implements OnInit {
       this.errorMessage = '';
 
       try {
-        const { username, email, password, firstName, lastName } = this.registerForm.value;
-        const success = await this.authService.register(username, email, password, firstName, lastName);
+        const { username, email, password } = this.registerForm.value;
+        const success = await this.authService.register(username, email, password);
         
         if (success) {
-          this.router.navigate(['/home']);
+          // Automatically log in after successful registration
+          const loginSuccess = await this.authService.login(username, password);
+          
+          if (loginSuccess) {
+            // Get return URL from query params, default to home
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
+            
+            // Check if user is admin and redirect accordingly
+            const userStr = localStorage.getItem('football_pro_user');
+            const currentUser = userStr ? JSON.parse(userStr) : null;
+            
+            if (currentUser && currentUser.role === 'ADMIN') {
+              this.router.navigate(['/admin']);
+            } else {
+              // Navigate to return URL or home
+              this.router.navigateByUrl(returnUrl);
+            }
+          } else {
+            // Registration succeeded but login failed - still redirect to home
+            this.errorMessage = 'Registration successful, but automatic login failed. Please log in manually.';
+            setTimeout(() => {
+              this.router.navigate(['/home']);
+            }, 2000);
+          }
         } else {
           this.errorMessage = 'Registration failed';
         }

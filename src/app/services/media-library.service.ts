@@ -19,6 +19,7 @@ export interface MediaItemDto {
   teamName?: string;
   processingStatus?: 'RETRIEVED' | 'PROCESSING' | 'RETRYING' | 'PROCESSING_FAILED' | 'WAITING_FOR_SEGMENTS' | 'PENDING_EXTRACTION';
   videoSegmentId?: number; // ID to use when associating with a user
+  isFavorite?: boolean; // Whether this item is in the user's favorites
   
   // Match result properties
   teamAName?: string;

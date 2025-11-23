@@ -51,6 +51,7 @@ export interface FieldMatchResponseDto {
   matchEvents: MatchEventResponseDto[];
   recordMode: boolean;
   recordingCode?: string;
+  isFavorite?: boolean;
 }
 
 export interface IndividualMatchEventDto {

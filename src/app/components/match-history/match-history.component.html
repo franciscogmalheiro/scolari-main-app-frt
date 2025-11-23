@@ -2,8 +2,7 @@
   <app-header></app-header>
   <main class="content">
     <section class="section-header">
-      <h2 class="title">Histórico de Jogos</h2>
-      <p class="subtitle">Consulta e acede rapidamente às gravações</p>
+      <h2 class="title">Jogos</h2>
     </section>
 
     <div *ngIf="isLoading" class="loading">A carregar…</div>
@@ -54,12 +53,12 @@
       </div>
     </div>
 
-    <div *ngIf="!isLoading && !errorMessage && !matches.length" class="empty">Sem jogos ainda.</div>
+    <div *ngIf="!isLoading && !errorMessage && !matches.length" class="empty">Ainda não tens jogos adicionados aos favoritos.</div>
 
     <!-- Meus golos section (only for USER role) -->
     <div *ngIf="isUserRole()" class="my-goals-section mt-4">
       <div class="section-header-goals">
-        <h2 class="goals-title">Meus golos</h2>
+        <h2 class="title">Melhores momentos</h2>
       </div>
 
       <div *ngIf="isLoadingGoals" class="loading">A carregar golos…</div>
@@ -133,7 +132,7 @@
         </div>
       </div>
 
-      <div *ngIf="!isLoadingGoals && !goalsError && myGoals.length === 0" class="empty">Sem golos ainda.</div>
+      <div *ngIf="!isLoadingGoals && !goalsError && myGoals.length === 0" class="empty">Ainda não tens golos ou melhores momentos adicionados aos favoritos.</div>
     </div>
 
     <!-- Share Modal -->
@@ -158,15 +157,20 @@
     </div>
 
     <!-- Confirmation Modal -->
-    <app-confirmation-modal
-      [isVisible]="isConfirmationModalOpen"
-      [title]="confirmationTitle"
-      [message]="confirmationMessage"
-      confirmText="Confirmar"
-      cancelText="Cancelar"
-      (confirm)="onConfirmDelete()"
-      (cancel)="onCancelDelete()">
-    </app-confirmation-modal>
+    <div class="share-modal-backdrop" *ngIf="isConfirmationModalOpen" (click)="onCancelDelete()"></div>
+    <div class="share-modal confirmation-modal" *ngIf="isConfirmationModalOpen" (click)="$event.stopPropagation()">
+      <div class="share-modal-header">
+        <h4>{{ confirmationTitle }}</h4>
+        <button class="close-modal" (click)="onCancelDelete()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="share-modal-body">
+        <p class="confirmation-message">{{ confirmationMessage }}</p>
+        <div class="confirmation-buttons">
+          <button class="confirmation-btn cancel-btn" (click)="onCancelDelete()">Cancelar</button>
+          <button class="confirmation-btn confirm-btn" (click)="onConfirmDelete()">Confirmar</button>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 
