@@ -1,7 +1,7 @@
 .score-game-container {
-  background: white;
+  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
   padding: 20px;
-  color: #333;
+  color: white;
   font-family: 'Arial', sans-serif;
   overflow: hidden;
   //display: flex;
@@ -138,6 +138,47 @@
   width: 100%;
 }
 
+.start-buttons-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 0.75rem;
+    
+    .btn {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+}
+
+.btn-edit-teams {
+  background: linear-gradient(135deg, rgb(240, 152, 25) 0%, rgb(237, 222, 93) 100%);
+  color: white;
+  box-shadow: 0 3px 8px rgba(240, 152, 25, 0.3);
+  padding: 0.5rem 1rem !important;
+  font-size: 0.8rem !important;
+  min-height: 40px !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+
+  &:hover {
+    background: linear-gradient(135deg, rgb(220, 135, 20) 0%, rgb(220, 205, 80) 100%);
+    box-shadow: 0 6px 12px rgba(240, 152, 25, 0.4);
+    transform: none;
+  }
+
+  i {
+    font-size: 0.9rem !important;
+  }
+}
+
 // Finish Button Section
 .finish-button-section {
   text-align: center;
@@ -164,7 +205,7 @@
 .timer-display {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #666;
+  color: white;
   letter-spacing: 1px;
   text-align: center;
   margin: 0 0.5rem;
@@ -256,7 +297,7 @@
   margin-bottom: 1rem;
 
   .ft-text {
-    color: #666;
+    color: white;
     font-size: 1rem;
     font-weight: 600;
     letter-spacing: 1px;
@@ -266,9 +307,9 @@
 // Main Game Section
 .main-game-section {
   padding: 1rem;
-  background: white;
+  background: transparent;
   border-radius: 15px;
-  color: #333;
+  color: white;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -330,7 +371,6 @@
   transition: all 0.3s ease;
   padding: 0.5rem;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
   
   i {
     font-size: 7rem;
@@ -339,9 +379,9 @@
 }
 
 .team-name {
-  font-size: 1.2rem;
+  font-size: 1.8rem;
   font-weight: 600;
-  color: #333;
+  color: white;
   padding: 0.5rem;
   transition: all 0.3s ease;
 }
@@ -359,7 +399,7 @@
 .score {
   font-size: 8rem;
   font-weight: 900;
-  color: #333;
+  color: white;
   letter-spacing: 2px;
 }
 
@@ -543,34 +583,54 @@
 }
 
 .btn-goal {
-  background: #6c757d;
+  background: linear-gradient(135deg, rgb(17, 153, 142) 0%, rgb(56, 239, 125) 100%);
   color: white;
-  box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
+  box-shadow: 0 2px 4px rgba(17, 153, 142, 0.3);
   padding: 0.3rem 0.8rem;
   font-size: 0.8rem;
   min-width: 70px;
   min-height: 40px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  flex-direction: row;
 
   &:hover {
-    background: #5a6268;
-    box-shadow: 0 3px 6px rgba(108, 117, 125, 0.4);
+    background: linear-gradient(135deg, rgb(14, 130, 120) 0%, rgb(45, 200, 105) 100%);
+    box-shadow: 0 3px 6px rgba(17, 153, 142, 0.4);
+  }
+
+  .goal-text {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
   }
 }
 
 .btn-highlight {
-  background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+  background: linear-gradient(135deg, rgb(240, 152, 25) 0%, rgb(237, 222, 93) 100%);
   color: white;
-  box-shadow: 0 5px 15px rgba(156, 39, 176, 0.3);
+  box-shadow: 0 5px 15px rgba(240, 152, 25, 0.3);
   padding: 0.3rem 0.8rem;
   font-size: 0.8rem;
   min-width: 70px;
   min-height: 40px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  flex-direction: row;
 
   &:hover {
-    background: linear-gradient(135deg, #7b1fa2 0%, #6a1b9a 100%);
-    box-shadow: 0 10px 25px rgba(156, 39, 176, 0.4);
+    background: linear-gradient(135deg, rgb(220, 135, 20) 0%, rgb(220, 205, 80) 100%);
+    box-shadow: 0 10px 25px rgba(240, 152, 25, 0.4);
+  }
+
+  .highlight-text {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
   }
 }
 
@@ -668,18 +728,325 @@
   }
 }
 
+// Edit Both Teams Modal Styles
+.teams-edit-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1040;
+  backdrop-filter: blur(5px);
+}
+
+.teams-edit-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 600px;
+  z-index: 1050;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.teams-edit-content {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.teams-edit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  h4 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: white;
+    font-weight: 600;
+  }
+
+  .close-modal {
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+
+    &:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
+.teams-edit-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  
+  @media (max-width: 480px) {
+    gap: 0.75rem;
+  }
+}
+
+.team-section {
+  flex: 1;
+  
+  h5 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    color: white;
+    font-weight: 600;
+  }
+}
+
+.teams-edit-body .input-group {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+  }
+
+  .name-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+
+    &:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+  }
+
+  .color-picker {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .color-option {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    outline: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+
+    &:hover, &:focus {
+      transform: scale(1.1);
+      border-color: rgba(255, 255, 255, 0.5);
+      outline: none;
+    }
+
+    &.selected {
+      border-color: white;
+      transform: scale(1.1);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+
+    i {
+      color: white;
+      font-size: 0.8rem;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.teams-edit-footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: nowrap;
+
+  .btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 100px;
+    flex: 1;
+    color: white;
+
+    &.btn-cancel {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+    }
+
+    &.btn-save {
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .teams-edit-modal {
+    width: 95%;
+    max-width: 95%;
+  }
+
+  .teams-edit-header {
+    padding: 1.25rem;
+
+    h4 {
+      font-size: 1.2rem;
+    }
+  }
+
+  .teams-edit-body {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .teams-edit-body .input-group {
+    .color-picker {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .color-option {
+      width: 35px;
+      height: 35px;
+    }
+  }
+
+  .teams-edit-footer {
+    padding: 0 1.25rem 1.25rem 1.25rem;
+    flex-direction: row;
+    gap: 0.5rem;
+
+    .btn {
+      flex: 1;
+      min-width: 0;
+      padding: 0.7rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .teams-edit-body {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+  
+  .teams-edit-body .input-group {
+    margin-bottom: 1rem;
+    
+    .color-picker {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .color-option {
+      width: 30px;
+      height: 30px;
+    }
+  }
+  
+  .team-section {
+    h5 {
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+    }
+  }
+}
+
 // Photo Capture Modal Styles
+@keyframes photoModalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .photo-capture-modal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 1040;
+  backdrop-filter: blur(5px);
 
   // Mirror flip for camera video (front-facing camera)
   video {
@@ -687,52 +1054,59 @@
   }
   
   .photo-capture-content {
-    background: white;
-    border-radius: 20px;
-    padding: 2rem;
+    position: relative;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0;
     max-width: 500px;
     width: 90%;
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     max-height: 90vh;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    backdrop-filter: blur(10px);
+    animation: photoModalSlideIn 0.3s ease-out;
     
     .photo-capture-header {
-      margin-bottom: 2rem;
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 0;
       
       h3 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #333;
-        margin: 0 0 0.5rem 0;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: white;
+        margin: 0;
       }
       
       p {
-        color: #666;
+        color: rgba(255, 255, 255, 0.9);
         font-size: 1rem;
         margin: 0;
       }
     }
     
     .photo-capture-body {
-      margin-bottom: 2rem;
+      padding: 1.5rem;
+      margin-bottom: 0;
       
       .photo-preview {
         padding: 2rem;
-        border: 2px dashed #ddd;
+        border: 2px dashed rgba(255, 255, 255, 0.3);
         border-radius: 15px;
-        background: #f8f9fa;
+        background: rgba(255, 255, 255, 0.05);
         
         .camera-icon {
           font-size: 4rem;
-          color: #007bff;
+          color: #00ff88;
           margin-bottom: 1rem;
         }
         
         p {
-          color: #666;
+          color: rgba(255, 255, 255, 0.9);
           font-size: 1rem;
           margin: 0;
         }
@@ -744,21 +1118,21 @@
         .progress-bar {
           width: 100%;
           height: 8px;
-          background: #e9ecef;
+          background: rgba(255, 255, 255, 0.1);
           border-radius: 4px;
           overflow: hidden;
           margin-bottom: 1rem;
           
           .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #007bff, #0056b3);
+            background: linear-gradient(90deg, #00ff88, #00cc6a);
             transition: width 0.3s ease;
             border-radius: 4px;
           }
         }
         
         p {
-          color: #333;
+          color: white;
           font-weight: 600;
           margin: 0;
         }
@@ -767,15 +1141,17 @@
     
     .photo-capture-controls {
       display: flex;
-      gap: 1rem;
+      gap: 0.75rem;
       justify-content: center;
-      margin-top: auto;
+      padding: 0 1.5rem 1.5rem 1.5rem;
+      margin-top: 0.5rem;
       flex-shrink: 0;
+      flex-wrap: nowrap;
       
       .btn {
         padding: 0.8rem 1.5rem;
         border: none;
-        border-radius: 10px;
+        border-radius: 8px;
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
@@ -784,7 +1160,9 @@
         align-items: center;
         gap: 0.5rem;
         min-width: 120px;
+        flex: 1;
         justify-content: center;
+        color: white;
         
         &:disabled {
           opacity: 0.6;
@@ -792,23 +1170,24 @@
         }
         
         &.btn-secondary {
-          background: #6c757d;
-          color: white;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
           
           &:hover:not(:disabled) {
-            background: #5a6268;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
           }
         }
         
         &.btn-primary {
-          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-          color: white;
+          background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+          box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
           
           &:hover:not(:disabled) {
-            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
           }
         }
       }
@@ -951,29 +1330,39 @@
 @media (max-width: 768px) {
   .photo-capture-modal {
     .photo-capture-content {
-      padding: 1rem;
+      width: 95%;
       margin: 0.5rem;
       
       .photo-capture-header {
+        padding: 1.25rem;
+        
         h3 {
-          font-size: 1.3rem;
+          font-size: 1.2rem;
         }
       }
       
       .photo-capture-body {
+        padding: 1.25rem;
+        
         .photo-preview {
-          padding: 1rem;
+          padding: 1.5rem;
           
           .camera-icon {
-            font-size: 2.5rem;
+            font-size: 3rem;
           }
         }
       }
       
       .photo-capture-controls {
+        padding: 0 1.25rem 1.25rem 1.25rem;
+        flex-direction: row;
+        gap: 0.5rem;
+        
         .btn {
-          padding: 0.9rem 1.2rem;
-          font-size: 1rem;
+          flex: 1;
+          min-width: 0;
+          padding: 0.7rem 1rem;
+          font-size: 0.9rem;
         }
       }
     }

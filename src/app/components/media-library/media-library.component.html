@@ -33,11 +33,11 @@
               </button>
               <button 
                 class="add-to-games-button" 
-                [class.added]="isMatchAddedToGames"
+                [class.added]="isMatchAddedToFavorites"
                 (click)="onAddToMyGames()" 
-                [title]="isMatchAddedToGames ? 'Remover jogo dos favoritos' : 'Adicionar jogo aos favoritos'">
+                [title]="isMatchAddedToFavorites ? 'Remover dos favoritos' : 'Adicionar aos favoritos'">
                 <i [class.fas]="true" [class.fa-star]="true"></i>
-                <span>{{ isMatchAddedToGames ? 'Remover jogo dos favoritos' : 'Adicionar jogo aos favoritos' }}</span>
+                <span>{{ isMatchAddedToFavorites ? 'Remover dos favoritos' : 'Adicionar aos favoritos' }}</span>
               </button>
             </div>
             <!--div class="library-counter">{{ allItems.length }} item{{ allItems.length !== 1 ? 's' : '' }}</div-->
@@ -59,7 +59,7 @@
             <div *ngIf="resumoItems.length > 0">
               <!-- Small processing message at top if any items are null -->
               <div *ngIf="hasNullPresignedUrlInSection('resumo')" class="processing-notice">
-                <p class="processing-text">Alguns dos vídeos ainda estão a ser processados, aguard um momento</p>
+                <p class="processing-text">O resumo ainda está a ser processados, aguarda um momento</p>
               </div>
               
               <div class="row g-3">

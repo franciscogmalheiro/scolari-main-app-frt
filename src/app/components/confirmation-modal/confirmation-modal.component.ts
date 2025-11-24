@@ -11,6 +11,7 @@ export class ConfirmationModalComponent {
   @Input() message = 'Are you sure you want to proceed?';
   @Input() confirmText = 'Confirm';
   @Input() cancelText = 'Cancel';
+  @Input() imageUrl?: string;
   @Output() confirm = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
 

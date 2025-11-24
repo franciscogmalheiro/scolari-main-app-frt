@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { TeamEditData } from '../team-edit-modal/team-edit-modal.component';
 import { MatchService, MatchDto, IndividualMatchEventDto, MatchEventRequestDto } from '../../services/match.service';
 import { CameraService } from '../../services/camera.service';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
@@ -37,6 +36,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   showQrModal = false;
   showConfirmModal = false;
   showStartConfirmModal = false;
+  showStartMatchErrorModal = false;
   gameId = ''; // This will contain the match code from the backend
   matchId: number | null = null; // This will contain the match ID from the backend
   fieldCameraId: number | null = null; // Field camera ID for recording mode
@@ -45,6 +45,8 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   // Attacking team selection for recording mode
   showAttackingTeamModal = false;
   attackingTeamAtScolariGoal: 'A' | 'B' | null = null;
+  // Error redirect params
+  private errorRedirectParams: any = {};
   
   // Team properties
   teamAName = 'COLETES';
@@ -53,6 +55,17 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   teamBScore = 0;
   teamAColor = '#ff6b35';
   teamBColor = '#007bff';
+  
+  // Color options for team editing
+  teamColorOptions = [
+    '#ff6b35', // Orange
+    '#007bff', // Blue
+    '#28a745', // Green
+    '#dc3545', // Red
+    '#ffc107', // Yellow
+    '#ffffff',  // White
+    '#000000'  // Black
+  ];
   
   // Event tracking
   events: MatchEvent[] = [];
@@ -66,8 +79,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   currentDate = new Date();
   
   // Modal state
-  showEditModal = false;
-  editingTeam: 'A' | 'B' | null = null;
+  showEditTeamsModal = false;
   
   // Photo capture state
   isCapturingPhoto = false;
@@ -180,6 +192,12 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.showStartConfirmModal = false;
   }
 
+  onCloseStartMatchErrorModal(): void {
+    this.showStartMatchErrorModal = false;
+    // Redirect to record-instructions page after closing modal
+    this.router.navigate(['/record-instructions'], { queryParams: this.errorRedirectParams });
+  }
+
   private doStartMatch(): void {
     console.log('doStartMatch called with fieldId:', this.fieldId, 'sportId:', this.sportId);
     
@@ -209,9 +227,17 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error creating match:', error);
-          // Cannot start match without backend game ID
-          console.error('Cannot start match: Backend game ID is required');
-          return;
+          // Store query params for redirect after modal is closed
+          this.errorRedirectParams = {};
+          if (this.fieldId) this.errorRedirectParams.fieldId = this.fieldId;
+          if (this.sportId) this.errorRedirectParams.sportId = this.sportId;
+          if (this.fieldName) this.errorRedirectParams.fieldName = this.fieldName;
+          if (this.sportName) this.errorRedirectParams.sportName = this.sportName;
+          if (this.recordingCode) this.errorRedirectParams.recordingCode = this.recordingCode;
+          if (this.isRecordingMode) this.errorRedirectParams.recordingMode = 'true';
+          
+          // Show error modal
+          this.showStartMatchErrorModal = true;
         }
       });
     } else {
@@ -380,36 +406,26 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
   // Team editing
   editTeam(team: 'A' | 'B'): void {
-    this.editingTeam = team;
-    this.showEditModal = true;
+    // Open the combined teams edit modal instead
+    this.openEditTeamsModal();
   }
 
-  onTeamEditSave(teamData: TeamEditData): void {
-    if (teamData.team === 'A') {
-      this.teamAName = teamData.name;
-      this.teamAColor = teamData.color;
-    } else {
-      this.teamBName = teamData.name;
-      this.teamBColor = teamData.color;
-    }
-    this.showEditModal = false;
-    this.editingTeam = null;
+  openEditTeamsModal(): void {
+    this.showEditTeamsModal = true;
   }
 
-  onTeamEditCancel(): void {
-    this.showEditModal = false;
-    this.editingTeam = null;
+  closeEditTeamsModal(): void {
+    this.showEditTeamsModal = false;
   }
 
-  get teamEditData(): TeamEditData | null {
-    if (!this.editingTeam) return null;
-    
-    return {
-      team: this.editingTeam,
-      name: this.editingTeam === 'A' ? this.teamAName : this.teamBName,
-      color: this.editingTeam === 'A' ? this.teamAColor : this.teamBColor
-    };
+  onSaveBothTeams(teamAData: { name: string; color: string }, teamBData: { name: string; color: string }): void {
+    this.teamAName = teamAData.name;
+    this.teamAColor = teamAData.color;
+    this.teamBName = teamBData.name;
+    this.teamBColor = teamBData.color;
+    this.showEditTeamsModal = false;
   }
+
 
   // Utility functions
   formatTime(seconds: number): string {
@@ -542,11 +558,11 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     const eventTime = this.formatTimeForEventLog(this.secondsElapsed);
     
     if (team === 'A') {
-      this.teamAEvents.push({ text: `${eventTime} ⚽`, isUndone: false });
+      this.teamAEvents.push({ text: `${eventTime} <i class="fas fa-futbol"></i>`, isUndone: false });
     } else if (team === 'B') {
-      this.teamBEvents.push({ text: `⚽ ${eventTime}`, isUndone: false });
+      this.teamBEvents.push({ text: `<i class="fas fa-futbol"></i> ${eventTime}`, isUndone: false });
     } else {
-      this.highlightEvents.push({ text: `⭐ ${eventTime}`, isUndone: false });
+      this.highlightEvents.push({ text: `<i class="fas fa-hands-clapping"></i> ${eventTime}`, isUndone: false });
     }
   }
 
@@ -931,14 +947,14 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
         const eventTime = this.convertTimeToEventLogFormat(elapsedTime);
         
         if (team === 'A') {
-          this.teamAEvents.push({ text: `⚽ ${eventTime}`, isUndone: false });
+          this.teamAEvents.push({ text: `<i class="fas fa-futbol"></i> ${eventTime}`, isUndone: false });
         } else {
-          this.teamBEvents.push({ text: `⚽ ${eventTime}`, isUndone: false });
+          this.teamBEvents.push({ text: `<i class="fas fa-futbol"></i> ${eventTime}`, isUndone: false });
         }
       } else if (event.eventName === 'highlight') {
         const elapsedTime = event.elapsedTime || '00:00';
         const eventTime = this.convertTimeToEventLogFormat(elapsedTime);
-        this.highlightEvents.push({ text: `⭐ ${eventTime}`, isUndone: false });
+        this.highlightEvents.push({ text: `<i class="fas fa-hands-clapping"></i> ${eventTime}`, isUndone: false });
       }
     }
   }

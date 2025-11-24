@@ -13,7 +13,6 @@ import { HomeComponent } from './components/home/home.component';
 import { HeaderComponent } from './components/header/header.component';
 import { GameCardComponent } from './components/game-card/game-card.component';
 import { ScoreGameComponent } from './components/score-game/score-game.component';
-import { TeamEditModalComponent } from './components/team-edit-modal/team-edit-modal.component';
 import { EventLogComponent } from './components/event-log/event-log.component';
 import { RecordInstructionsComponent } from './components/record-instructions/record-instructions.component';
 import { QrModalComponent } from './components/qr-modal/qr-modal.component';
@@ -36,7 +35,6 @@ import { MatchHistoryComponent } from './components/match-history/match-history.
     HeaderComponent,
     GameCardComponent,
     ScoreGameComponent,
-    TeamEditModalComponent,
     EventLogComponent,
     RecordInstructionsComponent,
     QrModalComponent,

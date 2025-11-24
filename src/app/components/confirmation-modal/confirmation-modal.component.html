@@ -8,11 +8,12 @@
       </div>
       
       <div class="modal-body">
-        <p class="modal-message">{{ message }}</p>
+        <img *ngIf="imageUrl" [src]="imageUrl" alt="" class="modal-image" />
+        <p class="modal-message" *ngIf="message">{{ message }}</p>
       </div>
       
       <div class="modal-footer">
-        <button class="btn btn-cancel" (click)="onCancel()">
+        <button *ngIf="cancelText" class="btn btn-cancel" (click)="onCancel()">
           {{ cancelText }}
         </button>
         <button class="btn btn-confirm" (click)="onConfirm()">

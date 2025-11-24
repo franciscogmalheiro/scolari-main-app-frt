@@ -4,17 +4,17 @@
   <main class="main-content">
     <div class="instructions-card">
       <div class="card-header">
-        <h1 class="card-title">Instruções do Marcador</h1>
+        <h1 class="card-title">Instruções de gravação</h1>
       </div>
 
       <div class="instructions-content">
         <!-- Recording Code Section (only shown when no code is validated) -->
         <div class="recording-code-section" *ngIf="!validatedRecordingCode">
           <div class="section-header" *ngIf="!validatedRecordingCode">
-            <h3>Gravação do Jogo</h3>
+            <h3>Queres gravar o jogo?</h3>
             <p class="description">
-              Para gravar o jogo, falar com o responsável pelo campo para obter um código de gravação.
-              Se não tiver código, pode continuar apenas com o marcador de jogo.
+              Para gravar o jogo, precisas de um código de gravação que podes obter junto do responsável deste campo.
+              Se não tiveres código, podes continuar apenas com o marcador de jogo.
             </p>
           </div>
           
@@ -48,25 +48,32 @@
 
         <!-- Instructions (only shown when recording code is validated) -->
         <div class="instruction-items" *ngIf="validatedRecordingCode">
-          <h3>O teu código é válido, e o teu jogo irá ser gravado.</h3>
+          <h3>O código que inseriste é válido, podes prosseguir com a gravação!</h3>
           <div class="instruction-item">
             <div class="instruction-number">1</div>
             <div class="instruction-text">
-              A gravação do jogo terá inicio assim que o botão "iniciar" for premido.
+              A gravação do jogo terá inicio assim que premirem o botão "começar jogo" e que indiquem de que lado do campo está cada equipa.
             </div>
           </div>
 
           <div class="instruction-item">
             <div class="instruction-number">2</div>
             <div class="instruction-text">
-              A gravação terá fim assim que o botão "terminar" for premido ou excedido o tempo limite de 90min.
+              Sempre que houver um golo ou um melhor momento, primam o botão de "golo" ou "destaque".
             </div>
           </div>
 
           <div class="instruction-item">
             <div class="instruction-number">3</div>
             <div class="instruction-text">
-              Assim que o botão "terminar" for pressionado, será apresentado o ID de jogo que vai precisar para descarregar o video.
+              A gravação termina assim que o botão "terminar" for premido.
+            </div>
+          </div>
+
+          <div class="instruction-item">
+            <div class="instruction-number">4</div>
+            <div class="instruction-text">
+              Após o final do jogo, vão poder aceder aos vídeos dos momentos que registaram.
             </div>
           </div>
         </div>

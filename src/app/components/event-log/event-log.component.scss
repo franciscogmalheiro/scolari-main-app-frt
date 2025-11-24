@@ -16,7 +16,7 @@
 .event-item {
   padding: 0.2rem 0;
   font-size: 0.9rem;
-  color: #333;
+  color: white;
   text-align: center;
   transition: color 0.3s ease;
   display: flex;
@@ -30,7 +30,13 @@
   }
 
   .event-text {
-    //flex: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    
+    i {
+      font-size: 0.85rem;
+    }
   }
 
   .btn-edit-event {

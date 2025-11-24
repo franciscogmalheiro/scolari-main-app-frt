@@ -31,11 +31,18 @@
       
       <!-- When match hasn't started: show centered start button -->
       <div *ngIf="!isMatchStarted && !isMatchFinished" class="timer-start-section">
-        <button 
-          class="btn btn-start" 
-          (click)="startMatch()">
-          <i class="fas fa-play"></i> COMEÇAR JOGO
-        </button>
+        <div class="start-buttons-container">
+          <button 
+            class="btn btn-start" 
+            (click)="startMatch()">
+            <i class="fas fa-play"></i> COMEÇAR JOGO
+          </button>
+          <button 
+            class="btn btn-edit-teams" 
+            (click)="openEditTeamsModal()">
+            <i class="fas fa-edit"></i> EDITAR EQUIPAS
+          </button>
+        </div>
       </div>
     </div>
 
@@ -117,25 +124,28 @@
    </div>
 
     <!-- Action Buttons Row -->
-    <div class="row align-items-center justify-content-center mb-4" *ngIf="showControls">
+    <div class="row align-items-center justify-content-center mb" *ngIf="showControls">
       <!-- Team A Goal Button -->
-      <div class="col-3 text-center">
+      <div class="col-3 text-center px-0">
         <button class="btn btn-goal team-a-goal" (click)="addTeamGoal('A')">
           <i class="fas fa-futbol"></i>
+          <span class="goal-text">GOLO</span>
         </button>
       </div>
 
       <!-- Highlight Button -->
-      <div class="col-5 text-center">
+      <div class="col-5 text-center px-0">
         <button class="btn btn-highlight" (click)="addHighlight()">
-          <i class="fas fa-star"></i>
+          <i class="fas fa-hands-clapping"></i>
+          <span class="highlight-text">DESTAQUE</span>
         </button>
       </div>
 
       <!-- Team B Goal Button -->
-      <div class="col-3 text-center">
+      <div class="col-3 text-center px-0">
         <button class="btn btn-goal team-b-goal" (click)="addTeamGoal('B')">
           <i class="fas fa-futbol"></i>
+          <span class="goal-text">GOLO</span>
         </button>
       </div>
     </div>
@@ -156,13 +166,89 @@
 
   </div>
 
-  <!-- Team Edit Modal -->
-  <app-team-edit-modal
-    [isOpen]="showEditModal"
-    [teamData]="teamEditData"
-    (save)="onTeamEditSave($event)"
-    (cancel)="onTeamEditCancel()"
-  ></app-team-edit-modal>
+  <!-- Edit Both Teams Modal -->
+  <div class="teams-edit-modal-backdrop" *ngIf="showEditTeamsModal" (click)="closeEditTeamsModal()"></div>
+  <div class="teams-edit-modal" *ngIf="showEditTeamsModal" (click)="$event.stopPropagation()">
+    <div class="teams-edit-content">
+      <div class="teams-edit-header">
+        <h4>Editar Equipas</h4>
+        <button class="close-modal" (click)="closeEditTeamsModal()"><i class="fas fa-times"></i></button>
+      </div>
+      
+      <div class="teams-edit-body">
+        <!-- Team A Section -->
+        <div class="team-section">
+          <h5>Equipa da casa</h5>
+          <div class="input-group">
+            <input 
+              type="text" 
+              #teamANameInput
+              [value]="teamAName"
+              (input)="teamAName = teamANameInput.value"
+              placeholder="Nome da equipa A"
+              class="name-input"
+              maxlength="20"
+            >
+          </div>
+          <div class="input-group">
+            <div class="color-picker">
+              <button 
+                *ngFor="let color of teamColorOptions" 
+                type="button"
+                class="color-option"
+                [ngStyle]="{'background-color': color}"
+                [class.selected]="teamAColor === color"
+                (click)="teamAColor = color"
+                [attr.aria-label]="color"
+              >
+                <i class="fas fa-check" *ngIf="teamAColor === color"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Team B Section -->
+        <div class="team-section">
+          <h5>Equipa visitante</h5>
+          <div class="input-group">
+            <input 
+              type="text" 
+              #teamBNameInput
+              [value]="teamBName"
+              (input)="teamBName = teamBNameInput.value"
+              placeholder="Nome da equipa B"
+              class="name-input"
+              maxlength="20"
+            >
+          </div>
+          <div class="input-group">
+            <div class="color-picker">
+              <button 
+                *ngFor="let color of teamColorOptions" 
+                type="button"
+                class="color-option"
+                [ngStyle]="{'background-color': color}"
+                [class.selected]="teamBColor === color"
+                (click)="teamBColor = color"
+                [attr.aria-label]="color"
+              >
+                <i class="fas fa-check" *ngIf="teamBColor === color"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="teams-edit-footer">
+        <button class="btn btn-cancel" (click)="closeEditTeamsModal()">
+          Cancelar
+        </button>
+        <button class="btn btn-save" (click)="onSaveBothTeams({ name: teamAName, color: teamAColor }, { name: teamBName, color: teamBColor })" [disabled]="!teamAName.trim() || !teamBName.trim()">
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Start Match Confirmation Modal -->
   <app-confirmation-modal
@@ -178,12 +264,24 @@
   <!-- Attacking Team Selection Modal (recording mode) -->
   <app-confirmation-modal
     [isVisible]="showAttackingTeamModal"
-    title="Que equipa vai estar a atacar para a baliza Scolari?"
+    title="Por trás de uma das balizas, há um logotipo Scolari. Que equipa vai estar a atacar para essa baliza?"
     message=""
     [confirmText]="teamAName"
     [cancelText]="teamBName"
+    imageUrl="assets/court-map-2.png"
     (confirm)="chooseAttackingTeam('A')"
     (cancel)="chooseAttackingTeam('B')"
+  ></app-confirmation-modal>
+
+  <!-- Start Match Error Modal -->
+  <app-confirmation-modal
+    [isVisible]="showStartMatchErrorModal"
+    title="Erro ao iniciar jogo"
+    message="Não foi possível iniciar o jogo. Por favor insere novamente o código de gravação"
+    confirmText="OK"
+    cancelText=""
+    (confirm)="onCloseStartMatchErrorModal()"
+    (cancel)="onCloseStartMatchErrorModal()"
   ></app-confirmation-modal>
 
   <!-- Finish Match Confirmation Modal -->
@@ -210,7 +308,7 @@
   <div class="photo-capture-modal" *ngIf="isCapturingPhoto">
     <div class="photo-capture-content">
       <div class="photo-capture-header">
-        <h3>📸 Querem tirar a foto de final de Jogo?</h3>
+        <h3>Querem tirar a foto de final de Jogo?</h3>
       </div>
       
       <div class="photo-capture-body">
@@ -282,7 +380,7 @@
                      value="goal" 
                      [(ngModel)]="editingEventType"
                      [checked]="editingEventType === 'goal'">
-              <span class="radio-icon">⚽</span>
+              <span class="radio-icon"><i class="fas fa-futbol"></i></span>
               <span class="radio-label">Golo</span>
             </label>
             <label class="radio-option">
@@ -291,7 +389,7 @@
                      value="highlight" 
                      [(ngModel)]="editingEventType"
                      [checked]="editingEventType === 'highlight'">
-              <span class="radio-icon">⭐</span>
+              <span class="radio-icon"><i class="fas fa-hands-clapping"></i></span>
               <span class="radio-label">Destaque</span>
             </label>
           </div>

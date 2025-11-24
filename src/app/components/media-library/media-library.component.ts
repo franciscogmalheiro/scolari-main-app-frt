@@ -36,7 +36,7 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   isShareModalOpen = false;
   shareItem: MediaItemDto | null = null;
   // Track if match has been added to user's games
-  isMatchAddedToGames = false;
+  isMatchAddedToFavorites = false;
   // Registration popup state
   isRegistrationModalOpen = false;
   // Information modal state for first-time logged-in users
@@ -254,8 +254,8 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     serviceCall.subscribe({
       next: (match) => {
         this.matchDetails = match;
-        // Update isMatchAddedToGames based on isFavorite flag from API
-        this.isMatchAddedToGames = match.isFavorite === true;
+        // Update isMatchAddedToFavorites based on isFavorite flag from API
+        this.isMatchAddedToFavorites = match.isFavorite === true;
       },
       error: (err) => {
         console.warn('Failed to load match details', err);
@@ -1029,13 +1029,13 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const isCurrentlyAdded = this.isMatchAddedToGames;
+    const isCurrentlyAdded = this.isMatchAddedToFavorites;
 
     if (isCurrentlyAdded) {
       // Remove from favorites
       this.matchService.removeMatchFromUser(this.matchDetails.id).subscribe({
         next: () => {
-          this.isMatchAddedToGames = false;
+          this.isMatchAddedToFavorites = false;
           // Update the matchDetails to reflect the change
           if (this.matchDetails) {
             this.matchDetails.isFavorite = false;
@@ -1049,7 +1049,7 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
       // Add to favorites
       this.matchService.addMatchToUser(this.recordingCode).subscribe({
         next: () => {
-          this.isMatchAddedToGames = true;
+          this.isMatchAddedToFavorites = true;
           // Update the matchDetails to reflect the change
           if (this.matchDetails) {
             this.matchDetails.isFavorite = true;
