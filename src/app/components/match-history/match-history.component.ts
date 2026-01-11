@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService, User } from '../../services/auth.service';
 import { MatchService, FieldMatchResponseDto } from '../../services/match.service';
 import { MediaLibraryService, MediaItemDto } from '../../services/media-library.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-match-history',
@@ -158,7 +159,7 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
   }
 
   loadMore(): void {
-    this.displayedCount += 5;
+    this.displayedCount += 6;
     this.updateDisplayedMatches();
   }
 
@@ -484,8 +485,61 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
     this.shareItem = null;
   }
 
+  // Extract segment name from presignedUrl (filename without extension)
+  private extractSegmentName(presignedUrl: string): string | null {
+    try {
+      const urlParts = presignedUrl.split('/');
+      const filename = urlParts[urlParts.length - 1];
+      if (!filename) return null;
+      // Remove extension
+      const segmentName = filename.replace(/\.[^/.]+$/, '');
+      return segmentName;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Extract recordingCode from presignedUrl path
+  // Format: https://cdn.scolari-app.pt/videos/.../{recordingCode}/segments/{segmentName}.mp4
+  private extractRecordingCode(presignedUrl: string): string | null {
+    try {
+      const url = new URL(presignedUrl);
+      const pathParts = url.pathname.split('/');
+      const segmentsIndex = pathParts.indexOf('segments');
+      if (segmentsIndex > 0) {
+        // The recordingCode should be the part before 'segments'
+        return pathParts[segmentsIndex - 1];
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   private buildShareUrl(item: MediaItemDto): string {
-    return item.presignedUrl || '';
+    const videoUrl = item.presignedUrl || '';
+    if (!videoUrl) {
+      return '';
+    }
+    
+    const base = environment.publicBaseUrl && environment.publicBaseUrl.trim().length > 0
+      ? environment.publicBaseUrl.replace(/\/$/, '')
+      : window.location.origin;
+    
+    // Extract recordingCode and segmentName from presignedUrl
+    const recordingCode = this.extractRecordingCode(videoUrl);
+    const segmentName = this.extractSegmentName(videoUrl);
+    
+    if (recordingCode && segmentName) {
+      // Use video-player route with recordingCode and segmentName
+      // Encode both parameters for URL safety
+      const encodedRecordingCode = encodeURIComponent(recordingCode);
+      const encodedSegmentName = encodeURIComponent(segmentName);
+      return `${base}/video-player/${encodedRecordingCode}/${encodedSegmentName}`;
+    }
+    
+    // Fallback to old format if extraction fails
+    return `${base}/video-player?url=${encodeURIComponent(videoUrl)}`;
   }
 
   async copyLink(item?: MediaItemDto): Promise<void> {
@@ -506,7 +560,9 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
   shareToWhatsApp(item?: MediaItemDto): void {
     const target = item || this.shareItem;
     const url = target ? this.buildShareUrl(target) : '';
-    const shareText = encodeURI('Aqui está o vídeo da bola desta semana: ');
+    const shareText = target 
+      ? encodeURI('Clica neste link para veres um dos vídeos do jogo: ')
+      : encodeURI('Revê aqui os melhores momentos do teu jogo: ');
     const waUrl = `https://wa.me/?text=${shareText}${encodeURIComponent(url)}`;
     window.open(waUrl, '_blank');
   }

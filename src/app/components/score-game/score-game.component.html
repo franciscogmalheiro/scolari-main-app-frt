@@ -1,8 +1,16 @@
-<div class="score-game-container">
+<div class="score-game-container" [class.has-edit-mode-bar]="isEditMode">
+  <!-- Edit Mode Top Bar -->
+  <div class="edit-mode-bar" *ngIf="isEditMode">
+    <button class="edit-mode-close-btn" (click)="saveEditMode()" title="Sair do modo de correção">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <span class="edit-mode-text">MODO DE CORREÇÃO</span>
+  </div>
+
   <!-- Main Game Section -->
-  <div class="main-game-section">
+  <div class="main-game-section" [class.has-edit-mode-bar]="isEditMode">
     <!-- Timer Display with Live Indicator or Start Button -->
-    <div class="timer-section">
+    <div class="timer-section" *ngIf="!isEditMode">
       <!-- When match is started: show buttons and timer -->
       <div *ngIf="isMatchStarted" class="timer-with-buttons">
         <!-- Terminar button (left side) -->
@@ -44,11 +52,6 @@
           </button>
         </div>
       </div>
-    </div>
-
-    <!-- Live Indicator positioned below timer in center -->
-    <div class="live-indicator-container" *ngIf="isRecordingMode && isMatchStarted">
-      <app-live-indicator [isRecording]="isRecording"></app-live-indicator>
     </div>
 
     <!-- Final Result Display (under timer) -->
@@ -127,7 +130,7 @@
     <div class="row align-items-center justify-content-center mb" *ngIf="showControls">
       <!-- Team A Goal Button -->
       <div class="col-3 text-center px-0">
-        <button class="btn btn-goal team-a-goal" (click)="addTeamGoal('A')">
+        <button class="btn btn-goal team-a-goal" (click)="addTeamGoal('A')" [disabled]="isEditMode">
           <i class="fas fa-futbol"></i>
           <span class="goal-text">GOLO</span>
         </button>
@@ -135,7 +138,7 @@
 
       <!-- Highlight Button -->
       <div class="col-5 text-center px-0">
-        <button class="btn btn-highlight" (click)="addHighlight()">
+        <button class="btn btn-highlight" (click)="addHighlight()" [disabled]="isEditMode">
           <i class="fas fa-hands-clapping"></i>
           <span class="highlight-text">DESTAQUE</span>
         </button>
@@ -143,7 +146,7 @@
 
       <!-- Team B Goal Button -->
       <div class="col-3 text-center px-0">
-        <button class="btn btn-goal team-b-goal" (click)="addTeamGoal('B')">
+        <button class="btn btn-goal team-b-goal" (click)="addTeamGoal('B')" [disabled]="isEditMode">
           <i class="fas fa-futbol"></i>
           <span class="goal-text">GOLO</span>
         </button>
@@ -161,6 +164,7 @@
       [teamAColor]="teamAColor"
       [teamBColor]="teamBColor"
       [isEditMode]="isEditMode"
+      [isMatchFinished]="isMatchFinished"
       (editEvent)="openEventEditModal($event)"
     ></app-event-log>
 
@@ -266,8 +270,11 @@
     [isVisible]="showAttackingTeamModal"
     title="Por trás de uma das balizas, há um logotipo Scolari. Que equipa vai estar a atacar para essa baliza?"
     message=""
-    [confirmText]="teamAName"
-    [cancelText]="teamBName"
+    [confirmText]="teamBName"
+    [cancelText]="teamAName"
+    [confirmButtonColor]="teamBColor"
+    [cancelButtonColor]="teamAColor"
+    [disableOverlayClose]="true"
     imageUrl="assets/court-map-2.png"
     (confirm)="chooseAttackingTeam('A')"
     (cancel)="chooseAttackingTeam('B')"
@@ -285,15 +292,30 @@
   ></app-confirmation-modal>
 
   <!-- Finish Match Confirmation Modal -->
-  <app-confirmation-modal
-    [isVisible]="showConfirmModal"
-    [title]="isRecordingMode ? 'Terminar o jogo e gravação' : 'Terminar o Jogo'"
-    [message]="isRecordingMode ? 'Tens a certeza que queres terminar o jogo e parar a gravação?' : 'Tens a certeza que queres terminar o jogo?'"
-    confirmText="Terminar o Jogo"
-    cancelText="Cancelar"
-    (confirm)="onConfirmFinishMatch()"
-    (cancel)="onCancelFinishMatch()"
-  ></app-confirmation-modal>
+  <div class="teams-edit-modal-backdrop" *ngIf="showConfirmModal" (click)="onCancelFinishMatch()"></div>
+  <div class="teams-edit-modal" *ngIf="showConfirmModal" (click)="$event.stopPropagation()">
+    <div class="teams-edit-content">
+      <div class="teams-edit-header">
+        <h4>{{ isRecordingMode ? 'Terminar o jogo e gravação' : 'Terminar o Jogo' }}</h4>
+        <button class="close-modal" (click)="onCancelFinishMatch()"><i class="fas fa-times"></i></button>
+      </div>
+      
+      <div class="teams-edit-body">
+        <p style="color: white; margin: 0; font-size: 1rem; line-height: 1.5;">
+          {{ isRecordingMode ? 'Tens a certeza que queres terminar o jogo e parar a gravação?' : 'Tens a certeza que queres terminar o jogo?' }}
+        </p>
+      </div>
+      
+      <div class="teams-edit-footer">
+        <button class="btn btn-cancel" (click)="onCancelFinishMatch()">
+          Cancelar
+        </button>
+        <button class="btn btn-save" (click)="onConfirmFinishMatch()">
+          Terminar o Jogo
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- QR Code Modal (only shown when NOT in recording mode) -->
   <app-qr-modal
@@ -365,9 +387,35 @@
       <div class="event-edit-body">
         <!-- Result Preview -->
         <div class="result-preview">
-          <span class="current-result">Resultado atual: {{ teamAScore }}-{{ teamBScore }}</span>
-          <span class="separator">|</span>
-          <span class="new-result">Novo resultado: {{ getNewEventResult() }}</span>
+          <div class="preview-label">Resultado</div>
+          <div class="preview-score-display">
+            <!-- Team A -->
+            <div class="preview-team">
+              <div class="preview-team-icon" [style.color]="teamAColor">
+                <i class="fas fa-tshirt"></i>
+              </div>
+              <div class="preview-team-name">{{ teamAName }}</div>
+              <div class="preview-score-value" 
+                   [class.blinking]="isTeamAScoreBeingEdited()">
+                {{ getNewTeamAScore() }}
+              </div>
+            </div>
+            
+            <!-- Score Separator -->
+            <div class="preview-score-separator">-</div>
+            
+            <!-- Team B -->
+            <div class="preview-team">
+              <div class="preview-team-icon" [style.color]="teamBColor">
+                <i class="fas fa-tshirt"></i>
+              </div>
+              <div class="preview-team-name">{{ teamBName }}</div>
+              <div class="preview-score-value" 
+                   [class.blinking]="isTeamBScoreBeingEdited()">
+                {{ getNewTeamBScore() }}
+              </div>
+            </div>
+          </div>
         </div>
         
         <!-- Event Type Selection -->
@@ -399,21 +447,33 @@
         <div class="form-group" *ngIf="editingEventType === 'goal'">
           <label>Equipa:</label>
           <div class="radio-group">
-            <label class="radio-option" data-team="A">
+            <label class="radio-option" 
+                   data-team="A"
+                   [ngStyle]="getTeamAStyle()"
+                   [style.--team-color]="teamAColor">
               <input type="radio" 
                      name="eventTeam" 
                      value="A" 
                      [(ngModel)]="editingEventTeamSelection"
                      [checked]="editingEventTeamSelection === 'A'">
-              <span class="radio-label">{{ teamAName }}</span>
+              <span class="radio-label" 
+                    [ngStyle]="{'color': editingEventTeamSelection === 'A' ? teamAColor : '#495057'}">
+                {{ teamAName }}
+              </span>
             </label>
-            <label class="radio-option" data-team="B">
+            <label class="radio-option" 
+                   data-team="B"
+                   [ngStyle]="getTeamBStyle()"
+                   [style.--team-color]="teamBColor">
               <input type="radio" 
                      name="eventTeam" 
                      value="B" 
                      [(ngModel)]="editingEventTeamSelection"
                      [checked]="editingEventTeamSelection === 'B'">
-              <span class="radio-label">{{ teamBName }}</span>
+              <span class="radio-label" 
+                    [ngStyle]="{'color': editingEventTeamSelection === 'B' ? teamBColor : '#495057'}">
+                {{ teamBName }}
+              </span>
             </label>
           </div>
         </div>
@@ -428,5 +488,10 @@
         </button>
       </div>
     </div>
+  </div>
+
+  <!-- Live Indicator Dock Bar (bottom of page) -->
+  <div class="live-indicator-dock" *ngIf="isRecordingMode && isMatchStarted">
+    <app-live-indicator [isRecording]="isRecording"></app-live-indicator>
   </div>
 </div>

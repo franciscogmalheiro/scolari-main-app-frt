@@ -1,0 +1,13 @@
+<div class="video-player-container">
+  <div *ngIf="isLoading" class="loading-message">
+    <p>A carregar vídeo...</p>
+  </div>
+  <video *ngIf="videoUrl && !isLoading" [src]="videoUrl" controls autoplay class="video-player"></video>
+  <div *ngIf="errorMessage && !isLoading" class="error-message">
+    <p>{{ errorMessage }}</p>
+  </div>
+  <div *ngIf="!videoUrl && !isLoading && !errorMessage" class="no-video-message">
+    <p>Nenhum vídeo encontrado.</p>
+  </div>
+</div>
+

@@ -12,6 +12,7 @@ import { AdminGuard } from './guards/admin.guard';
 import { GuestGuard } from './guards/guest.guard';
 import { InitialRedirectGuard } from './guards/initial-redirect.guard';
 import { MatchHistoryComponent } from './components/match-history/match-history.component';
+import { VideoPlayerComponent } from './components/video-player/video-player.component';
 
 const routes: Routes = [
   { path: '', canActivate: [InitialRedirectGuard], children: [] },
@@ -24,6 +25,7 @@ const routes: Routes = [
   { path: 'media-library/:matchCode', component: MediaLibraryComponent },
   { path: 'media-library/recording-code/:recordingCode', component: MediaLibraryComponent },
   { path: 'video-library/:matchCode', redirectTo: 'media-library/:matchCode' },
+  { path: 'video-player/:recordingCode/:segmentName', component: VideoPlayerComponent },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [AdminGuard] },
   { path: '**', redirectTo: '/login' }
 ];

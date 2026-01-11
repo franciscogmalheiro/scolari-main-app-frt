@@ -920,15 +920,67 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Extract segment name from presignedUrl (filename without extension)
+  private extractSegmentName(presignedUrl: string): string | null {
+    try {
+      const urlParts = presignedUrl.split('/');
+      const filename = urlParts[urlParts.length - 1];
+      if (!filename) return null;
+      // Remove extension
+      const segmentName = filename.replace(/\.[^/.]+$/, '');
+      return segmentName;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Extract recordingCode from presignedUrl path
+  // Format: https://cdn.scolari-app.pt/videos/.../{recordingCode}/segments/{segmentName}.mp4
+  private extractRecordingCode(presignedUrl: string): string | null {
+    try {
+      const url = new URL(presignedUrl);
+      const pathParts = url.pathname.split('/');
+      const segmentsIndex = pathParts.indexOf('segments');
+      if (segmentsIndex > 0) {
+        // The recordingCode should be the part before 'segments'
+        return pathParts[segmentsIndex - 1];
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
   // Build shareable URL for an item
   private buildShareUrl(item: MediaItemDto): string {
+    const base = environment.publicBaseUrl && environment.publicBaseUrl.trim().length > 0
+      ? environment.publicBaseUrl.replace(/\/$/, '')
+      : window.location.origin;
+    
+    let videoUrl: string;
     if (item.presignedUrl) {
-      return item.presignedUrl;
+      videoUrl = item.presignedUrl;
+    } else if (this.isItemVideo(item)) {
+      videoUrl = this.getVideoUrl(item);
+    } else {
+      videoUrl = this.getItemUrl(item);
     }
-    if (this.isItemVideo(item)) {
-      return this.getVideoUrl(item);
+    
+    // Extract recordingCode and segmentName
+    // Prefer using this.recordingCode if available (from component context)
+    const recordingCode = this.recordingCode || this.extractRecordingCode(videoUrl);
+    const segmentName = this.extractSegmentName(videoUrl);
+    
+    if (recordingCode && segmentName) {
+      // Use video-player route with recordingCode and segmentName
+      // Encode both parameters for URL safety
+      const encodedRecordingCode = encodeURIComponent(recordingCode);
+      const encodedSegmentName = encodeURIComponent(segmentName);
+      return `${base}/video-player/${encodedRecordingCode}/${encodedSegmentName}`;
     }
-    return this.getItemUrl(item);
+    
+    // Fallback to old format if extraction fails
+    return `${base}/video-player?url=${encodeURIComponent(videoUrl)}`;
   }
 
   async copyLink(item?: MediaItemDto): Promise<void> {
@@ -951,7 +1003,9 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   shareToWhatsApp(item?: MediaItemDto): void {
     const target = item || this.shareItem;
     const url = target ? this.buildShareUrl(target) : this.buildPageShareUrl();
-    const shareText = encodeURI('Aqui está o vídeo da bola desta semana: ')
+    const shareText = target 
+      ? encodeURI('Clica neste link para veres um dos vídeos do jogo: ')
+      : encodeURI('Revê aqui os melhores momentos do teu jogo: ');
     const waUrl = `https://wa.me/?text=${shareText}${encodeURIComponent(url)}`;
     window.open(waUrl, '_blank');
   }

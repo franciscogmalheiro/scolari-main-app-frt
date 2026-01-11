@@ -123,6 +123,9 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     
     // Listen for visibility changes to reacquire wake lock if needed
     document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    
+    // Open the "Editar Equipas" modal automatically when component loads
+    this.openEditTeamsModal();
   }
 
   private checkGameMode(): void {
@@ -509,6 +512,97 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     return `${teamAScore}-${teamBScore}`;
   }
 
+  getNewTeamAScore(): number {
+    if (!this.editingEventType) return this.teamAScore;
+    
+    const currentEvent = this.originalEventIndex !== null ? this.events[this.originalEventIndex] : null;
+    let teamAScore = this.teamAScore;
+    
+    // If current event is a goal, remove its score contribution
+    if (currentEvent && currentEvent.eventName === 'goal' && currentEvent.team === this.teamAName) {
+      teamAScore--;
+    }
+    
+    // Add the new event's score contribution
+    if (this.editingEventType === 'goal' && this.editingEventTeamSelection === 'A') {
+      teamAScore++;
+    }
+    
+    return teamAScore;
+  }
+
+  getNewTeamBScore(): number {
+    if (!this.editingEventType) return this.teamBScore;
+    
+    const currentEvent = this.originalEventIndex !== null ? this.events[this.originalEventIndex] : null;
+    let teamBScore = this.teamBScore;
+    
+    // If current event is a goal, remove its score contribution
+    if (currentEvent && currentEvent.eventName === 'goal' && currentEvent.team === this.teamBName) {
+      teamBScore--;
+    }
+    
+    // Add the new event's score contribution
+    if (this.editingEventType === 'goal' && this.editingEventTeamSelection === 'B') {
+      teamBScore++;
+    }
+    
+    return teamBScore;
+  }
+
+  // Check if team A score is being edited (will change)
+  isTeamAScoreBeingEdited(): boolean {
+    return this.editingEventType === 'goal' && this.editingEventTeamSelection === 'A';
+  }
+
+  // Check if team B score is being edited (will change)
+  isTeamBScoreBeingEdited(): boolean {
+    return this.editingEventType === 'goal' && this.editingEventTeamSelection === 'B';
+  }
+
+  // Helper method to convert hex color to rgba with opacity
+  hexToRgba(hex: string, opacity: number): string {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return `rgba(0, 0, 0, ${opacity})`;
+    
+    const r = parseInt(result[1], 16);
+    const g = parseInt(result[2], 16);
+    const b = parseInt(result[3], 16);
+    
+    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  }
+
+  // Helper methods to get team color styles
+  getTeamAStyle(): any {
+    if (this.editingEventTeamSelection === 'A') {
+      return {
+        'border-color': this.teamAColor,
+        'background': `linear-gradient(135deg, ${this.hexToRgba(this.teamAColor, 0.15)} 0%, ${this.hexToRgba(this.teamAColor, 0.08)} 100%)`,
+        'box-shadow': `0 8px 20px ${this.hexToRgba(this.teamAColor, 0.25)}`
+      };
+    }
+    return {
+      'border-color': 'rgba(255, 255, 255, 0.2)',
+      'background': 'rgba(255, 255, 255, 0.05)',
+      'box-shadow': '0 2px 4px rgba(0, 0, 0, 0.2)'
+    };
+  }
+
+  getTeamBStyle(): any {
+    if (this.editingEventTeamSelection === 'B') {
+      return {
+        'border-color': this.teamBColor,
+        'background': `linear-gradient(135deg, ${this.hexToRgba(this.teamBColor, 0.15)} 0%, ${this.hexToRgba(this.teamBColor, 0.08)} 100%)`,
+        'box-shadow': `0 8px 20px ${this.hexToRgba(this.teamBColor, 0.25)}`
+      };
+    }
+    return {
+      'border-color': 'rgba(255, 255, 255, 0.2)',
+      'background': 'rgba(255, 255, 255, 0.05)',
+      'box-shadow': '0 2px 4px rgba(0, 0, 0, 0.2)'
+    };
+  }
+
   getCurrentResult(): string {
     return `${this.teamAScore}-${this.teamBScore}`;
   }
@@ -856,7 +950,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     }
 
     this.closeEventEditModal();
-    this.isEditMode = false;
+    this.isEditMode = false; // Exit edit mode after saving
   }
 
   deleteEvent(): void {
@@ -900,6 +994,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     }
 
     this.closeEventEditModal();
+    this.isEditMode = false; // Exit edit mode after deleting
   }
 
 

@@ -4,7 +4,7 @@
   <main class="main-content">
     <div class="instructions-card">
       <div class="card-header">
-        <h1 class="card-title">Instruções de gravação</h1>
+        <h1 class="card-title">Instruções</h1>
       </div>
 
       <div class="instructions-content">
@@ -13,7 +13,7 @@
           <div class="section-header" *ngIf="!validatedRecordingCode">
             <h3>Queres gravar o jogo?</h3>
             <p class="description">
-              Para gravar o jogo, precisas de um código de gravação que podes obter junto do responsável deste campo.
+              Para gravar o jogo, precisas de um <strong>código de gravação</strong> que podes obter junto do responsável deste campo.
               Se não tiveres código, podes continuar apenas com o marcador de jogo.
             </p>
           </div>
@@ -52,29 +52,41 @@
           <div class="instruction-item">
             <div class="instruction-number">1</div>
             <div class="instruction-text">
-              A gravação do jogo terá inicio assim que premirem o botão "começar jogo" e que indiquem de que lado do campo está cada equipa.
+              Edita nome e cor das equipas
             </div>
           </div>
 
           <div class="instruction-item">
             <div class="instruction-number">2</div>
             <div class="instruction-text">
-              Sempre que houver um golo ou um melhor momento, primam o botão de "golo" ou "destaque".
+              Prime "Começar jogo" para iniciar a gravação
             </div>
           </div>
 
           <div class="instruction-item">
             <div class="instruction-number">3</div>
             <div class="instruction-text">
-              A gravação termina assim que o botão "terminar" for premido.
+              Usa os botões de "golo" e de "destaque" para registar os momentos do jogo
             </div>
           </div>
 
           <div class="instruction-item">
             <div class="instruction-number">4</div>
             <div class="instruction-text">
-              Após o final do jogo, vão poder aceder aos vídeos dos momentos que registaram.
+              Se precisares de corrigir um momento registado por engano utiliza o botão "corrigir"
             </div>
+          </div>
+          <div class="instruction-item">
+              <div class="instruction-number">5</div>
+              <div class="instruction-text">
+                Prime "terminar jogo" no final da partida
+              </div>
+          </div>
+          <div class="instruction-item">
+              <div class="instruction-number">6</div>
+              <div class="instruction-text">
+                Revê o resumo e melhores momentos do jogo
+              </div>
           </div>
         </div>
 
@@ -100,9 +112,7 @@
           <div *ngIf="cameraHealthCheckPassed && !isCheckingCamera && !isLoadingCameras" class="health-status success">
             <span class="status-icon">✅</span>
             <span>Câmara conectada com sucesso</span>
-            <div *ngIf="selectedCamera" class="camera-info">
-              <small>{{ selectedCamera.cameraName }} ({{ selectedCamera.cameraModel }})</small>
-            </div>
+          
           </div>
 
           <!-- Error State -->

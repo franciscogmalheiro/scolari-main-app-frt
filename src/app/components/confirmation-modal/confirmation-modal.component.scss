@@ -16,7 +16,7 @@
   transform: translate(-50%, -50%);
   width: 90%;
   max-width: 420px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -96,27 +96,28 @@
     transition: all 0.3s ease;
     min-width: 100px;
     flex: 1;
-    color: white;
     
     &.btn-cancel {
-      background: linear-gradient(135deg, rgb(240, 152, 25) 0%, rgb(237, 222, 93) 100%);
-      box-shadow: 0 4px 12px rgba(240, 152, 25, 0.3);
+      background: var(--cancel-color, linear-gradient(135deg, rgb(240, 152, 25) 0%, rgb(237, 222, 93) 100%)) !important;
+      color: var(--cancel-text-color, white) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(240, 152, 25, 0.4);
-        background: linear-gradient(135deg, rgb(220, 135, 20) 0%, rgb(220, 205, 80) 100%);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        filter: brightness(0.9);
       }
     }
     
     &.btn-confirm {
-      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+      background: var(--confirm-color, linear-gradient(135deg, #4CAF50 0%, #45a049 100%)) !important;
+      color: var(--confirm-text-color, white) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
-        background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        filter: brightness(0.9);
       }
     }
   }

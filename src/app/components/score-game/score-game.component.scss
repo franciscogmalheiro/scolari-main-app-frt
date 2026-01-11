@@ -1,6 +1,7 @@
 .score-game-container {
   background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
   padding: 20px;
+  padding-bottom: 80px; // Add padding for live indicator dock bar
   color: white;
   font-family: 'Arial', sans-serif;
   overflow: hidden;
@@ -15,6 +16,93 @@
     overflow-y: auto;
     height: calc(100vh + var(--header-height));
     padding-top: 20px;
+    padding-bottom: 80px; // Add padding for live indicator dock bar
+  }
+}
+
+// Edit Mode Top Bar
+.edit-mode-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.9) 0%, rgba(255, 179, 0, 0.9) 100%);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 1rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 10001;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+  animation: slideDown 0.3s ease-out;
+
+  .edit-mode-close-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateX(-2px);
+    }
+
+    i {
+      font-size: 1rem;
+    }
+  }
+
+  .edit-mode-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    flex: 1;
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  // Responsive styles
+  @media (max-width: 768px) {
+    padding: 0.85rem 0.75rem;
+    
+    .edit-mode-close-btn {
+      min-width: 32px;
+      height: 32px;
+      font-size: 1rem;
+    }
+
+    .edit-mode-text {
+      font-size: 1rem;
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Adjust main game section padding when edit mode bar is visible
+.score-game-container {
+  &.has-edit-mode-bar {
+    padding-top: calc(20px + 3.5rem); // Add space for edit mode bar
   }
 }
 
@@ -195,11 +283,20 @@
   }
 }
 
-// Live Indicator Container
-.live-indicator-container {
+// Live Indicator Dock Bar (bottom of page)
+.live-indicator-dock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .timer-display {
@@ -314,6 +411,16 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: padding-top 0.3s ease;
+  
+  // Add padding when edit mode bar is visible
+  &.has-edit-mode-bar {
+    padding-top: calc(1rem + 1.5rem);
+    
+    @media (max-width: 768px) {
+      padding-top: calc(1rem + 1.2rem);
+    }
+  }
   
   // Allow content to scroll on tablets
   @media (max-width: 1024px) {
@@ -609,9 +716,9 @@
 }
 
 .btn-highlight {
-  background: linear-gradient(135deg, rgb(240, 152, 25) 0%, rgb(237, 222, 93) 100%);
+  background: linear-gradient(135deg, rgb(17, 153, 142) 0%, rgb(56, 239, 125) 100%);
   color: white;
-  box-shadow: 0 5px 15px rgba(240, 152, 25, 0.3);
+  box-shadow: 0 2px 4px rgba(17, 153, 142, 0.3);
   padding: 0.3rem 0.8rem;
   font-size: 0.8rem;
   min-width: 70px;
@@ -623,8 +730,8 @@
   flex-direction: row;
 
   &:hover {
-    background: linear-gradient(135deg, rgb(220, 135, 20) 0%, rgb(220, 205, 80) 100%);
-    box-shadow: 0 10px 25px rgba(240, 152, 25, 0.4);
+    background: linear-gradient(135deg, rgb(14, 130, 120) 0%, rgb(45, 200, 105) 100%);
+    box-shadow: 0 3px 6px rgba(17, 153, 142, 0.4);
   }
 
   .highlight-text {
@@ -760,7 +867,7 @@
 }
 
 .teams-edit-content {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -1055,7 +1162,7 @@
   
   .photo-capture-content {
     position: relative;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 0;

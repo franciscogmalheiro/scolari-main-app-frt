@@ -12,7 +12,7 @@
         <p class="modal-message" *ngIf="message">{{ message }}</p>
       </div>
       
-      <div class="modal-footer">
+      <div class="modal-footer" [ngStyle]="buttonStyles">
         <button *ngIf="cancelText" class="btn btn-cancel" (click)="onCancel()">
           {{ cancelText }}
         </button>

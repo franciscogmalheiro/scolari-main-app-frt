@@ -10,19 +10,22 @@
   align-items: center;
   justify-content: center;
   z-index: 10002;
+  backdrop-filter: blur(5px);
 
   .event-edit-content {
-    background: white;
-    border-radius: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 2rem;
     max-width: 500px;
     width: 90%;
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     max-height: 90vh;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    backdrop-filter: blur(10px);
 
     .event-edit-header {
       display: flex;
@@ -30,34 +33,33 @@
       align-items: center;
       margin-bottom: 1.5rem;
       padding-bottom: 1rem;
-      border-bottom: 2px solid #e9ecef;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
       h3 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #333;
+        font-size: 1.3rem;
+        font-weight: 600;
         margin: 0;
       }
 
       .close-edit-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: #dc3545;
-        color: #fff;
-        border: 0;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.5rem;
         cursor: pointer;
-        font-size: 18px;
-        font-weight: bold;
+        padding: 0.25rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
         display: flex;
         align-items: center;
         justify-content: center;
         line-height: 1;
-        transition: all 0.2s ease;
+        width: 32px;
+        height: 32px;
 
         &:hover {
-          background: #c82333;
-          transform: scale(1.1);
+          color: white;
+          background: rgba(255, 255, 255, 0.1);
         }
       }
     }
@@ -68,28 +70,77 @@
 
       .result-preview {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 1rem;
-        padding: 1rem 1.5rem;
+        padding: 1.5rem;
         margin-bottom: 2rem;
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        background: rgba(255, 255, 255, 0.05);
         border-radius: 12px;
-        border: 1px solid #dee2e6;
-        font-size: 1rem;
-        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.1);
 
-        .current-result {
-          color: #495057;
+        .preview-label {
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.7);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
         }
 
-        .separator {
-          color: #6c757d;
-          font-weight: 400;
-        }
+        .preview-score-display {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 1.5rem;
+          width: 100%;
 
-        .new-result {
-          color: #007bff;
+          .preview-team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+
+            .preview-team-icon {
+              font-size: 2.5rem;
+              transition: all 0.3s ease;
+
+              i {
+                font-size: 2.5rem;
+                display: block;
+              }
+            }
+
+            .preview-team-name {
+              font-size: 0.9rem;
+              font-weight: 600;
+              color: white;
+              text-align: center;
+            }
+
+            .preview-score-value {
+              font-size: 2.5rem;
+              font-weight: 900;
+              color: white;
+              letter-spacing: 2px;
+              text-align: center;
+              transition: all 0.3s ease;
+
+              &.blinking {
+                animation: blink 1s infinite;
+              }
+            }
+          }
+
+          .preview-score-separator {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: white;
+            letter-spacing: 2px;
+            text-align: center;
+            margin: 0 0.5rem;
+          }
         }
       }
 
@@ -99,8 +150,8 @@
 
         label {
           display: block;
-          font-weight: 600;
-          color: #333;
+          font-weight: 500;
+          color: white;
           margin-bottom: 0.5rem;
           font-size: 1rem;
         }
@@ -117,20 +168,27 @@
             gap: 0.75rem;
             cursor: pointer;
             padding: 1.25rem 1.5rem;
-            border: 2px solid #e9ecef;
-            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             flex: 1;
             min-width: 160px;
             justify-content: center;
-            background: #f8f9fa;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
-            &:hover {
-              border-color: #007bff;
-              background: rgba(0, 123, 255, 0.08);
+            &:hover:not([data-team]) {
+              border-color: #00ff88;
+              background: rgba(0, 255, 136, 0.1);
               transform: translateY(-2px);
-              box-shadow: 0 6px 16px rgba(0, 123, 255, 0.15);
+              box-shadow: 0 6px 16px rgba(0, 255, 136, 0.2);
+            }
+
+            // Team-specific hover styling - use CSS variable for border color
+            &[data-team]:hover {
+              border-color: var(--team-color);
+              transform: translateY(-2px);
+              background: rgba(var(--team-color-rgb, 255, 255, 255), 0.1);
             }
 
             input[type="radio"] {
@@ -148,69 +206,52 @@
               flex-shrink: 0;
             }
 
-            // Team-specific styling
+            // Team-specific styling - will be overridden by inline styles
             &[data-team="A"] {
               &:has(input:checked) {
-                border-color: #28a745;
-                background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(40, 167, 69, 0.08) 100%);
-                box-shadow: 0 8px 20px rgba(40, 167, 69, 0.25);
-
                 .radio-label {
-                  color: #28a745;
                   font-weight: 700;
                 }
-              }
-
-              &:hover {
-                border-color: #28a745;
-                background: rgba(40, 167, 69, 0.08);
-                box-shadow: 0 6px 16px rgba(40, 167, 69, 0.15);
               }
             }
 
             &[data-team="B"] {
               &:has(input:checked) {
-                border-color: #dc3545;
-                background: linear-gradient(135deg, rgba(220, 53, 69, 0.15) 0%, rgba(220, 53, 69, 0.08) 100%);
-                box-shadow: 0 8px 20px rgba(220, 53, 69, 0.25);
-
                 .radio-label {
-                  color: #dc3545;
                   font-weight: 700;
                 }
-              }
-
-              &:hover {
-                border-color: #dc3545;
-                background: rgba(220, 53, 69, 0.08);
-                box-shadow: 0 6px 16px rgba(220, 53, 69, 0.15);
               }
             }
 
             // Default selected state (for event type)
             &:has(input:checked):not([data-team]) {
-              border-color: #007bff;
-              background: linear-gradient(135deg, rgba(0, 123, 255, 0.15) 0%, rgba(0, 123, 255, 0.08) 100%);
+              border-color: #00ff88;
+              background: rgba(0, 255, 136, 0.15);
               transform: translateY(-2px);
-              box-shadow: 0 8px 20px rgba(0, 123, 255, 0.25);
+              box-shadow: 0 8px 20px rgba(0, 255, 136, 0.25);
 
               .radio-icon {
                 transform: scale(1.1);
+                color: #00ff88;
               }
 
               .radio-label {
-                color: #007bff;
+                color: #00ff88;
                 font-weight: 700;
               }
             }
 
             .radio-label {
               font-weight: 600;
-              color: #495057;
+              color: white;
               user-select: none;
               font-size: 1rem;
               letter-spacing: 0.3px;
               transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .radio-icon {
+              color: rgba(255, 255, 255, 0.7);
             }
           }
         }
@@ -242,23 +283,26 @@
         &.btn-danger {
           background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
           color: white;
+          box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 
           &:hover {
             background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+            filter: brightness(0.9);
           }
         }
 
-
         &.btn-primary {
-          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+          background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
           color: white;
+          box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 
           &:hover {
-            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+            background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+            filter: brightness(0.9);
           }
         }
 
@@ -267,6 +311,16 @@
         }
       }
     }
+  }
+}
+
+// Blinking animation for edited score
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
   }
 }
 
@@ -290,23 +344,53 @@
       .event-edit-body {
         .form-group {
           .radio-group {
-            flex-direction: column;
+            // Keep radio options side by side even on smaller screens
+            flex-direction: row;
             gap: 0.5rem;
 
             .radio-option {
-              width: 100%;
-              min-width: auto;
+              flex: 1;
+              min-width: 0;
+            }
+          }
+        }
+
+        .result-preview {
+          .preview-score-display {
+            gap: 1rem;
+
+            .preview-team-icon {
+              font-size: 2rem;
+
+              i {
+                font-size: 2rem;
+              }
+            }
+
+            .preview-team-name {
+              font-size: 0.8rem;
+            }
+
+            .preview-score-value {
+              font-size: 2rem;
+            }
+
+            .preview-score-separator {
+              font-size: 2rem;
+              margin: 0 0.25rem;
             }
           }
         }
       }
 
       .event-edit-controls {
-        flex-direction: column;
+        // Keep buttons side by side even on smaller screens
+        flex-direction: row;
         gap: 0.75rem;
 
         .btn {
-          width: 100%;
+          flex: 1;
+          min-width: 0;
           padding: 0.8rem 1.2rem;
           font-size: 1rem;
         }

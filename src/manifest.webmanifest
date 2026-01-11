@@ -1,11 +1,11 @@
 {
-  "name": "Scolari Sports App",
+  "name": "Scolari",
   "short_name": "Scolari",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0f23",
   "theme_color": "#0f0f23",
-  "description": "Score games, record highlights, and access media.",
+  "description": "Grava e revê os melhores momentos dos jogos de futsal com os teus amigos",
   "icons": [
     {
       "src": "assets/scolari-simple-logo.png",
