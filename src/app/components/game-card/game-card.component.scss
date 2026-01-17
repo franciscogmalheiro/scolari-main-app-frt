@@ -64,33 +64,11 @@
 }
 
 .card-button {
-  background: rgba(255, 255, 255, 0.9);
-  color: #000;
-  border: none;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   margin-top: auto;
-}
-
-.card-button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 1);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.card-button:disabled {
-  background: rgba(128, 128, 128, 0.8);
-  color: #666;
-  cursor: not-allowed;
-  opacity: 0.8;
 }
 
 .locked-button {

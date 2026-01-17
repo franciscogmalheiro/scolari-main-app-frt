@@ -49,7 +49,7 @@
       <div *ngIf="isDisabled && gameMode.badge" class="card-badge">
         {{ gameMode.badge }}
       </div>
-      <button class="card-button" [disabled]="isDisabled">
+      <button class="button-white" [disabled]="isDisabled">
         <span *ngIf="!isDisabled">{{ gameMode.buttonText }}</span>
         <span *ngIf="isDisabled" class="locked-button">
           <i class="fas fa-lock"></i>

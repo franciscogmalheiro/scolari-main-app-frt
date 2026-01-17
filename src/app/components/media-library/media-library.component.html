@@ -27,7 +27,7 @@
             <h2 class="library-title">{{ getMatchHeaderLine() }}</h2>
             <p class="">{{ getMatchDate() }}</p>
             <div class="mb-3 library-header-buttons">
-              <button class="share-library-button" (click)="onShareLibrary()" title="Partilhar biblioteca">
+              <button class="button-green" (click)="onShareLibrary()" title="Partilhar biblioteca">
                 <i class="fas fa-share"></i>
                 <span>Partilhar</span>
               </button>
@@ -367,9 +367,9 @@
       </div>
 
       <div class="card-footer" *ngIf="!isLoadingEvents && !errorMessage && allItems.length > 0">
-        <button class="download-selected-button" [disabled]="getSelectedCount() === 0" (click)="onDownloadSelected()">
+        <button class="button-green" [disabled]="getSelectedCount() === 0" (click)="onDownloadSelected()">
           <i class="fas fa-download"></i>
-          Download {{ getSelectedCount() }} Vídeo{{ getSelectedCount() !== 1 ? 's' : '' }}
+          Download {{ getSelectedCount() }} vídeo{{ getSelectedCount() !== 1 ? 's' : '' }}
         </button>
       </div>
     </div>

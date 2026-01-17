@@ -16,9 +16,9 @@
         <!-- Terminar button (left side) -->
         <button 
           *ngIf="!isMatchFinished" 
-          class="btn btn-terminar-small" 
+          class="button-red button-small" 
           (click)="finishMatch()">
-          <i class="fas fa-stop"></i> TERMINAR
+          <!--i class="fas fa-stop"></i--> TERMINAR
         </button>
         
         <!-- Timer display -->
@@ -29,10 +29,9 @@
         <!-- Corrigir button (right side) -->
         <button 
           *ngIf="!isMatchFinished" 
-          class="btn btn-corrigir-small" 
-          [class.btn-save-edit-small]="isEditMode"
+          class="button-yellow button-small" 
           (click)="isEditMode ? saveEditMode() : toggleEditMode()">
-          <i class="fas" [class.fa-edit]="!isEditMode" [class.fa-save]="isEditMode"></i> 
+          <!--i class="fas" [class.fa-edit]="!isEditMode" [class.fa-save]="isEditMode"></i--> 
           {{ isEditMode ? 'GUARDAR' : 'CORRIGIR' }}
         </button>
       </div>
@@ -41,14 +40,14 @@
       <div *ngIf="!isMatchStarted && !isMatchFinished" class="timer-start-section">
         <div class="start-buttons-container">
           <button 
-            class="btn btn-start" 
+            class="button-green" 
             (click)="startMatch()">
-            <i class="fas fa-play"></i> COMEÇAR JOGO
+            <!--i class="fas fa-play"></i--> Começar jogo
           </button>
           <button 
-            class="btn btn-edit-teams" 
+            class="button-yellow" 
             (click)="openEditTeamsModal()">
-            <i class="fas fa-edit"></i> EDITAR EQUIPAS
+            <!--i class="fas fa-edit"></i--> Editar equipas
           </button>
         </div>
       </div>
@@ -119,8 +118,8 @@
     <div class="row align-items-center justify-content-center mb-4">
       <div class="col-12 text-center">
         <div *ngIf="isMatchFinished && isRecordingMode" class="access-video-section">
-          <button class="btn btn-start" (click)="onAccessVideo()">
-            <i class="fas fa-video"></i> Aceder aos vídeos
+          <button class="button-green" (click)="onAccessVideo()">
+            <!--i class="fas fa-video"></i--> Aceder aos vídeos
           </button>
         </div>
       </div>
@@ -244,10 +243,10 @@
       </div>
       
       <div class="teams-edit-footer">
-        <button class="btn btn-cancel" (click)="closeEditTeamsModal()">
-          Cancelar
-        </button>
-        <button class="btn btn-save" (click)="onSaveBothTeams({ name: teamAName, color: teamAColor }, { name: teamBName, color: teamBColor })" [disabled]="!teamAName.trim() || !teamBName.trim()">
+        <button
+          class="button-green teams-edit-save-button"
+          (click)="onSaveBothTeams({ name: teamAName, color: teamAColor }, { name: teamBName, color: teamBColor })"
+          [disabled]="!teamAName.trim() || !teamBName.trim()">
           Guardar
         </button>
       </div>
@@ -268,16 +267,16 @@
   <!-- Attacking Team Selection Modal (recording mode) -->
   <app-confirmation-modal
     [isVisible]="showAttackingTeamModal"
-    title="Por trás de uma das balizas, há um logotipo Scolari. Que equipa vai estar a atacar para essa baliza?"
-    message=""
+    title="Configuração de filmagem"
+    message="Por trás de uma das balizas, há um logotipo Scolari. Que equipa vai estar a atacar para essa baliza?"
     [confirmText]="teamBName"
     [cancelText]="teamAName"
     [confirmButtonColor]="teamBColor"
     [cancelButtonColor]="teamAColor"
     [disableOverlayClose]="true"
     imageUrl="assets/court-map-2.png"
-    (confirm)="chooseAttackingTeam('A')"
-    (cancel)="chooseAttackingTeam('B')"
+    (confirm)="chooseAttackingTeam('B')"
+    (cancel)="chooseAttackingTeam('A')"
   ></app-confirmation-modal>
 
   <!-- Start Match Error Modal -->
@@ -307,10 +306,10 @@
       </div>
       
       <div class="teams-edit-footer">
-        <button class="btn btn-cancel" (click)="onCancelFinishMatch()">
+        <button class="button-red" (click)="onCancelFinishMatch()">
           Cancelar
         </button>
-        <button class="btn btn-save" (click)="onConfirmFinishMatch()">
+        <button class="button-green" (click)="onConfirmFinishMatch()">
           Terminar o Jogo
         </button>
       </div>
@@ -352,13 +351,13 @@
       
       <div class="photo-capture-controls">
         <button 
-          class="btn btn-secondary" 
+          class="button-red" 
           (click)="skipPhotoCapture()"
           [disabled]="photoUploadProgress > 0">
           Não tirar
         </button>
         <button 
-          class="btn btn-primary" 
+          class="button-green" 
           (click)="retryPhotoCapture()"
           [disabled]="photoUploadProgress > 0">
           <i class="fas fa-camera"></i> Tirar Foto
@@ -480,11 +479,11 @@
       </div>
       
       <div class="event-edit-controls">
-        <button class="btn btn-danger" (click)="deleteEvent()">
-          <i class="fas fa-trash"></i> Eliminar
+        <button class="button-red" (click)="deleteEvent()">
+          <!--i class="fas fa-trash"></i--> Eliminar
         </button>
-        <button class="btn btn-primary" (click)="saveEventEdit()">
-          <i class="fas fa-save"></i> Guardar
+        <button class="button-green" (click)="saveEventEdit()">
+          <!--i class="fas fa-save"></i--> Guardar
         </button>
       </div>
     </div>

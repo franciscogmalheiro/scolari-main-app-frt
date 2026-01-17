@@ -77,6 +77,152 @@ input {
   transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Reusable button styles */
+.button-white,
+.button-green,
+.button-red,
+.button-grey,
+.button-yellow {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  min-width: 140px;
+}
+
+.button-white {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.button-white:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  transform: translateY(-2px);
+}
+
+.button-white:disabled {
+  background: rgba(128, 128, 128, 0.8);
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.8;
+  box-shadow: none;
+}
+
+.button-green {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+}
+
+.button-green:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(17, 153, 142, 0.5);
+}
+
+.button-green:disabled {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  opacity: 0.3;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.button-red {
+  background: linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.button-red:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(220, 53, 69, 0.6);
+}
+
+.button-red:disabled {
+  background: linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%);
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.button-grey {
+  background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+}
+
+.button-grey:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(108, 117, 125, 0.6);
+}
+
+.button-grey:disabled {
+  background: linear-gradient(135deg, #adb5bd 0%, #ced4da 100%);
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.button-yellow {
+  background: linear-gradient(135deg, rgb(240, 152, 25) 0%, rgb(237, 222, 93) 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(240, 152, 25, 0.4);
+}
+
+.button-yellow:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(240, 152, 25, 0.6);
+}
+
+.button-yellow:disabled {
+  background: linear-gradient(135deg, rgb(240, 152, 25) 0%, rgb(237, 222, 93) 100%);
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Smaller buttons on very small screens */
+@media (max-width: 480px) {
+  .button-white,
+  .button-green,
+  .button-red,
+  .button-grey,
+  .button-yellow {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+    min-width: 110px;
+    border-radius: 10px;
+  }
+}
+
+/* Extra small button variant for compact spaces */
+.button-small {
+  padding: 0.5rem 0.8rem !important;
+  font-size: 0.75rem !important;
+  min-width: 80px !important;
+  border-radius: 8px !important;
+  min-height: 36px !important;
+}
+
+@media (max-width: 480px) {
+  .button-small {
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.7rem !important;
+    min-width: 70px !important;
+    min-height: 32px !important;
+  }
+}
+
 /* Fixed header offset: ensure content never sits under the header */
 :root {
   --header-height: 64px; /* desktop default */

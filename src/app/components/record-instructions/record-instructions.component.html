@@ -29,7 +29,7 @@
                 [class.error]="codeValidationFailed">
               <button 
                 type="submit" 
-                class="validate-button"
+                class="button-green"
                 [disabled]="recordingCodeForm.invalid || isValidatingCode">
                 <span *ngIf="!isValidatingCode">Validar Código</span>
                 <span *ngIf="isValidatingCode" class="spinner"></span>
@@ -127,7 +127,7 @@
       </div>
 
       <div class="card-footer">
-        <button class="back-button" (click)="onBackClick()">
+        <button class="button-red" (click)="onBackClick()">
           <span class="button-arrow">&lt;</span>
           <span>Voltar</span>
         </button>
@@ -135,7 +135,7 @@
         <!-- Continue without recording button (only shown when no code is validated) -->
         <button 
           *ngIf="!validatedRecordingCode"
-          class="continue-button"
+          class="button-grey"
           (click)="continueWithoutRecording()"
           [disabled]="isValidatingCode">
           <span>Não gravar</span>
@@ -144,7 +144,7 @@
         <!-- Next button (only shown when code is validated) -->
         <button 
           *ngIf="validatedRecordingCode"
-          class="next-button" 
+          class="button-green" 
           [class.disabled]="!canProceed()"
           [disabled]="!canProceed()"
           (click)="onNextClick()">

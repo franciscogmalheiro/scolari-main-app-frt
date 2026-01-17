@@ -10,6 +10,8 @@ export interface MatchDto {
   sportId: number;
   recordMode?: boolean;
   recordingCode?: string;
+  teamAColor?: string;
+  teamBColor?: string;
 }
 
 export interface MatchResponse {
@@ -63,6 +65,7 @@ export interface IndividualMatchEventDto {
   result: string;
   fieldCameraId?: number;
   isZoomRequired: boolean;
+  elapsedTime?: string;
 }
 
 export interface MatchEventRequestDto {

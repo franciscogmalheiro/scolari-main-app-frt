@@ -18,14 +18,14 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   matches: FieldMatchResponseDto[] = [];
   displayedMatches: FieldMatchResponseDto[] = [];
-  displayedCount = 5;
+  displayedCount = 6;
   
   // Meus golos section
   isLoadingGoals = false;
   goalsError = '';
   myGoals: MediaItemDto[] = [];
   displayedGoals: MediaItemDto[] = [];
-  goalsDisplayCount = 5;
+  goalsDisplayCount = 6;
   selectedItems: MediaItemDto[] = [];
   currentPreviewItem: MediaItemDto | null = null;
   isVideoPlaying = false;
