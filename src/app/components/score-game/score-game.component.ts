@@ -218,7 +218,9 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
         teamBName: this.teamBName,
         sportId: this.sportId,
         recordMode: this.isRecordingMode,
-        recordingCode: this.recordingCode || undefined
+        recordingCode: this.recordingCode || undefined,
+        teamAColor: this.teamAColor,
+        teamBColor: this.teamBColor
       };
 
       this.matchService.createMatch(matchData).subscribe({
@@ -689,7 +691,8 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       teamName: event.team || undefined,
       result: event.result,
       fieldCameraId: this.fieldId || undefined,
-      isZoomRequired: isZoomRequired
+      isZoomRequired: isZoomRequired,
+      elapsedTime: event.elapsedTime
     };
 
     this.matchService.sendIndividualEvent(eventData).subscribe({
