@@ -172,12 +172,6 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
   // Timer functions
   startMatch(): void {
-    // In recording mode, ensure attacking team is selected before starting
-    if (this.isRecordingMode && this.attackingTeamAtScolariGoal === null) {
-      this.showAttackingTeamModal = true;
-      return;
-    }
-
     if (this.events.length > 0) {
       this.showStartConfirmModal = true;
       return;
@@ -255,12 +249,6 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   chooseAttackingTeam(team: 'A' | 'B'): void {
     this.attackingTeamAtScolariGoal = team;
     this.showAttackingTeamModal = false;
-    // After choosing, proceed with normal start flow
-    if (this.events.length > 0) {
-      this.showStartConfirmModal = true;
-    } else {
-      this.doStartMatch();
-    }
   }
 
   private startMatchTimer(): void {
@@ -429,6 +417,12 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.teamBName = teamBData.name;
     this.teamBColor = teamBData.color;
     this.showEditTeamsModal = false;
+
+    // In recording mode, open the Attacking Team Selection Modal immediately
+    // after saving teams, so that "Começar jogo" can start the timer right away.
+    if (this.isRecordingMode && this.attackingTeamAtScolariGoal === null) {
+      this.showAttackingTeamModal = true;
+    }
   }
 
 
@@ -615,13 +609,25 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Determine if zoom is required for the updated event:
+    // - For goals: true when the event belongs to the team NOT attacking Scolari goal
+    // - For highlights: null (no zoom information needed)
+    let isZoomRequired: boolean | null = null;
+    if (event.eventName === 'goal' && event.team && this.attackingTeamAtScolariGoal) {
+      const attackingTeamName = this.attackingTeamAtScolariGoal === 'A' ? this.teamAName : this.teamBName;
+      isZoomRequired = event.team !== attackingTeamName;
+    } else if (event.eventName === 'highlight') {
+      isZoomRequired = null;
+    }
+
     const eventData: MatchEventRequestDto = {
       matchId: this.matchId!,
       dateTime: event.dateTime,
       eventName: event.eventName,
       teamName: event.team || undefined,
       result: newResult || event.result, // Use new result if provided, otherwise use event result
-      fieldCameraId: this.fieldCameraId || undefined
+      fieldCameraId: this.fieldCameraId || undefined,
+      isZoomRequired: isZoomRequired
     };
 
     this.matchService.updateMatchEvent(event.id, eventData).subscribe({
