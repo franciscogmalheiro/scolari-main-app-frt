@@ -77,8 +77,6 @@ export interface MatchEventRequestDto {
   result: string;
   fieldCameraId?: number;
   videoSegmentId?: number;
-  previewStatus?: string;
-  previewUrl?: string;
   isZoomRequired?: boolean | null;
 }
 
