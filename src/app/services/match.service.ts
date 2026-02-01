@@ -54,6 +54,7 @@ export interface FieldMatchResponseDto {
   recordMode: boolean;
   recordingCode?: string;
   isFavorite?: boolean;
+  zoomInverted?: boolean;
 }
 
 export interface IndividualMatchEventDto {
@@ -77,6 +78,8 @@ export interface MatchEventRequestDto {
   result: string;
   fieldCameraId?: number;
   videoSegmentId?: number;
+  previewStatus?: string;
+  previewUrl?: string;
   isZoomRequired?: boolean | null;
 }
 

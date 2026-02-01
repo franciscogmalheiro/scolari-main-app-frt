@@ -54,4 +54,8 @@ export class MediaLibraryService {
   removeMatchEventFromUser(matchEventId: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/match-events/${matchEventId}/users`);
   }
+
+  invertZoom(recordingCode: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/video-processor/invertZoom/${recordingCode}`, {});
+  }
 }

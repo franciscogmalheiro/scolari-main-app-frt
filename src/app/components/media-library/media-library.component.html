@@ -43,6 +43,16 @@
             <!--div class="library-counter">{{ allItems.length }} item{{ allItems.length !== 1 ? 's' : '' }}</div-->
           </div>
 
+          <!-- Invert zoom message and button -->
+          <div class="invert-zoom-message" *ngIf="!zoomInverted">
+            <p>
+              A câmara está a fazer zoom nos golos da baliza errada? Podes clicar neste botão para corrigir o problema
+              <button class="reprocess-button" (click)="onReprocessVideos()">
+                Reprocessar vídeos
+              </button>
+            </p>
+          </div>
+
           <!-- Registration message for non-authenticated users -->
           <div class="registration-message" *ngIf="!isAuthenticated()">
             <p>

@@ -459,7 +459,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       return "golo";
     }
     const event = this.events[this.originalEventIndex];
-    return event.eventName === 'goal' ? 'golo' : 'destaque';
+    return event.eventName === 'goal' ? 'golo' : 'highlight';
   }
 
   getCurrentEventResult(): string {
@@ -475,7 +475,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
   getNewEventType(): string {
     if (!this.editingEventType) return "golo";
-    return this.editingEventType === 'goal' ? 'golo' : 'destaque';
+    return this.editingEventType === 'goal' ? 'golo' : 'highlight';
   }
 
   getNewEventResult(): string {

@@ -37,6 +37,8 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   shareItem: MediaItemDto | null = null;
   // Track if match has been added to user's games
   isMatchAddedToFavorites = false;
+  // Track if zoom is inverted (from API response)
+  zoomInverted = false;
   // Registration popup state
   isRegistrationModalOpen = false;
   // Information modal state for first-time logged-in users
@@ -256,6 +258,8 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
         this.matchDetails = match;
         // Update isMatchAddedToFavorites based on isFavorite flag from API
         this.isMatchAddedToFavorites = match.isFavorite === true;
+        // Update zoomInverted based on zoomInverted flag from API
+        this.zoomInverted = match.zoomInverted === true;
       },
       error: (err) => {
         console.warn('Failed to load match details', err);
@@ -1133,6 +1137,54 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
         mode: 'register',
         returnUrl: currentUrl
       } 
+    });
+  }
+
+  onReprocessVideos(): void {
+    if (!this.recordingCode) {
+      console.error('No recording code available');
+      return;
+    }
+
+    // Clear any existing error messages before making the request
+    this.errorMessage = '';
+
+    this.mediaLibraryService.invertZoom(this.recordingCode).subscribe({
+      next: (response) => {
+        console.log('Reprocessing started successfully:', response);
+        // Show success message
+        alert('Reprocessamento iniciado com sucesso. Os vídeos serão atualizados em breve.');
+        // Clear any error messages
+        this.errorMessage = '';
+        // Reload videos and match details after a short delay to allow backend to start processing
+        setTimeout(() => {
+          this.loadAllVideos();
+          this.loadMatchDetails();
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('Error reprocessing videos - full error:', error);
+        console.error('Error status:', error?.status);
+        console.error('Error message:', error?.message);
+        console.error('Error error:', error?.error);
+        
+        // Check if it's actually a success (200-299) that was caught as error
+        const status = error?.status || error?.error?.status;
+        if (status && status >= 200 && status < 300) {
+          // Status indicates success, treat as success
+          console.log('Reprocessing succeeded (status:', status, ')');
+          this.errorMessage = '';
+          alert('Reprocessamento iniciado. Os vídeos serão atualizados em breve.');
+          setTimeout(() => {
+            this.loadAllVideos();
+            this.loadMatchDetails();
+          }, 2000);
+        } else {
+          // Real error - only show error message for actual failures
+          console.error('Actual error occurred:', error);
+          alert('Erro ao reprocessar vídeos. Por favor, tenta novamente.');
+        }
+      }
     });
   }
 }

@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FieldCameraService, FieldCameraResponseDto } from '../../services/field-camera.service';
 import { RecordingCodeService, RecordingCodeDto } from '../../services/recording-code.service';
+import { TrackingService } from '../../services/tracking.service';
 
 @Component({
   selector: 'app-record-instructions',
@@ -33,12 +34,16 @@ export class RecordInstructionsComponent implements OnInit {
   selectedCamera: FieldCameraResponseDto | null = null;
   isLoadingCameras = false;
 
+  // Tracking
+  private hasTrackedQrScan = false;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private fieldCameraService: FieldCameraService,
     private recordingCodeService: RecordingCodeService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private trackingService: TrackingService
   ) {
     this.recordingCodeForm = this.formBuilder.group({
       code: ['', [Validators.required, Validators.minLength(1)]]
@@ -50,6 +55,41 @@ export class RecordInstructionsComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.queryParams = { ...params };
       console.log('Record instructions received params:', this.queryParams);
+      
+      // Check if this navigation came from a QR code scan
+      if (params['fromQR'] === 'true' && !this.hasTrackedQrScan) {
+        this.registerQrCodeScan(params);
+      }
+    });
+  }
+
+  /**
+   * Register a QR code scan event with the backend
+   */
+  private registerQrCodeScan(params: any): void {
+    // Mark as tracked to avoid duplicate registrations
+    this.hasTrackedQrScan = true;
+
+    const eventData = {
+      actionName: 'FLYER_QR_CODE_SCAN',
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent || undefined,
+      metadata: {
+        sportId: params['sportId'] ? Number(params['sportId']) : undefined,
+        sportCode: params['sportCode'] || undefined,
+        sportName: params['sportName'] || undefined,
+        mode: params['mode'] || undefined
+      }
+    };
+
+    this.trackingService.trackEvent(eventData).subscribe({
+      next: (response) => {
+        console.log('QR code scan tracked successfully:', response);
+      },
+      error: (error) => {
+        // Log error but don't block user experience
+        console.error('Failed to track QR code scan:', error);
+      }
     });
   }
 
@@ -173,7 +213,7 @@ export class RecordInstructionsComponent implements OnInit {
       error: (error) => {
         this.isCheckingCamera = false;
         this.cameraHealthCheckFailed = true;
-        this.errorMessage = 'Camera connection failed. Check your camera setup and try again.';
+        this.errorMessage = 'A conecção com a câmera falhou. Tenta mais tarde.';
         console.error('Camera health check failed:', error);
       }
     });
