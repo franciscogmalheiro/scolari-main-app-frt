@@ -38,6 +38,11 @@
   font-weight: 300;
 }
 
+.logo-image {
+  height: 10rem;
+  width: auto;
+}
+
 // Game Modes Section
 .game-modes-section {
   padding: 4rem 2rem;
@@ -182,6 +187,10 @@
   
   .banner-slogan {
     font-size: 1.1rem;
+  }
+  
+  .logo-image {
+    height: 5rem;
   }
   
   .section-title {

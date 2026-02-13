@@ -141,8 +141,6 @@ export class HomeComponent implements OnInit {
     const queryParams = {
       fieldId: this.currentUser?.fieldId,
       sportId: sport.id,
-      sportCode: sport.code,
-      sportName: sport.name,
       mode: mode
     };
     console.log('Navigating to record-instructions with params:', queryParams);

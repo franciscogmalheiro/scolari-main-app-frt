@@ -28,4 +28,19 @@ export class RecordingCodeService {
   validateRecordingCode(code: string): Observable<RecordingCodeDto> {
     return this.http.get<RecordingCodeDto>(`${this.API_BASE_URL}/recording-codes/code/${code}`);
   }
+
+  /**
+   * Request a free recording code for a specific field from the backend API
+   * Endpoint: /recording-codes/field/{fieldId}/free
+   * The backend returns a RecordingCodeDto or a 500 error if not available
+   * @param fieldId The field identifier
+   * @param timestamp ISO timestamp for when the request is made
+   */
+  getFreeRecordingCode(fieldId: number | string, timestamp: string): Observable<RecordingCodeDto> {
+    const body = { timestamp };
+    return this.http.post<RecordingCodeDto>(
+      `${this.API_BASE_URL}/recording-codes/field/${fieldId}/free`,
+      body
+    );
+  }
 }

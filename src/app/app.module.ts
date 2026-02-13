@@ -15,7 +15,6 @@ import { GameCardComponent } from './components/game-card/game-card.component';
 import { ScoreGameComponent } from './components/score-game/score-game.component';
 import { EventLogComponent } from './components/event-log/event-log.component';
 import { RecordInstructionsComponent } from './components/record-instructions/record-instructions.component';
-import { QrModalComponent } from './components/qr-modal/qr-modal.component';
 import { LiveIndicatorComponent } from './components/live-indicator/live-indicator.component';
 import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
 import { GameSetupComponent } from './components/game-setup/game-setup.component';
@@ -38,7 +37,6 @@ import { VideoPlayerComponent } from './components/video-player/video-player.com
     ScoreGameComponent,
     EventLogComponent,
     RecordInstructionsComponent,
-    QrModalComponent,
     LiveIndicatorComponent,
     ConfirmationModalComponent,
     GameSetupComponent,

@@ -4,18 +4,29 @@
   <main class="main-content">
     <div class="instructions-card">
       <div class="card-header">
-        <h1 class="card-title">Instruções</h1>
+        <h1 *ngIf="validatedRecordingCode" class="card-title">Importante</h1>
       </div>
 
       <div class="instructions-content">
         <!-- Recording Code Section (only shown when no code is validated) -->
         <div class="recording-code-section" *ngIf="!validatedRecordingCode">
           <div class="section-header" *ngIf="!validatedRecordingCode">
-            <h3>Queres gravar o jogo?</h3>
+            <h3>Queres gravar o teu jogo?</h3>
             <p class="description">
-              Para gravar o jogo, precisas de um <strong>código de gravação</strong> que podes obter junto do responsável deste campo.
-              Se não tiveres código, podes continuar apenas com o marcador de jogo.
+              Para prosseguir com a gravação de jogo, insere o teu <strong>código de gravação</strong> que pode ser adquirido no café da Sede.
+              <br>Caso optes por não gravar, podes continuar apenas com o marcador de resultado.
             </p>
+          </div>
+
+          <!-- Free recording code button (shown only if backend returned a free code) -->
+          <div class="free-code-wrapper mb-3" *ngIf="freeRecordingCode && !validatedRecordingCode">
+            <button
+              type="button"
+              class="button-purple"
+              [disabled]="hasClaimedFreeRecordingCode"
+              (click)="applyFreeRecordingCode()">
+              OBTÉM O TEU PRIMEIRO CÓDIGO GRÁTIS
+            </button>
           </div>
           
           <!-- Code validation form (only shown when no code is validated yet) -->
@@ -48,81 +59,83 @@
 
         <!-- Instructions (only shown when recording code is validated) -->
         <div class="instruction-items" *ngIf="validatedRecordingCode">
-          <h3>O código que inseriste é válido, podes prosseguir com a gravação!</h3>
+          <!--h3>O teu jogo vai ser filmado!</h3-->
           <div class="instruction-item">
-            <div class="instruction-number">1</div>
+            <div class="instruction-number"></div>
             <div class="instruction-text">
-              Edita nome e cor das equipas
+              Regista cada golo e highlight logo após ocorrerem (até 7 segundos), para garantir o registo do momento.
+            </div>
+          </div>
+
+
+          <div class="instruction-item">
+            <div class="instruction-number"></div>
+            <div class="instruction-text">
+              Usa o botão "highlight" para registar aqueles lances de levar as mãos à cabeça.
             </div>
           </div>
 
           <div class="instruction-item">
-            <div class="instruction-number">2</div>
+            <div class="instruction-number"></div>
             <div class="instruction-text">
-              Prime "Começar jogo" para iniciar a gravação
+              Se te enganares a registar, prime o botão "corrigir".
             </div>
           </div>
 
           <div class="instruction-item">
-            <div class="instruction-number">3</div>
+            <div class="instruction-number"></div>
             <div class="instruction-text">
-              Usa os botões de "golo" e de "highlight" para registar os momentos do jogo
+              A gravação tem uma duração máxima de 90 minutos.
             </div>
           </div>
-
+          
           <div class="instruction-item">
-            <div class="instruction-number">4</div>
+            <div class="instruction-number"></div>
             <div class="instruction-text">
-              Se precisares de corrigir um momento registado por engano utiliza o botão "corrigir"
+              Diverte-te!
             </div>
-          </div>
-          <div class="instruction-item">
-              <div class="instruction-number">5</div>
-              <div class="instruction-text">
-                Prime "terminar jogo" no final da partida
-              </div>
-          </div>
-          <div class="instruction-item">
-              <div class="instruction-number">6</div>
-              <div class="instruction-text">
-                Revê o resumo e melhores momentos do jogo
-              </div>
           </div>
         </div>
 
         <!-- Camera Health Check Section (only for recording mode) -->
         <div class="camera-health-section" *ngIf="validatedRecordingCode">
           <div class="health-check-header">
-            <h3>Verificação da Câmara</h3>
+            <h3>
+              Verificação da Câmara
+              <span *ngIf="isLoadingCameras" class="status-icon loading">
+                <i class="fas fa-spinner fa-spin"></i>
+              </span>
+              <span *ngIf="isCheckingCamera && !isLoadingCameras" class="status-icon loading">
+                <i class="fas fa-spinner fa-spin"></i>
+              </span>
+              <span *ngIf="cameraHealthCheckPassed && !isCheckingCamera && !isLoadingCameras" class="status-icon success">
+                <i class="fas fa-check-circle"></i>
+              </span>
+              <span *ngIf="cameraHealthCheckFailed && !isCheckingCamera && !isLoadingCameras" class="status-icon error">
+                <i class="fas fa-times-circle"></i>
+              </span>
+            </h3>
           </div>
           
           <!-- Loading Cameras State -->
           <div *ngIf="isLoadingCameras" class="health-status loading">
-            <div class="spinner"></div>
             <span>A carregar câmaras disponíveis...</span>
           </div>
 
-          <!-- Loading State -->
-          <div *ngIf="isCheckingCamera && !isLoadingCameras" class="health-status loading">
-            <div class="spinner"></div>
-            <span>A verificar ligação da câmara...</span>
-          </div>
+      
 
           <!-- Success State -->
-          <div *ngIf="cameraHealthCheckPassed && !isCheckingCamera && !isLoadingCameras" class="health-status success">
-            <span class="status-icon">✅</span>
+          <!--div *ngIf="cameraHealthCheckPassed && !isCheckingCamera && !isLoadingCameras" class="health-status success">
             <span>Câmara conectada com sucesso</span>
-          
-          </div>
+          </div-->
 
           <!-- Error State -->
-          <div *ngIf="cameraHealthCheckFailed && !isCheckingCamera && !isLoadingCameras" class="health-status error">
-            <span class="status-icon">❌</span>
+          <!--div *ngIf="cameraHealthCheckFailed && !isCheckingCamera && !isLoadingCameras" class="health-status error">
             <span>{{ errorMessage }}</span>
             <button class="retry-button" (click)="retryCameraCheck()">
               Tentar Novamente
             </button>
-          </div>
+          </div-->
         </div>
       </div>
 

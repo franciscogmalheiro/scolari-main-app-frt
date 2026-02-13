@@ -103,11 +103,11 @@
             flex: 1;
 
             .preview-team-icon {
-              font-size: 2.5rem;
               transition: all 0.3s ease;
 
-              i {
-                font-size: 2.5rem;
+              svg {
+                width: 5rem;
+                height: 5rem;
                 display: block;
               }
             }
@@ -225,18 +225,18 @@
 
             // Default selected state (for event type)
             &:has(input:checked):not([data-team]) {
-              border-color: #00ff88;
-              background: rgba(0, 255, 136, 0.15);
+              /*border-color: #00ff88;*/
+              background:white;
               transform: translateY(-2px);
-              box-shadow: 0 8px 20px rgba(0, 255, 136, 0.25);
+              /*box-shadow: 0 8px 20px rgba(0, 255, 136, 0.25);*/
 
               .radio-icon {
                 transform: scale(1.1);
-                color: #00ff88;
+                color: #667eea;
               }
 
               .radio-label {
-                color: #00ff88;
+                color: #667eea;
                 font-weight: 700;
               }
             }
@@ -360,10 +360,10 @@
             gap: 1rem;
 
             .preview-team-icon {
-              font-size: 2rem;
-
-              i {
-                font-size: 2rem;
+              svg {
+                width: 5rem;
+                height: 5rem;
+                display: block;
               }
             }
 

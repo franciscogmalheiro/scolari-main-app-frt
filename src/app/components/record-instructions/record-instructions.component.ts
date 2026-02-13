@@ -34,6 +34,11 @@ export class RecordInstructionsComponent implements OnInit {
   selectedCamera: FieldCameraResponseDto | null = null;
   isLoadingCameras = false;
 
+  // Free recording code
+  freeRecordingCode: RecordingCodeDto | null = null;
+  isLoadingFreeRecordingCode = false;
+  hasClaimedFreeRecordingCode = false;
+
   // Tracking
   private hasTrackedQrScan = false;
 
@@ -60,6 +65,9 @@ export class RecordInstructionsComponent implements OnInit {
       if (params['fromQR'] === 'true' && !this.hasTrackedQrScan) {
         this.registerQrCodeScan(params);
       }
+
+      // Try to obtain a free recording code for the user (after params are available)
+      this.requestFreeRecordingCode();
     });
   }
 
@@ -76,8 +84,6 @@ export class RecordInstructionsComponent implements OnInit {
       userAgent: navigator.userAgent || undefined,
       metadata: {
         sportId: params['sportId'] ? Number(params['sportId']) : undefined,
-        sportCode: params['sportCode'] || undefined,
-        sportName: params['sportName'] || undefined,
         mode: params['mode'] || undefined
       }
     };
@@ -89,6 +95,38 @@ export class RecordInstructionsComponent implements OnInit {
       error: (error) => {
         // Log error but don't block user experience
         console.error('Failed to track QR code scan:', error);
+      }
+    });
+  }
+
+  /**
+   * Request a free recording code from the backend.
+   * If successful, we will later allow the user to apply it via a button.
+   * If it fails (e.g. 500), we simply don't show the button.
+   */
+  private requestFreeRecordingCode(): void {
+    const fieldId = this.queryParams.fieldId;
+
+    // If we don't have a fieldId (e.g. no context), we cannot request a free code
+    if (!fieldId) {
+      console.log('No fieldId available, skipping free recording code request');
+      return;
+    }
+
+    console.log('Requesting free recording code for fieldId:', fieldId);
+    this.isLoadingFreeRecordingCode = true;
+    const timestamp = new Date().toISOString();
+
+    this.recordingCodeService.getFreeRecordingCode(fieldId, timestamp).subscribe({
+      next: (recordingCode) => {
+        this.isLoadingFreeRecordingCode = false;
+        this.freeRecordingCode = recordingCode;
+        console.log('Free recording code obtained:', recordingCode);
+      },
+      error: (error) => {
+        this.isLoadingFreeRecordingCode = false;
+        this.freeRecordingCode = null;
+        console.error('Failed to obtain free recording code:', error);
       }
     });
   }
@@ -138,6 +176,19 @@ export class RecordInstructionsComponent implements OnInit {
         console.error('Recording code validation failed:', error);
       }
     });
+  }
+
+  /**
+   * Apply the previously fetched free recording code into the input field
+   * and disable the "free code" button.
+   */
+  applyFreeRecordingCode(): void {
+    if (!this.freeRecordingCode) {
+      return;
+    }
+
+    this.recordingCodeForm.get('code')?.setValue(this.freeRecordingCode.code);
+    this.hasClaimedFreeRecordingCode = true;
   }
 
   private resetValidationStates(): void {

@@ -33,7 +33,6 @@
 .logo-image {
   height: 2rem;
   width: auto;
-  filter: drop-shadow(0 0 10px rgba(0, 255, 136, 0.3));
   transition: transform 0.3s ease;
 }
 
@@ -266,7 +265,7 @@
     padding: 0.4rem 0;
   }
   .logo-image {
-    height: 1.6rem;
+    height: 2rem;
   }
   .logout-icon-btn {
     width: 36px;

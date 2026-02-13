@@ -33,14 +33,12 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   private wakeLock: any = null;
   // Recording properties
   isRecording = false;
-  showQrModal = false;
   showConfirmModal = false;
   showStartConfirmModal = false;
   showStartMatchErrorModal = false;
   gameId = ''; // This will contain the match code from the backend
   matchId: number | null = null; // This will contain the match ID from the backend
   fieldCameraId: number | null = null; // Field camera ID for recording mode
-  qrCodeData = '';
   isRecordingMode = false;
   // Attacking team selection for recording mode
   showAttackingTeamModal = false;
@@ -100,7 +98,6 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   fieldId: number | null = null;
   sportId: number | null = null;
   fieldName: string = '';
-  sportName: string = '';
   recordingCode: string | null = null;
 
   constructor(
@@ -138,12 +135,11 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.fieldId = params['fieldId'] ? Number(params['fieldId']) : null;
     this.sportId = params['sportId'] ? Number(params['sportId']) : null;
     this.fieldName = params['fieldName'] || '';
-    this.sportName = params['sportName'] || '';
     this.recordingCode = params['recordingCode'] || null;
     
     console.log('Game mode:', this.isRecordingMode ? 'Recording' : 'Score only');
     console.log('Field ID:', this.fieldId, 'Sport ID:', this.sportId);
-    console.log('Field Name:', this.fieldName, 'Sport Name:', this.sportName);
+    console.log('Field Name:', this.fieldName);
     
     // Also subscribe for any changes
     this.route.queryParams.subscribe(params => {
@@ -152,7 +148,6 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       this.fieldId = params['fieldId'] ? Number(params['fieldId']) : null;
       this.sportId = params['sportId'] ? Number(params['sportId']) : null;
       this.fieldName = params['fieldName'] || '';
-      this.sportName = params['sportName'] || '';
       this.recordingCode = params['recordingCode'] || null;
       console.log('Updated - Field ID:', this.fieldId, 'Sport ID:', this.sportId);
     });
@@ -231,7 +226,6 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
           if (this.fieldId) this.errorRedirectParams.fieldId = this.fieldId;
           if (this.sportId) this.errorRedirectParams.sportId = this.sportId;
           if (this.fieldName) this.errorRedirectParams.fieldName = this.fieldName;
-          if (this.sportName) this.errorRedirectParams.sportName = this.sportName;
           if (this.recordingCode) this.errorRedirectParams.recordingCode = this.recordingCode;
           if (this.isRecordingMode) this.errorRedirectParams.recordingMode = 'true';
           
@@ -322,9 +316,6 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
           if (this.isRecordingMode) {
             this.isCapturingPhoto = true;
             this.photoUploadProgress = 0;
-          } else {
-            // Show QR modal if not in recording mode
-            this.showQrModal = true;
           }
         },
         error: (error) => {
@@ -336,23 +327,19 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
           if (this.isRecordingMode) {
             this.isCapturingPhoto = true;
             this.photoUploadProgress = 0;
-          } else {
-            this.showQrModal = true;
           }
         }
       });
-    } else {
-      // Upload events to backend if no game ID (fallback)
-      this.downloadEvents();
-      
-      // If in recording mode, show photo capture modal
-      if (this.isRecordingMode) {
-        this.isCapturingPhoto = true;
-        this.photoUploadProgress = 0;
       } else {
-        this.showQrModal = true;
+        // Upload events to backend if no game ID (fallback)
+        this.downloadEvents();
+        
+        // If in recording mode, show photo capture modal
+        if (this.isRecordingMode) {
+          this.isCapturingPhoto = true;
+          this.photoUploadProgress = 0;
+        }
       }
-    }
   }
 
   onCancelFinishMatch(): void {
@@ -568,12 +555,26 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     return `rgba(${r}, ${g}, ${b}, ${opacity})`;
   }
 
+  // Helper to get a darker shade of a hex color for SVG shadows/panels
+  getDarkerColor(hex: string, factor: number = 0.25): string {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) return hex;
+
+    const r = Math.max(0, Math.floor(parseInt(result[1], 16) * (1 - factor)));
+    const g = Math.max(0, Math.floor(parseInt(result[2], 16) * (1 - factor)));
+    const b = Math.max(0, Math.floor(parseInt(result[3], 16) * (1 - factor)));
+
+    const toHex = (value: number) => value.toString(16).padStart(2, '0');
+
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  }
+
   // Helper methods to get team color styles
   getTeamAStyle(): any {
     if (this.editingEventTeamSelection === 'A') {
       return {
         'border-color': this.teamAColor,
-        'background': `linear-gradient(135deg, ${this.hexToRgba(this.teamAColor, 0.15)} 0%, ${this.hexToRgba(this.teamAColor, 0.08)} 100%)`,
+        'background': `white`,
         'box-shadow': `0 8px 20px ${this.hexToRgba(this.teamAColor, 0.25)}`
       };
     }
@@ -588,7 +589,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     if (this.editingEventTeamSelection === 'B') {
       return {
         'border-color': this.teamBColor,
-        'background': `linear-gradient(135deg, ${this.hexToRgba(this.teamBColor, 0.15)} 0%, ${this.hexToRgba(this.teamBColor, 0.08)} 100%)`,
+        'background': `white`,
         'box-shadow': `0 8px 20px ${this.hexToRgba(this.teamBColor, 0.25)}`
       };
     }
@@ -753,10 +754,6 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
 
   // Close QR modal
-  onCloseQrModal(): void {
-    this.showQrModal = false;
-  }
-
   // Navigate to video library with recording code
   onAccessVideo(): void {
     if (this.recordingCode) {
@@ -770,7 +767,6 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   private async captureMatchPhoto(): Promise<void> {
     if (!this.gameId) {
       console.error('No game ID available for photo upload');
-      this.showQrModal = true; // Fallback to QR modal
       return;
     }
 
@@ -802,9 +798,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
                 this.photoUploadProgress = 100;
                 this.isCapturingPhoto = false;
                 // Show large preview modal that can be closed
-                this.showPhotoPreviewModal = true;
-                // Don't show QR modal - user can access video via the button after closing preview
-                this.showQrModal = false;
+            this.showPhotoPreviewModal = true;
                 break;
             }
           },
@@ -822,16 +816,13 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
         console.log('Photo capture cancelled or failed');
         this.isCapturingPhoto = false;
         this.photoUploadProgress = 0;
-        
-        // Show QR modal anyway
-        this.showQrModal = true;
       }
     } catch (error) {
       console.error('Error during photo capture:', error);
       this.isCapturingPhoto = false;
       this.photoUploadProgress = 0;
       
-      // Show error and fallback to QR modal
+      // Show error
       this.showPhotoUploadError();
     }
   }
@@ -843,10 +834,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
   private showPhotoUploadError(): void {
     // You can implement an error toast/notification here
-    console.log('Photo upload failed, showing QR modal anyway');
-    
-    // Show QR modal as fallback
-    this.showQrModal = true;
+    console.log('Photo upload failed');
   }
 
   // Method to retry photo capture
@@ -858,8 +846,6 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   skipPhotoCapture(): void {
     this.isCapturingPhoto = false;
     this.photoUploadProgress = 0;
-    // Don't show QR modal when user skips photo - just return to score display
-    this.showQrModal = false;
   }
 
   // Close the large photo preview modal
@@ -870,8 +856,6 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       URL.revokeObjectURL(this.lastCapturedPhotoUrl);
       this.lastCapturedPhotoUrl = null;
     }
-    // Don't show QR modal - user can now access video via the button
-    this.showQrModal = false;
   }
 
   // Edit mode methods

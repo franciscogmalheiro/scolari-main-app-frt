@@ -83,7 +83,6 @@ export class GameSetupComponent implements OnInit {
       // For score mode, navigate to score game
       const queryParams = {
         sportId: sport.id,
-        sportName: sport.name,
         mode: this.gameMode
       };
       this.router.navigate(['/score-game'], { queryParams });
@@ -93,8 +92,6 @@ export class GameSetupComponent implements OnInit {
       const queryParams = {
         fieldId: this.currentUser?.fieldId,
         sportId: sport.id,
-        sportCode: gameSetupSport.code,
-        sportName: sport.name,
         mode: this.gameMode
       };
       this.router.navigate(['/record-instructions'], { queryParams });
@@ -129,7 +126,6 @@ export class GameSetupComponent implements OnInit {
         // For score mode, navigate to score game
         const queryParams = {
           sportId: this.selectedSport.id,
-          sportName: this.selectedSport.name,
           mode: this.gameMode
         };
         this.router.navigate(['/score-game'], { queryParams });
@@ -139,8 +135,6 @@ export class GameSetupComponent implements OnInit {
         const queryParams = {
           fieldId: this.currentUser?.fieldId,
           sportId: this.selectedSport.id,
-          sportCode: gameSetupSport.code,
-          sportName: this.selectedSport.name,
           mode: this.gameMode
         };
         this.router.navigate(['/record-instructions'], { queryParams });
