@@ -43,12 +43,12 @@
       <div *ngIf="!isMatchStarted && !isMatchFinished" class="timer-start-section">
         <div class="start-buttons-container">
           <button 
-            class="button-green" 
+            class="button-green button-small" 
             (click)="startMatch()">
             <!--i class="fas fa-play"></i--> COMEÇAR JOGO
           </button>
           <button 
-            class="button-yellow" 
+            class="button-yellow button-small" 
             (click)="openEditTeamsModal()">
             <!--i class="fas fa-edit"></i--> EDITAR EQUIPAS
           </button>
@@ -690,10 +690,10 @@
       
       <div class="event-edit-controls">
         <button class="button-red" (click)="deleteEvent()">
-          <!--i class="fas fa-trash"></i--> Eliminar
+          <!--i class="fas fa-trash"></i--> ELIMINAR
         </button>
         <button class="button-green" (click)="saveEventEdit()">
-          <!--i class="fas fa-save"></i--> Guardar
+          <!--i class="fas fa-save"></i--> GUARDAR
         </button>
       </div>
     </div>
