@@ -10,7 +10,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "football-pro-app": {
+    "scolari-main-app-frt": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -24,7 +24,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/football-pro-app",
+            "outputPath": "dist/scolari-main-app-frt",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -84,10 +84,10 @@
           },
           "configurations": {
             "production": {
-              "browserTarget": "football-pro-app:build:production"
+              "browserTarget": "scolari-main-app-frt:build:production"
             },
             "development": {
-              "browserTarget": "football-pro-app:build:development"
+              "browserTarget": "scolari-main-app-frt:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -95,7 +95,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "football-pro-app:build"
+            "browserTarget": "scolari-main-app-frt:build"
           }
         },
         "test": {
