@@ -20,20 +20,107 @@
         <p class="section-subtitle">Select your preferred gaming experience</p>
       </div-->
 
+      <!--div class="tutorial-button-container">
+        <button class="tutorial-button" (click)="openTutorial()">
+          <i class="fas fa-question-circle"></i>
+          <span>Como funciona?</span>
+        </button>
+      </div-->
+
       <div class="game-cards-container">
-        <app-game-card
-          *ngFor="let gameMode of gameModes"
-          [gameMode]="gameMode"
-          [isAuthenticated]="isAuthenticated"
-          [recordingCode]="recordingCode"
-          [isSearching]="isSearching"
-          [searchErrorMessage]="searchErrorMessage"
-          (cardClick)="onGameCardClick($event)"
-          (searchSubmit)="onSearchRecordingCode($event)"
-          (recordingCodeChange)="recordingCode = $event">
-        </app-game-card>
+        <!-- Record Game Card -->
+        <div class="game-card" 
+             [style.background]="'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'"
+             (click)="onRecordGameClick()">
+          <div class="card-content">
+            <h3 class="card-title">
+              <i class="fas fa-video"></i>
+              <span>GRAVA</span>
+            </h3>
+            <p class="card-description">Grava o jogo, regista os golos e highlights para rever mais tarde</p>
+            <button class="button-white">
+              <span>Iniciar gravação</span>
+              <span class="button-arrow"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Review Video Card -->
+        <div class="game-card download-video-card" 
+             [style.background]="'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'">
+          <div class="card-content">
+            <h3 class="card-title">
+              <i class="fas fa-history"></i>
+              <span>REVÊ</span>
+            </h3>
+            <p class="card-description">Através do teu código de gravação, revê e partilha os vídeos do resumo, golos e highlights</p>
+            <form (ngSubmit)="onSearchSubmit()" class="search-form" (click)="$event.stopPropagation()">
+              <div class="search-input-group">
+                <input
+                  type="text"
+                  [value]="recordingCode"
+                  (input)="onRecordingCodeChange($any($event.target).value)"
+                  name="recordingCode"
+                  class="search-input"
+                  placeholder="Código de gravação"
+                  [disabled]="isSearching"
+                  (keyup.enter)="onSearchSubmit()"
+                />
+                <button 
+                  type="submit" 
+                  class="search-button"
+                  [disabled]="!recordingCode || recordingCode.length < 3 || isSearching">
+                  <span *ngIf="!isSearching">
+                    <i class="fas fa-search"></i>
+                  </span>
+                  <span *ngIf="isSearching" class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                  </span>
+                </button>
+              </div>
+              <div class="error-message" *ngIf="searchErrorMessage">
+                {{ searchErrorMessage }}
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Favorites Card -->
+        <div class="game-card" 
+             [class.disabled]="!isAuthenticated"
+             [style.background]="'linear-gradient(135deg, #f09819 0%, #edde5d 100%)'"
+             (click)="onFavoritesClick()"
+             [title]="!isAuthenticated ? 'Please log in to access this feature.' : ''">
+          <div class="card-content">
+            <h3 class="card-title">
+              <i class="fas fa-star"></i>
+              <span>FAVORITOS</span>
+            </h3>
+            <p class="card-description">Consulta o teu histórico de jogos, golos e highlights</p>
+            <div *ngIf="!isAuthenticated" class="card-badge">
+              APENAS UTILIZADORES REGISTADOS
+            </div>
+            <button class="button-white" [disabled]="!isAuthenticated">
+              <span *ngIf="isAuthenticated">Ver favoritos</span>
+              <span *ngIf="!isAuthenticated" class="locked-button">
+                <i class="fas fa-lock"></i>
+                Ver favoritos
+              </span>
+              <span class="button-arrow"></span>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
+
+    <!-- Tutorial Modal -->
+    <app-tutorial-carousel-modal
+      [isVisible]="isTutorialModalOpen"
+      [title]="'Tutorial'"
+      [slides]="tutorialSlides"
+      [closeText]="'Fechar'"
+      (close)="closeTutorial()">
+    </app-tutorial-carousel-modal>
 
     <!-- Footer -->
     <!--footer class="footer">

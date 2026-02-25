@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService, User, Sport } from '../../services/auth.service';
-import { GameMode } from '../game-card/game-card.component';
 import { environment } from '../../../environments/environment';
 import { RecordingCodeService } from '../../services/recording-code.service';
+import { TutorialSlide } from '../tutorial-carousel-modal/tutorial-carousel-modal.component';
 
 @Component({
   selector: 'app-home',
@@ -17,38 +17,23 @@ export class HomeComponent implements OnInit {
   recordingCode = '';
   isSearching = false;
   searchErrorMessage = '';
-
-  gameModes: GameMode[] = [
+  isTutorialModalOpen = false;
+  tutorialSlides: TutorialSlide[] = [
     {
-      id: 'record-game',
-      title: 'GRAVA',
-      description: 'Grava o jogo, regista os golos e highlights, para rever mais tarde',
-      icon: 'fas fa-video',
-      gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
-      buttonText: 'Iniciar gravação',
-      requiresAuth: false,
-      disabled: false
+      imageUrl: 'assets/tutorial/slide1.png',
+      text: 'Bem-vindo ao Scolari! Aqui podes gravar e rever os melhores momentos dos teus jogos.'
     },
     {
-      id: 'download-video',
-      title: 'REVÊ',
-      description: 'Através do teu código de gravação, revê e partilha os vídeos do resumo, golos e highlights',
-      icon: 'fas fa-history',
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      buttonText: 'ACEDER A UMA GRAVAÇÃO',
-      requiresAuth: false,
-      disabled: false
+      imageUrl: 'assets/tutorial/slide2.png',
+      text: 'Usa o botão GRAVA para iniciar uma nova gravação do teu jogo.'
     },
     {
-      id: 'match-history',
-      title: 'FAVORITOS',
-      description: 'Consulta o teu histórico de jogos, golos e highlights',
-      icon: 'fas fa-star',
-      gradient: 'linear-gradient(135deg, #f09819 0%, #edde5d 100%)',
-      buttonText: 'Ver favoritos',
-      requiresAuth: true,
-      disabled: false,
-      badge: 'APENAS UTILIZADORES REGISTADOS'
+      imageUrl: 'assets/tutorial/slide3.png',
+      text: 'Usa o botão REVÊ para aceder aos vídeos usando o teu código de gravação.'
+    },
+    {
+      imageUrl: 'assets/tutorial/slide4.png',
+      text: 'Acede aos teus FAVORITOS para ver o histórico de jogos, golos e highlights.'
     }
   ];
 
@@ -64,41 +49,20 @@ export class HomeComponent implements OnInit {
       console.log('Auth state changed:', user);
       this.currentUser = user;
       this.isAuthenticated = !!user;
-      
-      // Update disabled state based on user role
-      this.updateGameModesDisabledState();
     });
   }
 
-  private updateGameModesDisabledState(): void {
-    this.gameModes = this.gameModes.map(mode => {
-      // No specific role restrictions for game modes
-      return mode;
-    });
+  onRecordGameClick(): void {
+    console.log('Starting Record Game...');
+    this.startRecordGame();
   }
 
-  onGameCardClick(gameMode: GameMode): void {
-    // Don't allow clicking if disabled
-    if (gameMode.disabled) {
-      console.log('This feature is disabled for your user role');
-      return;
-    }
-
-    if (gameMode.requiresAuth && !this.isAuthenticated) {
-      // Show login prompt or redirect to login
+  onFavoritesClick(): void {
+    if (!this.isAuthenticated) {
       console.log('Login required for this feature');
       return;
     }
-
-    // Handle different game modes
-    switch (gameMode.id) {
-      case 'record-game':
-        this.startRecordGame();
-        break;
-      case 'match-history':
-        this.openMatchHistory();
-        break;
-    }
+    this.openMatchHistory();
   }
 
   private startRecordGame(): void {
@@ -156,9 +120,16 @@ export class HomeComponent implements OnInit {
     this.searchErrorMessage = '';
 
     this.recordingCodeService.validateRecordingCode(code).subscribe({
-      next: () => {
-        // Code is valid, navigate directly to media library
-        this.router.navigate(['/media-library/recording-code', code]);
+      next: (response) => {
+        // Check if response includes vipCodeId
+        if (response.vipCodeId) {
+          // Navigate to match history with vipCode query param
+          this.router.navigate(['/match-history'], { queryParams: { vipCode: response.vipCode || code } });
+        } else {
+          // Code is valid, navigate directly to media library
+          this.router.navigate(['/media-library/recording-code', code]);
+        }
+        this.isSearching = false;
       },
       error: (error) => {
         console.error('Error validating recording code:', error);
@@ -171,5 +142,23 @@ export class HomeComponent implements OnInit {
   private openMatchHistory(): void {
     console.log('Opening Match History...');
     this.router.navigate(['/match-history']);
+  }
+
+  onSearchSubmit(): void {
+    if (this.recordingCode && this.recordingCode.length >= 3 && !this.isSearching) {
+      this.onSearchRecordingCode(this.recordingCode);
+    }
+  }
+
+  onRecordingCodeChange(value: string): void {
+    this.recordingCode = value;
+  }
+
+  openTutorial(): void {
+    this.isTutorialModalOpen = true;
+  }
+
+  closeTutorial(): void {
+    this.isTutorialModalOpen = false;
   }
 }

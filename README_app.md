@@ -30,8 +30,7 @@ src/
 │   ├── components/
 │   │   ├── login/          # Login/Register component
 │   │   ├── home/           # Main dashboard
-│   │   ├── header/         # Navigation header
-│   │   └── game-card/      # Reusable game mode cards
+│   │   └── header/         # Navigation header
 │   ├── services/
 │   │   └── auth.service.ts # Authentication service
 │   ├── guards/

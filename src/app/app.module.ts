@@ -11,7 +11,6 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
 import { HomeComponent } from './components/home/home.component';
 import { HeaderComponent } from './components/header/header.component';
-import { GameCardComponent } from './components/game-card/game-card.component';
 import { ScoreGameComponent } from './components/score-game/score-game.component';
 import { EventLogComponent } from './components/event-log/event-log.component';
 import { RecordInstructionsComponent } from './components/record-instructions/record-instructions.component';
@@ -34,7 +33,6 @@ import { TutorialCarouselModalComponent } from './components/tutorial-carousel-m
     LoginComponent,
     HomeComponent,
     HeaderComponent,
-    GameCardComponent,
     ScoreGameComponent,
     EventLogComponent,
     RecordInstructionsComponent,

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChildren, ElementRef, QueryList } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService, User } from '../../services/auth.service';
 import { MatchService, FieldMatchResponseDto } from '../../services/match.service';
 import { MediaLibraryService, MediaItemDto } from '../../services/media-library.service';
@@ -19,6 +19,7 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
   matches: FieldMatchResponseDto[] = [];
   displayedMatches: FieldMatchResponseDto[] = [];
   displayedCount = 6;
+  isVipCodeView = false; // Flag to indicate if viewing via vipCode
   
   // Meus golos section
   isLoadingGoals = false;
@@ -49,22 +50,33 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private matchService: MatchService,
     private mediaLibraryService: MediaLibraryService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.authService.currentUser.subscribe(user => {
-      this.currentUser = user;
-      if (user) {
-        this.loadMatches(user);
-        // Load user goals if role is USER
-        if (user.role === 'USER') {
-          this.loadUserGoals();
+    // Check for vipCode in query params
+    const vipCode = this.route.snapshot.queryParams['vipCode'];
+    if (vipCode) {
+      // Load matches using vipCode
+      this.isVipCodeView = true;
+      this.loadMatchesByVipCode(vipCode);
+    } else {
+      // Normal flow - load matches based on user
+      this.isVipCodeView = false;
+      this.authService.currentUser.subscribe(user => {
+        this.currentUser = user;
+        if (user) {
+          this.loadMatches(user);
+          // Load user goals if role is USER
+          if (user.role === 'USER') {
+            this.loadUserGoals();
+          }
+        } else {
+          this.errorMessage = 'User not available.';
         }
-      } else {
-        this.errorMessage = 'User not available.';
-      }
-    });
+      });
+    }
 
     // Listen for fullscreen exit events to reset preview state
     document.addEventListener('fullscreenchange', this.fullscreenChangeHandler);
@@ -117,6 +129,24 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
     }
     
     matchObservable.subscribe({
+      next: (data) => {
+        this.matches = data || [];
+        this.updateDisplayedMatches();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to load match history.';
+        this.isLoading = false;
+        console.error(err);
+      }
+    });
+  }
+
+  loadMatchesByVipCode(vipCode: string): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    
+    this.matchService.getMatchesByVipCode(vipCode).subscribe({
       next: (data) => {
         this.matches = data || [];
         this.updateDisplayedMatches();

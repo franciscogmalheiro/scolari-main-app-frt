@@ -11,11 +11,7 @@
     <div *ngIf="!isLoading && !errorMessage && displayedMatches.length" class="matches-container">
       <div class="match-card" *ngFor="let m of displayedMatches">
         <div class="match-card-left">
-          <div class="recording-code">
-            {{ m.recordingCode
-              ? (m.recordingCode.length > 8 ? (m.recordingCode | slice:0:3) : m.recordingCode)
-              : '' }}
-          </div>
+          <div *ngIf="m.recordingCode && m.recordingCode.length < 8" class="recording-code">{{ m.recordingCode || 'N/A' }}</div>
           <div class="match-info">
             <div class="match-date">{{ formatDate(m.startDateTime) }}</div>
             <div class="match-duration">{{ getDurationInMinutes(m) }} min</div>
@@ -39,7 +35,7 @@
               <span class="btn-text">Galeria</span>
             </button>
             <button 
-              *ngIf="isUserRole()" 
+              *ngIf="isUserRole() && !isVipCodeView" 
               class="remove-match-btn" 
               title="Remover dos meus jogos" 
               (click)="onRemoveMatch(m, $event)">
@@ -59,8 +55,8 @@
 
     <div *ngIf="!isLoading && !errorMessage && !matches.length" class="empty">Ainda não tens jogos adicionados aos favoritos.</div>
 
-    <!-- Meus golos section (only for USER role) -->
-    <div *ngIf="isUserRole()" class="my-goals-section mt-4">
+    <!-- Meus golos section (only for USER role and not vipCode view) -->
+    <div *ngIf="isUserRole() && !isVipCodeView" class="my-goals-section mt-4">
       <div class="section-header-goals">
         <h2 class="title">Golos e Highlights</h2>
       </div>
