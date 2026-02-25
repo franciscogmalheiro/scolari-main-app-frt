@@ -32,3 +32,10 @@ jobs:
           tags: |
             docker.io/franciscogmalheiro/scolari-backend:latest
             docker.io/franciscogmalheiro/scolari-backend:${{ github.sha }}
+      - name: Trigger watchtower update
+        run:  |
+          curl -X POST "https://$WATCHTOWER_HOST/v1/update" \
+          -H "Authorization: Bearer $WATCHTOWER_HTTP_API_TOKEN"
+        env:
+          WATCHTOWER_HOST: watchtower.scolari-app.pt
+          WATCHTOWER_HTTP_API_TOKEN: ${{ secrets.WATCHTOWER_HTTP_API_TOKEN }}
