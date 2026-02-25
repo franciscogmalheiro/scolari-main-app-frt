@@ -1,0 +1,52 @@
+<div class="tutorial-modal-overlay" 
+     *ngIf="isVisible" 
+     (click)="onOverlayClick($event)">
+  <div class="tutorial-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">{{ title }}</h2>
+        <button class="close-btn" (click)="onClose()" title="Fechar">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="carousel-container" *ngIf="currentSlide">
+          <button 
+            class="nav-arrow nav-arrow-left" 
+            (click)="onPrevious()"
+            [disabled]="isFirstSlide"
+            *ngIf="totalSlides > 1"
+            [attr.aria-label]="'Slide anterior'">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          
+          <div class="carousel-slide" [class.slide-left]="slideDirection === 'left'" [class.slide-right]="slideDirection === 'right'">
+            <img [src]="currentSlide.imageUrl" [alt]="currentSlide.text" class="slide-image" />
+            <p class="slide-text">{{ currentSlide.text }}</p>
+          </div>
+
+          <button 
+            class="nav-arrow nav-arrow-right" 
+            (click)="onNext()"
+            *ngIf="totalSlides > 1"
+            [attr.aria-label]="isLastSlide ? 'Fechar' : 'Próximo slide'">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- Slide indicators -->
+        <div class="slide-indicators" *ngIf="totalSlides > 1">
+          <button 
+            *ngFor="let slide of slides; let i = index"
+            class="indicator"
+            [class.active]="i === currentSlideIndex"
+            (click)="goToSlide(i)"
+            [attr.aria-label]="'Ir para slide ' + (i + 1)">
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
