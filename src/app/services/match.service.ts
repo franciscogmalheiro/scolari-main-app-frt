@@ -29,13 +29,14 @@ export interface MatchEventResponseDto {
   id: number;
   matchId: number;
   dateTime: string;
+  eventDate?: string; // Optional eventDate field
   eventTypeId: number;
   eventTypeName: string;
   teamName: string;
   elapsedTime: string;
-  videoSegmentId: number;
+  videoSegmentId?: number;
   result?: string; // Score at the time of the event (e.g., "1-0", "2-1")
-  presignedUrl: string; // Presigned URL to the video preview MP4 file
+  presignedUrl?: string; // Presigned URL to the video preview MP4 file
 }
 
 export interface FieldMatchResponseDto {
@@ -143,5 +144,13 @@ export class MatchService {
 
   removeMatchFromUser(matchId: number): Observable<any> {
     return this.http.delete(`${this.API_BASE_URL}/matches/${matchId}/users`);
+  }
+
+  getMatchesByVipCode(vipCode: string): Observable<FieldMatchResponseDto[]> {
+    return this.http.get<FieldMatchResponseDto[]>(`${this.API_BASE_URL}/matches/vipCode/${vipCode}`);
+  }
+
+  getMatchEventsByMatchId(matchId: number): Observable<MatchEventResponseDto[]> {
+    return this.http.get<MatchEventResponseDto[]>(`${this.API_BASE_URL}/match-events/match/${matchId}`);
   }
 } 

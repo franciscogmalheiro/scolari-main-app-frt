@@ -18,17 +18,41 @@ interface EventItem {
   isUndone: boolean;
 }
 
+interface SavedMatchState {
+  matchStartTime: number; // Timestamp when match started
+  gameId: string;
+  matchId: number | null;
+  teamAScore: number;
+  teamBScore: number;
+  teamAName: string;
+  teamBName: string;
+  teamAColor: string;
+  teamBColor: string;
+  events: MatchEvent[];
+  isMatchStarted: boolean;
+  isMatchFinished: boolean;
+  isRecordingMode: boolean;
+  fieldId: number | null;
+  sportId: number | null;
+  recordingCode: string | null;
+  attackingTeamAtScolariGoal: 'A' | 'B' | null;
+}
+
 @Component({
   selector: 'app-score-game',
   templateUrl: './score-game.component.html',
   styleUrls: ['./score-game.component.scss', './event-edit-modal.scss']
 })
 export class ScoreGameComponent implements OnInit, OnDestroy {
+  private readonly MATCH_STATE_STORAGE_KEY = 'scolari_match_state';
+  
   // Timer properties
   timerInterval: any;
   secondsElapsed = 0;
   isMatchStarted = false;
   isMatchFinished = false;
+  private matchStartTime: number | null = null; // Timestamp when match started
+  private matchFinishTime: number | null = null; // Timestamp when match finished
   // Wake lock to prevent screen from turning off
   private wakeLock: any = null;
   // Recording properties
@@ -84,6 +108,9 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   photoUploadProgress = 0;
   lastCapturedPhotoUrl: string | null = null;
   showPhotoPreviewModal = false;
+  
+  // Timeout modal state
+  showTimeoutModal = false;
 
   // Edit mode state
   isEditMode = false;
@@ -115,14 +142,27 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     
     this.updateDateDisplay();
     this.checkGameMode();
+    
+    // If recordingCode is provided, load from backend (clear localStorage first to avoid conflicts)
+    if (this.recordingCode) {
+      this.clearMatchState(); // Clear any existing match state
+      this.loadMatchFromRecordingCode();
+      return; // Don't open edit teams modal if loading from backend
+    }
+    
+    // Try to restore match state from localStorage
+    const restored = this.restoreMatchState();
+    
     // Prevent body scrolling when on score game page
     document.body.classList.add('no-scroll');
     
     // Listen for visibility changes to reacquire wake lock if needed
     document.addEventListener('visibilitychange', this.handleVisibilityChange);
     
-    // Open the "Editar Equipas" modal automatically when component loads
-    this.openEditTeamsModal();
+    // Only open the "Editar Equipas" modal if match wasn't restored
+    if (!restored) {
+      this.openEditTeamsModal();
+    }
   }
 
   private checkGameMode(): void {
@@ -193,6 +233,9 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   private doStartMatch(): void {
     console.log('doStartMatch called with fieldId:', this.fieldId, 'sportId:', this.sportId);
     
+    // Clear any old match state when starting a new match
+    this.clearMatchState();
+    
     // In recording mode, fieldId is mandatory
     if (this.isRecordingMode && !this.fieldId) {
       console.error('Cannot start match: Field ID is required in recording mode');
@@ -243,6 +286,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   chooseAttackingTeam(team: 'A' | 'B'): void {
     this.attackingTeamAtScolariGoal = team;
     this.showAttackingTeamModal = false;
+    this.saveMatchState(); // Save state after selecting attacking team
   }
 
   private startMatchTimer(): void {
@@ -265,14 +309,19 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     // Request wake lock to prevent screen from turning off
     this.requestWakeLock();
 
-    const startTime = Date.now();
+    // Save match start time
+    this.matchStartTime = Date.now();
+    this.saveMatchState();
+
     this.timerInterval = setInterval(() => {
-      const currentTime = Date.now();
-      this.secondsElapsed = Math.floor((currentTime - startTime) / 1000);
-      
-      // Auto-stop recording after 90 minutes (5400 seconds) - only in recording mode
-      if (this.isRecordingMode && this.secondsElapsed >= 5400) {
-        this.finishMatch();
+      if (this.matchStartTime) {
+        const currentTime = Date.now();
+        this.secondsElapsed = Math.floor((currentTime - this.matchStartTime) / 1000);
+        
+        // Auto-finish match after 90 minutes (5400 seconds) for all matches
+        if (this.secondsElapsed >= 5400) {
+          this.autoFinishMatch();
+        }
       }
     }, 1000);
   }
@@ -281,8 +330,11 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.showConfirmModal = true;
   }
 
-  onConfirmFinishMatch(): void {
-    this.showConfirmModal = false;
+  private autoFinishMatch(): void {
+    // Automatically finish match without showing confirmation modal
+    if (this.isMatchFinished) {
+      return; // Already finished
+    }
     
     clearInterval(this.timerInterval);
     this.isMatchStarted = false;
@@ -290,6 +342,10 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.isMatchFinished = true;
     this.showControls = false;
     this.showFinalResult = true;
+    this.showConfirmModal = false; // Ensure modal is closed
+    
+    // Store finish time for duration calculation
+    this.matchFinishTime = Date.now();
     
     // Release wake lock when match finishes
     this.releaseWakeLock();
@@ -302,6 +358,67 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     };
     this.events.push(finishEvent);
     this.sendEventToBackend(finishEvent);
+    
+    // Clear saved match state when match finishes
+    this.clearMatchState();
+
+    // First call the finish endpoint with finalResult, then upload events
+    if (this.gameId) {
+      const finalResult = this.getCurrentResult();
+      this.matchService.finishMatch(this.gameId, finalResult).subscribe({
+        next: (response) => {
+          console.log('Match finished automatically at 90 minutes:', response);
+          // Upload events to backend after finishing the match
+          this.downloadEvents();
+          
+          // Show timeout warning modal first
+          this.showTimeoutModal = true;
+        },
+        error: (error) => {
+          console.error('Error finishing match:', error);
+          // Still try to upload events even if finish fails
+          this.downloadEvents();
+          
+          // Show timeout warning modal first
+          this.showTimeoutModal = true;
+        }
+      });
+    } else {
+      // Upload events to backend if no game ID (fallback)
+      this.downloadEvents();
+      
+      // Show timeout warning modal first
+      this.showTimeoutModal = true;
+    }
+  }
+
+  onConfirmFinishMatch(): void {
+    this.showConfirmModal = false;
+    
+    clearInterval(this.timerInterval);
+    this.isMatchStarted = false;
+    this.isRecording = false; // Stop recording
+    this.isMatchFinished = true;
+    this.showControls = false;
+    this.showFinalResult = true;
+    
+    // Store finish time for duration calculation
+    this.matchFinishTime = Date.now();
+    
+    // Release wake lock when match finishes
+    this.releaseWakeLock();
+
+    const finishEvent: MatchEvent = {
+      dateTime: new Date().toISOString(),
+      eventName: 'finish',
+      team: null,
+      result: this.getCurrentResult()
+    };
+    this.events.push(finishEvent);
+    this.sendEventToBackend(finishEvent);
+    
+    // Clear saved match state when match finishes
+    this.clearMatchState();
 
     // First call the finish endpoint with finalResult, then upload events
     if (this.gameId) {
@@ -367,6 +484,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.sendEventToBackend(goalEvent);
 
     this.addEventToLog(team, elapsedTime);
+    this.saveMatchState(); // Save state after score change
   }
 
   addHighlight(): void {
@@ -382,6 +500,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.sendEventToBackend(highlightEvent);
 
     this.addEventToLog(null, elapsedTime);
+    this.saveMatchState(); // Save state after event
   }
 
   // Team editing
@@ -404,6 +523,8 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     this.teamBName = teamBData.name;
     this.teamBColor = teamBData.color;
     this.showEditTeamsModal = false;
+    
+    this.saveMatchState(); // Save state after team changes
 
     // In recording mode, open the Attacking Team Selection Modal immediately
     // after saving teams, so that "Começar jogo" can start the timer right away.
@@ -418,6 +539,13 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
+  getDisplayTime(): string {
+    // For finished matches, secondsElapsed contains the match duration (finish - start)
+    // For ongoing matches, secondsElapsed contains the current elapsed time
+    // Both are already calculated correctly, so just format and display
+    return this.formatTime(this.secondsElapsed);
   }
 
   formatTimeForEventLog(seconds: number): string {
@@ -775,7 +903,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       this.isCapturingPhoto = false;
       
       // Capture photo using camera service with 10-second countdown
-      const photoFile = await this.cameraService.capturePhoto(10);
+      const photoFile = await this.cameraService.capturePhoto(5);
       
       if (photoFile) {
         console.log('Photo captured, uploading...');
@@ -846,6 +974,17 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
   skipPhotoCapture(): void {
     this.isCapturingPhoto = false;
     this.photoUploadProgress = 0;
+  }
+
+  // Close timeout modal and show photo capture modal if in recording mode
+  onCloseTimeoutModal(): void {
+    this.showTimeoutModal = false;
+    
+    // If in recording mode, show photo capture modal
+    if (this.isRecordingMode) {
+      this.isCapturingPhoto = true;
+      this.photoUploadProgress = 0;
+    }
   }
 
   // Close the large photo preview modal
@@ -944,6 +1083,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
     this.closeEventEditModal();
     this.isEditMode = false; // Exit edit mode after saving
+    this.saveMatchState(); // Save state after editing event
   }
 
   deleteEvent(): void {
@@ -988,6 +1128,7 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
 
     this.closeEventEditModal();
     this.isEditMode = false; // Exit edit mode after deleting
+    this.saveMatchState(); // Save state after deleting event
   }
 
 
@@ -1032,19 +1173,90 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       if (event.eventName === 'goal' && event.team) {
         const team = event.team === this.teamAName ? 'A' : 'B';
         const elapsedTime = event.elapsedTime || '00:00';
-        const eventTime = this.convertTimeToEventLogFormat(elapsedTime);
+        // Convert elapsedTime to event log format
+        const eventTimeFormatted = this.convertTimeToEventLogFormat(elapsedTime);
         
         if (team === 'A') {
-          this.teamAEvents.push({ text: `<i class="fas fa-futbol"></i> ${eventTime}`, isUndone: false });
+          this.teamAEvents.push({ text: `${eventTimeFormatted} <i class="fas fa-futbol"></i>`, isUndone: false });
         } else {
-          this.teamBEvents.push({ text: `<i class="fas fa-futbol"></i> ${eventTime}`, isUndone: false });
+          this.teamBEvents.push({ text: `<i class="fas fa-futbol"></i> ${eventTimeFormatted}`, isUndone: false });
         }
       } else if (event.eventName === 'highlight') {
         const elapsedTime = event.elapsedTime || '00:00';
-        const eventTime = this.convertTimeToEventLogFormat(elapsedTime);
-        this.highlightEvents.push({ text: `<i class="fas fa-hands-clapping"></i> ${eventTime}`, isUndone: false });
+        const eventTimeFormatted = this.convertTimeToEventLogFormat(elapsedTime);
+        this.highlightEvents.push({ text: `<i class="fas fa-hands-clapping"></i> ${eventTimeFormatted}`, isUndone: false });
       }
     }
+  }
+
+  handleDragDropEvent(dragData: { index: number; team: 'A' | 'B' | null; eventType: 'goal' | 'highlight'; targetTeam?: 'A' | 'B' | null; action?: 'move' | 'delete' }): void {
+    if (!dragData.action) return;
+
+    // Find the original event index in the events array
+    const originalEventIndex = this.findOriginalEventIndex({
+      index: dragData.index,
+      team: dragData.team,
+      eventType: dragData.eventType
+    });
+
+    if (originalEventIndex === -1) return;
+
+    const event = this.events[originalEventIndex];
+
+    if (dragData.action === 'delete') {
+      // Delete the event
+      if (event.eventName === 'goal') {
+        // Decrease the score
+        if (event.team === this.teamAName) {
+          this.teamAScore--;
+        } else if (event.team === this.teamBName) {
+          this.teamBScore--;
+        }
+      }
+
+      // Sync with backend in recording mode before deleting
+      if (event.id) {
+        this.syncEventDelete(event.id);
+      }
+
+      // Remove from events array
+      this.events.splice(originalEventIndex, 1);
+    } else if (dragData.action === 'move' && dragData.targetTeam !== undefined) {
+      // Move the event to a different team/type
+      const newEventType = dragData.targetTeam === null ? 'highlight' : 'goal';
+      const newTeam = dragData.targetTeam === null ? null : (dragData.targetTeam === 'A' ? this.teamAName : this.teamBName);
+
+      // Update scores: remove old goal, add new goal if applicable
+      if (event.eventName === 'goal') {
+        if (event.team === this.teamAName) {
+          this.teamAScore--;
+        } else if (event.team === this.teamBName) {
+          this.teamBScore--;
+        }
+      }
+
+      // Update the event
+      event.eventName = newEventType;
+      event.team = newTeam;
+      event.result = this.getCurrentResult();
+
+      // Add score for new goal
+      if (newEventType === 'goal' && newTeam) {
+        if (newTeam === this.teamAName) {
+          this.teamAScore++;
+        } else if (newTeam === this.teamBName) {
+          this.teamBScore++;
+        }
+      }
+
+      // Sync with backend in recording mode
+      const newResult = this.getCurrentResult();
+      this.syncEventUpdate(event, newResult);
+    }
+
+    // Rebuild display arrays
+    this.rebuildDisplayArrays();
+    this.saveMatchState(); // Save state after drag/drop event changes
   }
 
   // Wake Lock API methods to prevent screen from turning off
@@ -1097,4 +1309,345 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
       this.requestWakeLock();
     }
   };
+
+  // Match state persistence methods
+  private saveMatchState(): void {
+    if (!this.isMatchStarted || this.isMatchFinished) {
+      return; // Don't save if match hasn't started or is finished
+    }
+
+    const state: SavedMatchState = {
+      matchStartTime: this.matchStartTime || Date.now(),
+      gameId: this.gameId,
+      matchId: this.matchId,
+      teamAScore: this.teamAScore,
+      teamBScore: this.teamBScore,
+      teamAName: this.teamAName,
+      teamBName: this.teamBName,
+      teamAColor: this.teamAColor,
+      teamBColor: this.teamBColor,
+      events: this.events,
+      isMatchStarted: this.isMatchStarted,
+      isMatchFinished: this.isMatchFinished,
+      isRecordingMode: this.isRecordingMode,
+      fieldId: this.fieldId,
+      sportId: this.sportId,
+      recordingCode: this.recordingCode,
+      attackingTeamAtScolariGoal: this.attackingTeamAtScolariGoal
+    };
+
+    try {
+      localStorage.setItem(this.MATCH_STATE_STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+      console.error('Error saving match state to localStorage:', error);
+    }
+  }
+
+  private restoreMatchState(): boolean {
+    try {
+      const savedStateJson = localStorage.getItem(this.MATCH_STATE_STORAGE_KEY);
+      if (!savedStateJson) {
+        return false;
+      }
+
+      const savedState: SavedMatchState = JSON.parse(savedStateJson);
+      
+      // Only restore if match was started and not finished
+      if (!savedState.isMatchStarted || savedState.isMatchFinished) {
+        this.clearMatchState();
+        return false;
+      }
+
+      // Restore basic properties
+      this.gameId = savedState.gameId;
+      this.matchId = savedState.matchId;
+      this.teamAScore = savedState.teamAScore;
+      this.teamBScore = savedState.teamBScore;
+      this.teamAName = savedState.teamAName;
+      this.teamBName = savedState.teamBName;
+      this.teamAColor = savedState.teamAColor;
+      this.teamBColor = savedState.teamBColor;
+      this.events = savedState.events || [];
+      this.isMatchStarted = savedState.isMatchStarted;
+      this.isMatchFinished = savedState.isMatchFinished;
+      this.isRecordingMode = savedState.isRecordingMode;
+      this.fieldId = savedState.fieldId;
+      this.sportId = savedState.sportId;
+      this.recordingCode = savedState.recordingCode;
+      this.attackingTeamAtScolariGoal = savedState.attackingTeamAtScolariGoal;
+
+      // Restore match start time and calculate elapsed time
+      this.matchStartTime = savedState.matchStartTime;
+      const currentTime = Date.now();
+      this.secondsElapsed = Math.floor((currentTime - this.matchStartTime) / 1000);
+
+      // Restore UI state
+      this.showControls = this.isMatchStarted && !this.isMatchFinished;
+      this.isRecording = this.isRecordingMode && this.isMatchStarted && !this.isMatchFinished;
+
+      // Rebuild display arrays from events
+      this.rebuildDisplayArrays();
+
+      // Restart the timer
+      this.timerInterval = setInterval(() => {
+        if (this.matchStartTime) {
+          const currentTime = Date.now();
+          this.secondsElapsed = Math.floor((currentTime - this.matchStartTime) / 1000);
+          
+          // Save state every 10 seconds to keep it updated
+          if (this.secondsElapsed % 10 === 0) {
+            this.saveMatchState();
+          }
+          
+          // Auto-finish match after 90 minutes (5400 seconds) for all matches
+          if (this.secondsElapsed >= 5400) {
+            this.autoFinishMatch();
+          }
+        }
+      }, 1000);
+
+      // Request wake lock
+      this.requestWakeLock();
+
+      console.log('Match state restored successfully');
+      return true;
+    } catch (error) {
+      console.error('Error restoring match state from localStorage:', error);
+      this.clearMatchState();
+      return false;
+    }
+  }
+
+  private loadMatchFromRecordingCode(): void {
+    if (!this.recordingCode) {
+      console.error('No recording code provided');
+      return;
+    }
+
+    console.log('Loading match from recording code:', this.recordingCode);
+    
+    this.matchService.getMatchByRecordingCode(this.recordingCode).subscribe({
+      next: (matchData) => {
+        console.log('Match data loaded:', matchData);
+        
+        // Set basic match info
+        this.matchId = matchData.id;
+        this.gameId = matchData.matchCode;
+        this.teamAName = matchData.teamAName;
+        this.teamBName = matchData.teamBName;
+        this.isRecordingMode = matchData.recordMode || false;
+        
+        // Set team colors if available (they might not be in the response)
+        // Keep defaults if not provided
+        
+        // Load match events separately
+        this.loadMatchEvents(matchData.id, () => {
+          // Check if match is finished
+          if (matchData.finishDateTime) {
+            // Match is finished - show "aceder aos vídeos" button
+            this.isMatchFinished = true;
+            this.isMatchStarted = true; // Mark as started
+            this.showFinalResult = true;
+            this.showControls = false; // Hide action buttons
+            
+            // Store start and finish times for duration calculation
+            if (matchData.startDateTime) {
+              const startDate = new Date(matchData.startDateTime);
+              this.matchStartTime = startDate.getTime();
+            }
+            const finishDate = new Date(matchData.finishDateTime);
+            this.matchFinishTime = finishDate.getTime();
+            
+            // Calculate and set match duration
+            if (this.matchStartTime && this.matchFinishTime) {
+              const durationMs = this.matchFinishTime - this.matchStartTime;
+              this.secondsElapsed = Math.floor(durationMs / 1000);
+            }
+            
+            // Parse final result to get scores
+            if (matchData.finalResult) {
+              const scores = this.parseResult(matchData.finalResult);
+              this.teamAScore = scores.teamA;
+              this.teamBScore = scores.teamB;
+            }
+            
+            console.log('Match is finished, showing video access button');
+          } else if (matchData.startDateTime) {
+            // Match is ongoing - restore timer and events
+            this.restoreOngoingMatch(matchData);
+          } else {
+            // Match hasn't started yet - just set team info
+            console.log('Match not started yet');
+          }
+        });
+        
+        // Prevent body scrolling when on score game page
+        document.body.classList.add('no-scroll');
+        
+        // Listen for visibility changes to reacquire wake lock if needed
+        document.addEventListener('visibilitychange', this.handleVisibilityChange);
+      },
+      error: (error) => {
+        console.error('Error loading match from recording code:', error);
+        // If error, fall back to normal flow
+        document.body.classList.add('no-scroll');
+        document.addEventListener('visibilitychange', this.handleVisibilityChange);
+        this.openEditTeamsModal();
+      }
+    });
+  }
+
+  private restoreOngoingMatch(matchData: any): void {
+    console.log('Restoring ongoing match');
+    
+    // Set match state
+    this.isMatchStarted = true;
+    this.isMatchFinished = false;
+    this.showControls = true;
+    this.isRecording = this.isRecordingMode;
+    
+    // Parse startDateTime to get matchStartTime
+    const startDate = new Date(matchData.startDateTime);
+    this.matchStartTime = startDate.getTime();
+    
+    // Calculate elapsed time
+    const currentTime = Date.now();
+    this.secondsElapsed = Math.floor((currentTime - this.matchStartTime) / 1000);
+    
+    // Parse final result from last event or use current scores
+    if (this.events && this.events.length > 0) {
+      const lastEvent = this.events[this.events.length - 1];
+      if (lastEvent.result) {
+        const scores = this.parseResult(lastEvent.result);
+        this.teamAScore = scores.teamA;
+        this.teamBScore = scores.teamB;
+      }
+    }
+    
+    // Rebuild display arrays (events should already be loaded)
+    this.rebuildDisplayArrays();
+    
+    // Start the timer
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+    
+    this.timerInterval = setInterval(() => {
+      if (this.matchStartTime) {
+        const currentTime = Date.now();
+        this.secondsElapsed = Math.floor((currentTime - this.matchStartTime) / 1000);
+        
+        // Save state every 10 seconds to keep it updated
+        if (this.secondsElapsed % 10 === 0) {
+          this.saveMatchState();
+        }
+        
+        // Auto-finish match after 90 minutes (5400 seconds)
+        if (this.secondsElapsed >= 5400) {
+          this.autoFinishMatch();
+        }
+      }
+    }, 1000);
+    
+    // Save state
+    this.saveMatchState();
+    
+    console.log('Ongoing match restored. Elapsed time:', this.secondsElapsed, 'seconds');
+  }
+
+  private loadMatchEvents(matchId: number, callback: () => void): void {
+    console.log('Loading match events for matchId:', matchId);
+    
+    this.matchService.getMatchEventsByMatchId(matchId).subscribe({
+      next: (matchEvents) => {
+        console.log('Match events loaded:', matchEvents);
+        
+        // Convert backend events to MatchEvent format for display
+        this.events = this.convertBackendEventsToMatchEvents(matchEvents);
+        
+        // Rebuild display arrays
+        this.rebuildDisplayArrays();
+        
+        // Execute callback after events are loaded
+        callback();
+      },
+      error: (error) => {
+        console.error('Error loading match events:', error);
+        // Continue even if events fail to load
+        this.events = [];
+        callback();
+      }
+    });
+  }
+
+  private convertBackendEventsToMatchEvents(backendEvents: any[]): MatchEvent[] {
+    if (!backendEvents || backendEvents.length === 0) {
+      return [];
+    }
+    
+    // Sort events by dateTime (or eventDate as fallback) to ensure chronological order
+    const sortedEvents = [...backendEvents].sort((a, b) => {
+      const dateA = new Date(a.dateTime || a.eventDate).getTime();
+      const dateB = new Date(b.dateTime || b.eventDate).getTime();
+      return dateA - dateB;
+    });
+    
+    return sortedEvents.map(event => {
+      // Map eventTypeName to eventName
+      let eventName: 'start' | 'finish' | 'goal' | 'highlight' = 'goal';
+      if (event.eventTypeName) {
+        const typeName = event.eventTypeName.toLowerCase();
+        if (typeName === 'start') eventName = 'start';
+        else if (typeName === 'finish') eventName = 'finish';
+        else if (typeName === 'goal') eventName = 'goal';
+        else if (typeName === 'highlight') eventName = 'highlight';
+      }
+      
+      // Determine team name (null for highlights and start/finish events)
+      let teamName: string | null = null;
+      if (event.teamName && eventName !== 'highlight' && eventName !== 'start' && eventName !== 'finish') {
+        // Check if it matches team A or B name
+        if (event.teamName === this.teamAName) {
+          teamName = this.teamAName;
+        } else if (event.teamName === this.teamBName) {
+          teamName = this.teamBName;
+        } else {
+          teamName = event.teamName;
+        }
+      }
+      
+      // Use dateTime, fallback to eventDate if dateTime is not available
+      const eventDateTime = event.dateTime || event.eventDate;
+      
+      return {
+        id: event.id,
+        dateTime: eventDateTime,
+        eventName: eventName,
+        team: teamName,
+        result: event.result || '0-0',
+        elapsedTime: event.elapsedTime
+      };
+    });
+  }
+
+  private parseResult(resultString: string): { teamA: number; teamB: number } {
+    // Parse result string like "2-1" to get scores
+    const parts = resultString.split('-');
+    if (parts.length === 2) {
+      return {
+        teamA: parseInt(parts[0].trim(), 10) || 0,
+        teamB: parseInt(parts[1].trim(), 10) || 0
+      };
+    }
+    return { teamA: 0, teamB: 0 };
+  }
+
+  private clearMatchState(): void {
+    try {
+      localStorage.removeItem(this.MATCH_STATE_STORAGE_KEY);
+      this.matchStartTime = null;
+    } catch (error) {
+      console.error('Error clearing match state from localStorage:', error);
+    }
+  }
 }

@@ -22,7 +22,7 @@ export class HomeComponent implements OnInit {
     {
       id: 'record-game',
       title: 'GRAVA',
-      description: 'Grava o jogo, aponta os golos e melhores momentos, e revê mais tarde',
+      description: 'Grava o jogo, regista os golos e highlights, para rever mais tarde',
       icon: 'fas fa-video',
       gradient: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
       buttonText: 'Iniciar gravação',
@@ -32,7 +32,7 @@ export class HomeComponent implements OnInit {
     {
       id: 'download-video',
       title: 'REVÊ',
-      description: 'Através do teu código de gravação, revê e partilha os vídeos do resumo, golos e melhores momentos',
+      description: 'Através do teu código de gravação, revê e partilha os vídeos do resumo, golos e highlights',
       icon: 'fas fa-history',
       gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       buttonText: 'ACEDER A UMA GRAVAÇÃO',
@@ -42,7 +42,7 @@ export class HomeComponent implements OnInit {
     {
       id: 'match-history',
       title: 'FAVORITOS',
-      description: 'Consulta o teu histórico de jogos, golos e melhores momentos',
+      description: 'Consulta o teu histórico de jogos, golos e highlights',
       icon: 'fas fa-star',
       gradient: 'linear-gradient(135deg, #f09819 0%, #edde5d 100%)',
       buttonText: 'Ver favoritos',
@@ -148,7 +148,7 @@ export class HomeComponent implements OnInit {
   }
 
   onSearchRecordingCode(code: string): void {
-    if (!code || code.length < 4) {
+    if (!code || code.length < 3) {
       return;
     }
 
@@ -162,7 +162,7 @@ export class HomeComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error validating recording code:', error);
-        this.searchErrorMessage = 'Código de gravação inválido. Por favor, tenta novamente.';
+        this.searchErrorMessage = 'Código de gravação inválido';
         this.isSearching = false;
       }
     });

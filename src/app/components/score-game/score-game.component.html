@@ -26,7 +26,7 @@
         
         <!-- Timer display -->
         <div class="timer-display">
-          {{ formatTime(secondsElapsed) }}
+          {{ getDisplayTime() }}
         </div>
         
         <!-- Terminar button (left side) -->
@@ -258,7 +258,7 @@
       <div class="col-12 text-center">
         <div *ngIf="isMatchFinished && isRecordingMode" class="access-video-section">
           <button class="button-green" (click)="onAccessVideo()">
-            <!--i class="fas fa-video"></i--> Aceder aos vídeos
+            <!--i class="fas fa-video"></i--> ACEDER AOS VÍDEOS
           </button>
         </div>
       </div>
@@ -304,6 +304,7 @@
       [isEditMode]="isEditMode"
       [isMatchFinished]="isMatchFinished"
       (editEvent)="openEventEditModal($event)"
+      (dragDropEvent)="handleDragDropEvent($event)"
     ></app-event-log>
 
   </div>
@@ -386,7 +387,7 @@
           class="button-green teams-edit-save-button"
           (click)="onSaveBothTeams({ name: teamAName, color: teamAColor }, { name: teamBName, color: teamBColor })"
           [disabled]="!teamAName.trim() || !teamBName.trim()">
-          Guardar
+          GUARDAR
         </button>
       </div>
     </div>
@@ -407,13 +408,13 @@
   <app-confirmation-modal
     [isVisible]="showAttackingTeamModal"
     title="CONFIGURAÇÃO DE GRAVAÇÃO"
-    message="Por trás de uma das balizas há um alvo. Que equipa vai estar a atacar para essa baliza?"
+    message="Qual das equipas vai estar a atacar para esta baliza?"
     [confirmText]="teamBName"
     [cancelText]="teamAName"
     [confirmButtonColor]="teamBColor"
     [cancelButtonColor]="teamAColor"
     [disableOverlayClose]="true"
-    imageUrl="assets/AlvoAtrasBaliza_Imagem.png"
+    imageUrl="assets/baliza_arneiros.jpeg"
     (confirm)="chooseAttackingTeam('B')"
     (cancel)="chooseAttackingTeam('A')"
   ></app-confirmation-modal>
@@ -434,7 +435,7 @@
   <div class="teams-edit-modal" *ngIf="showConfirmModal" (click)="$event.stopPropagation()">
     <div class="teams-edit-content">
       <div class="teams-edit-header">
-        <h4>{{ isRecordingMode ? 'Terminar o jogo e gravação' : 'Terminar o Jogo' }}</h4>
+        <h4>{{ 'TERMINAR O JOGO' }}</h4>
         <button class="close-modal" (click)="onCancelFinishMatch()"><i class="fas fa-times"></i></button>
       </div>
       
@@ -446,11 +447,22 @@
       
       <div class="teams-edit-footer">
         <button class="button-red" (click)="onCancelFinishMatch()">
-          Cancelar
+          CANCELAR
         </button>
         <button class="button-green" (click)="onConfirmFinishMatch()">
-          Terminar o Jogo
+          TERMINAR O JOGO
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeout Warning Modal -->
+  <div class="teams-edit-modal-backdrop" *ngIf="showTimeoutModal" (click)="onCloseTimeoutModal()"></div>
+  <div class="teams-edit-modal" *ngIf="showTimeoutModal" (click)="$event.stopPropagation()">
+    <div class="teams-edit-content">
+      <div class="teams-edit-header">
+        <h4>Ups! Atingiste o tempo limite de 90 minutos</h4>
+        <button class="close-modal" (click)="onCloseTimeoutModal()"><i class="fas fa-times"></i></button>
       </div>
     </div>
   </div>
@@ -484,13 +496,13 @@
           class="button-red" 
           (click)="skipPhotoCapture()"
           [disabled]="photoUploadProgress > 0">
-          Não tirar
+          NÃO TIRAR FOTO
         </button>
         <button 
           class="button-green" 
           (click)="retryPhotoCapture()"
           [disabled]="photoUploadProgress > 0">
-          <i class="fas fa-camera"></i> Tirar Foto
+          <i class="fas fa-camera"></i> TIRAR FOTO
         </button>
       </div>
     </div>
@@ -499,9 +511,9 @@
   <!-- Large Photo Preview Modal -->
   <div class="photo-preview-modal" *ngIf="showPhotoPreviewModal">
     <div class="photo-preview-content">
-      <button class="close-preview-btn" (click)="closePhotoPreview()">&times;</button>
-      <h3>Match Photo</h3>
+      <h3>Foto de Final de Jogo</h3>
       <img *ngIf="lastCapturedPhotoUrl" [src]="lastCapturedPhotoUrl" alt="Match photo" class="photo-preview-image" />
+      <button class="button-green" (click)="closePhotoPreview()">CONTINUAR</button>
     </div>
   </div>
 
@@ -688,7 +700,7 @@
   </div>
 
   <!-- Live Indicator Dock Bar (bottom of page) -->
-  <div class="live-indicator-dock" *ngIf="isRecordingMode && isMatchStarted">
+  <div class="live-indicator-dock" *ngIf="isRecordingMode && isMatchStarted && !isEditMode">
     <app-live-indicator [isRecording]="isRecording"></app-live-indicator>
   </div>
 </div>

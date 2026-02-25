@@ -4,17 +4,25 @@
   <main class="main-content">
     <div class="instructions-card">
       <div class="card-header">
-        <h1 *ngIf="validatedRecordingCode" class="card-title">Importante</h1>
+        <h1 *ngIf="validatedRecordingCode" class="card-title">Importante!</h1>
       </div>
 
       <div class="instructions-content">
         <!-- Recording Code Section (only shown when no code is validated) -->
         <div class="recording-code-section" *ngIf="!validatedRecordingCode">
           <div class="section-header" *ngIf="!validatedRecordingCode">
-            <h3>Queres gravar o teu jogo?</h3>
+            <div class="section-title-row">
+              <h3>QUERES GRAVAR O TEU JOGO</h3>
+              <button 
+                type="button"
+                class="info-button"
+                (click)="openTutorial()"
+                title="Informação sobre códigos de gravação">
+                <i>?</i>
+              </button>
+            </div>
             <p class="description">
               Para prosseguir com a gravação de jogo, insere o teu <strong>código de gravação</strong> que pode ser adquirido no café da Sede.
-              <br>Caso optes por não gravar, podes continuar apenas com o marcador de resultado.
             </p>
           </div>
 
@@ -41,8 +49,8 @@
               <button 
                 type="submit" 
                 class="button-green"
-                [disabled]="recordingCodeForm.invalid || isValidatingCode">
-                <span *ngIf="!isValidatingCode">Validar Código</span>
+                [disabled]="isValidatingCode">
+                <span *ngIf="!isValidatingCode">VALIDAR</span>
                 <span *ngIf="isValidatingCode" class="spinner"></span>
               </button>
             </div>
@@ -52,9 +60,11 @@
               <span class="error-icon">❌</span>
               <span>{{ codeValidationError }}</span>
             </div>
-          </form>
-          
+          </form>          
         </div>
+        <p *ngIf="!validatedRecordingCode" class="description">
+          <br>Caso optes por não gravar, podes continuar apenas com o marcador de resultado.
+        </p>
 
 
         <!-- Instructions (only shown when recording code is validated) -->
@@ -142,7 +152,7 @@
       <div class="card-footer">
         <button class="button-red" (click)="onBackClick()">
           <span class="button-arrow">&lt;</span>
-          <span>Voltar</span>
+          <span>VOLTAR</span>
         </button>
         
         <!-- Continue without recording button (only shown when no code is validated) -->
@@ -151,7 +161,7 @@
           class="button-grey"
           (click)="continueWithoutRecording()"
           [disabled]="isValidatingCode">
-          <span>Não gravar</span>
+          <span>NÃO GRAVAR</span>
         </button>
         
         <!-- Next button (only shown when code is validated) -->
@@ -161,10 +171,19 @@
           [class.disabled]="!canProceed()"
           [disabled]="!canProceed()"
           (click)="onNextClick()">
-          <span>Gravar</span>
+          <span>GRAVAR</span>
           <span class="button-arrow">></span>
         </button>
       </div>
     </div>
   </main>
+
+  <!-- Tutorial Modal -->
+  <app-tutorial-carousel-modal
+    [isVisible]="isTutorialModalOpen"
+    [title]="'Como funciona?'"
+    [slides]="tutorialSlides"
+    [closeText]="'Fechar'"
+    (close)="closeTutorial()">
+  </app-tutorial-carousel-modal>
 </div> 

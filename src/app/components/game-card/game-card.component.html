@@ -29,7 +29,7 @@
         <button 
           type="submit" 
           class="search-button"
-          [disabled]="!recordingCode || recordingCode.length < 4 || isSearching">
+          [disabled]="!recordingCode || recordingCode.length < 3 || isSearching">
           <span *ngIf="!isSearching">
             <i class="fas fa-search"></i>
           </span>

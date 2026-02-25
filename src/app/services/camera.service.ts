@@ -63,6 +63,11 @@ export class CameraService {
           if (context) {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
+            
+            // Flip horizontally to un-mirror the image (front-facing cameras are mirrored)
+            // This ensures the final saved image is not mirrored
+            context.translate(canvas.width, 0);
+            context.scale(-1, 1);
             context.drawImage(video, 0, 0);
             
             // Convert canvas to blob
@@ -189,9 +194,15 @@ export class CameraService {
     modal.className = 'camera-modal';
     modal.innerHTML = `
       <div class="camera-modal-content">
+        <div class="camera-rotation-hint">
+          <i class="fas fa-mobile-alt"></i>
+          <span>Rode o telemóvel para horizontal</span>
+        </div>
         <div class="camera-header">
         <div class="camera-controls">
-          <button class="cancel-btn">Cancel</button>
+          <button class="cancel-btn">
+            <i class="fas fa-times"></i>
+          </button>
           <button class="capture-btn">
             <i class="fas fa-camera"></i>
           </button>
@@ -219,61 +230,175 @@ export class CameraService {
 
     const content = modal.querySelector('.camera-modal-content') as HTMLElement;
     content.style.cssText = `
-      background: lightgray;
+      background: rgba(0, 0, 0, 0.9);
       border-radius: 15px;
-      padding: 20px;
+      padding: 0;
       max-width: 90%;
       max-height: 90%;
-      text-align: center;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
     `;
+
+    // Rotation hint
+    const rotationHint = modal.querySelector('.camera-rotation-hint') as HTMLElement;
+    rotationHint.style.cssText = `
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      padding: 12px 20px;
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    `;
+    const hintIcon = rotationHint.querySelector('i') as HTMLElement;
+    hintIcon.style.cssText = `
+      font-size: 20px;
+    `;
+    
+    // Add keyframe animations via style tag
+    const style = document.createElement('style');
+    style.id = 'camera-modal-animations';
+    style.textContent = `
+      @keyframes camera-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+      @keyframes camera-rotate-hint {
+        0% { transform: rotate(0deg); }
+        25% { transform: rotate(90deg); }
+        50% { transform: rotate(90deg); }
+        75% { transform: rotate(0deg); }
+        100% { transform: rotate(0deg); }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Update hint animation names
+    rotationHint.style.animation = 'camera-pulse 2s infinite';
+    hintIcon.style.animation = 'camera-rotate-hint 2s infinite';
 
     const preview = modal.querySelector('.camera-preview') as HTMLElement;
     preview.style.cssText = `
-      margin: 20px 0;
-      border-radius: 10px;
+      flex: 1;
+      margin: 0;
+      border-radius: 0;
       overflow: hidden;
       background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     `;
 
     const videoElement = modal.querySelector('video') as HTMLVideoElement;
     videoElement.srcObject = video.srcObject;
+    // Mirror the video preview for front-facing camera (user sees themselves correctly)
     videoElement.style.cssText = `
       width: 100%;
-      max-width: 500px;
-      height: auto;
+      height: 100%;
+      object-fit: contain;
+      transform: scaleX(-1);
       display: block;
     `;
 
     const controls = modal.querySelector('.camera-controls') as HTMLElement;
     controls.style.cssText = `
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
       display: flex;
-      gap: 15px;
-      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+      z-index: 10;
     `;
+    
+    // Hide hint and adjust controls when in landscape
+    const updateOrientation = () => {
+      const isLandscape = window.innerWidth > window.innerHeight;
+      if (isLandscape) {
+        rotationHint.style.display = 'none';
+        controls.style.left = '20px';
+        controls.style.top = '50%';
+        controls.style.transform = 'translateY(-50%)';
+        controls.style.flexDirection = 'column';
+      } else {
+        rotationHint.style.display = 'flex';
+        controls.style.left = '20px';
+        controls.style.top = '50%';
+        controls.style.transform = 'translateY(-50%)';
+        controls.style.flexDirection = 'column';
+      }
+    };
+    
+    window.addEventListener('resize', updateOrientation);
+    updateOrientation();
+    
+    // Store cleanup function
+    (modal as any).__orientationCleanup = () => {
+      window.removeEventListener('resize', updateOrientation);
+      const existingStyle = document.getElementById('camera-modal-animations');
+      if (existingStyle && existingStyle.parentNode) {
+        existingStyle.parentNode.removeChild(existingStyle);
+      }
+    };
 
     const buttons = modal.querySelectorAll('button');
     buttons.forEach(btn => {
       btn.style.cssText = `
-        padding: 10px 20px;
+        padding: 15px 20px;
         border: none;
-        border-radius: 8px;
+        border-radius: 50%;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 20px;
         font-weight: 600;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
       `;
     });
 
     const cancelBtn = modal.querySelector('.cancel-btn') as HTMLButtonElement;
     cancelBtn.style.cssText += `
-      background: #6c757d;
+      background: #dc3545;
       color: white;
     `;
+    cancelBtn.onmouseenter = () => {
+      cancelBtn.style.transform = 'scale(1.1)';
+      cancelBtn.style.boxShadow = '0 6px 16px rgba(220, 53, 69, 0.5)';
+    };
+    cancelBtn.onmouseleave = () => {
+      cancelBtn.style.transform = 'scale(1)';
+      cancelBtn.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+    };
 
     const captureBtn = modal.querySelector('.capture-btn') as HTMLButtonElement;
     captureBtn.style.cssText += `
       background: #007bff;
       color: white;
     `;
+    captureBtn.onmouseenter = () => {
+      captureBtn.style.transform = 'scale(1.1)';
+      captureBtn.style.boxShadow = '0 6px 16px rgba(0, 123, 255, 0.5)';
+    };
+    captureBtn.onmouseleave = () => {
+      captureBtn.style.transform = 'scale(1)';
+      captureBtn.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+    };
 
     document.body.appendChild(modal);
     return modal;
@@ -285,6 +410,11 @@ export class CameraService {
   private cleanup(stream: MediaStream, modal: HTMLElement): void {
     // Stop all tracks
     stream.getTracks().forEach(track => track.stop());
+    
+    // Cleanup orientation listener and styles
+    if ((modal as any).__orientationCleanup) {
+      (modal as any).__orientationCleanup();
+    }
     
     // Remove modal
     if (modal && modal.parentNode) {

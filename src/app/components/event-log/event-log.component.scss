@@ -2,15 +2,45 @@
 .event-log {
   text-align: center;
   color: #333;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  min-height: 200px;
+  height: 100%;
+  
+  &.valid-drop-zone {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+  }
+  
+  &.drag-over {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: 2px dashed rgba(255, 255, 255, 0.5);
+    transform: scale(1.02);
+  }
 }
 
 
 
 .events-list {
   min-height: 200px;
-  max-height: 300px;
-  overflow-y: auto;
   margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// Shake animation - subtle with rotation (iOS-like)
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-0.5px) rotate(-5deg);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(0.5px) rotate(5deg);
+  }
 }
 
 .event-item {
@@ -23,10 +53,46 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  width: 100%;
 
   &.undone {
     color: #dc3545;
     font-weight: 500;
+  }
+
+  &.edit-mode-box {
+    border: 2px solid white;
+    border-radius: 8px;
+    padding: 0.5rem;
+    /*margin: 0.25rem 0;*/
+    background: transparent;
+    animation: shake 1s ease-in-out infinite;
+    aspect-ratio: 1;
+    min-width: 3rem;
+    width: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+
+  &.draggable {
+    cursor: grab;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none;
+    
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &.dragging {
+    opacity: 0.3;
+    transform: scale(0.95);
+    animation: none; // Stop shaking when dragging
   }
 
   .event-text {
@@ -113,7 +179,6 @@
 
   .events-list {
     min-height: 150px;
-    max-height: 200px;
   }
 }
 
@@ -124,6 +189,61 @@
 
   .events-list {
     min-height: 120px;
-    max-height: 180px;
+  }
+}
+
+// Drag Preview (for touch devices)
+.drag-preview {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  
+  .drag-preview-content {
+    border: 2px solid white;
+    border-radius: 8px;
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    min-width: 3rem;
+    width: 3rem;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+}
+
+// Delete Zone
+.delete-zone {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 1rem;
+  border-radius: 50%;
+  border: 2px dashed white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  
+  i {
+    font-size: 1.2rem;
+  }
+  
+  &.drag-over {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(-50%) scale(1.1);
+    border-color: rgba(255, 255, 255, 0.8);
   }
 }

@@ -22,8 +22,8 @@
           </button>
           
           <div class="carousel-slide" [class.slide-left]="slideDirection === 'left'" [class.slide-right]="slideDirection === 'right'">
-            <img [src]="currentSlide.imageUrl" [alt]="currentSlide.text" class="slide-image" />
-            <p class="slide-text">{{ currentSlide.text }}</p>
+            <img [src]="currentSlide!.imageUrl" [alt]="currentSlide!.text" class="slide-image" />
+            <p class="slide-text">{{ currentSlide!.text }}</p>
           </div>
 
           <button 

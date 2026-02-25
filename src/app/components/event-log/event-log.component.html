@@ -1,19 +1,27 @@
 <!-- Event Logs -->
-<div class="row justify-content-center">
+<div class="row justify-content-center" style="height:50vh">
   <!-- Team A Events -->
-  <div class="col-3 text-center">
-    <div class="event-log team-a-log">
+  <div class="col-3 text-center" style="height:100%">
+    <div class="event-log team-a-log"
+         [class.drag-over]="isDragOver('teamA')"
+         [class.valid-drop-zone]="isValidDropZone('teamA')"
+         (dragover)="onDragOver($event, 'teamA')"
+         (dragleave)="onDragLeave()"
+         (drop)="onDrop($event, 'teamA')">
       <div class="events-list">
         <div *ngFor="let event of teamAEvents; let i = index" 
              class="event-item"
-             [class.undone]="event.isUndone">
+             [class.undone]="event.isUndone"
+             [class.edit-mode-box]="isEditMode && !event.isUndone"
+             [class.draggable]="isEditMode && !event.isUndone"
+             [class.dragging]="isEventDragging(i, 'A', 'goal')"
+             [draggable]="isEditMode && !event.isUndone"
+             (dragstart)="onDragStart($event, i, 'A', 'goal')"
+             (dragend)="onDragEnd()"
+             (touchstart)="onTouchStart($event, i, 'A', 'goal')"
+             (touchmove)="onTouchMove($event)"
+             (touchend)="onTouchEnd($event)">
           <span class="event-text" [innerHTML]="getDisplayText(event.text)"></span>
-          <button *ngIf="isEditMode && !event.isUndone" 
-                  class="btn btn-edit-event" 
-                  (click)="editEventClick(i, 'A', 'goal')"
-                  title="Editar evento">
-            <i class="fas fa-pencil-alt"></i>
-          </button>
         </div>
       </div>
     </div>
@@ -21,18 +29,26 @@
 
   <!-- Highlight Events -->
   <div class="col-5 text-center">
-    <div class="event-log highlight-log">
+    <div class="event-log highlight-log"
+         [class.drag-over]="isDragOver('highlight')"
+         [class.valid-drop-zone]="isValidDropZone('highlight')"
+         (dragover)="onDragOver($event, 'highlight')"
+         (dragleave)="onDragLeave()"
+         (drop)="onDrop($event, 'highlight')">
       <div class="events-list">
         <div *ngFor="let event of highlightEvents; let i = index" 
              class="event-item"
-             [class.undone]="event.isUndone">
+             [class.undone]="event.isUndone"
+             [class.edit-mode-box]="isEditMode && !event.isUndone"
+             [class.draggable]="isEditMode && !event.isUndone"
+             [class.dragging]="isEventDragging(i, null, 'highlight')"
+             [draggable]="isEditMode && !event.isUndone"
+             (dragstart)="onDragStart($event, i, null, 'highlight')"
+             (dragend)="onDragEnd()"
+             (touchstart)="onTouchStart($event, i, null, 'highlight')"
+             (touchmove)="onTouchMove($event)"
+             (touchend)="onTouchEnd($event)">
           <span class="event-text" [innerHTML]="getDisplayText(event.text)"></span>
-          <button *ngIf="isEditMode && !event.isUndone" 
-                  class="btn btn-edit-event" 
-                  (click)="editEventClick(i, null, 'highlight')"
-                  title="Editar evento">
-            <i class="fas fa-pencil-alt"></i>
-          </button>
         </div>
       </div>
     </div>
@@ -40,21 +56,48 @@
 
   <!-- Team B Events -->
   <div class="col-3 text-center">
-    <div class="event-log team-b-log">
+    <div class="event-log team-b-log"
+         [class.drag-over]="isDragOver('teamB')"
+         [class.valid-drop-zone]="isValidDropZone('teamB')"
+         (dragover)="onDragOver($event, 'teamB')"
+         (dragleave)="onDragLeave()"
+         (drop)="onDrop($event, 'teamB')">
       <div class="events-list">
         <div *ngFor="let event of teamBEvents; let i = index" 
              class="event-item"
-             [class.undone]="event.isUndone">
+             [class.undone]="event.isUndone"
+             [class.edit-mode-box]="isEditMode && !event.isUndone"
+             [class.draggable]="isEditMode && !event.isUndone"
+             [class.dragging]="isEventDragging(i, 'B', 'goal')"
+             [draggable]="isEditMode && !event.isUndone"
+             (dragstart)="onDragStart($event, i, 'B', 'goal')"
+             (dragend)="onDragEnd()"
+             (touchstart)="onTouchStart($event, i, 'B', 'goal')"
+             (touchmove)="onTouchMove($event)"
+             (touchend)="onTouchEnd($event)">
           <span class="event-text" [innerHTML]="getDisplayText(event.text)"></span>
-          <button *ngIf="isEditMode && !event.isUndone" 
-                  class="btn btn-edit-event" 
-                  (click)="editEventClick(i, 'B', 'goal')"
-                  title="Editar evento">
-            <i class="fas fa-pencil-alt"></i>
-          </button>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Drag Preview (only visible while dragging on touch devices) -->
+<div class="drag-preview" 
+     *ngIf="isDragging && draggedEventText"
+     [style.left.px]="dragPreviewX - 24"
+     [style.top.px]="dragPreviewY - 24">
+  <div class="drag-preview-content" [innerHTML]="getDisplayText(draggedEventText)"></div>
+</div>
+
+<!-- Delete Zone (only visible while dragging in edit mode) -->
+<div class="delete-zone" 
+     *ngIf="isEditMode && isDragging"
+     [class.drag-over]="isDragOver('delete')"
+     (dragover)="onDragOver($event, 'delete')"
+     (dragleave)="onDragLeave()"
+     (drop)="onDrop($event, 'delete')">
+  <i class="fas fa-trash-alt"></i>
+</div>
+
 

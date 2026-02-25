@@ -43,12 +43,11 @@
 }
 
 .instructions-content {
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 // Recording Code Section
 .recording-code-section {
-  margin-bottom: 2rem;
   padding: 2rem;
   background: white;
   border-radius: 20px;
@@ -59,11 +58,20 @@
     text-align: center;
     margin-bottom: 2rem;
     
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    
     h3 {
       font-size: 1.5rem;
       font-weight: 700;
       color: #667eea;
-      margin-bottom: 1rem;
+      margin: 0;
     }
     
     .description {
@@ -72,6 +80,43 @@
       line-height: 1.5;
       margin: 0 auto;
       max-width: 100%;
+    }
+
+    .info-button {
+      background: #667eea;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+      padding: 0;
+
+      &:hover {
+        background: white;
+        border-color: rgba(0, 0, 0, 0.3);
+        color: #667eea;
+        transform: scale(1.1);
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+
+      i {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-style: normal;
+        font-weight: 600;
+      }
     }
   }
   
@@ -82,6 +127,7 @@
     max-width: 100%;
     width: 100%;
     justify-content: center;
+    align-items: center;
     
     @media (max-width: 768px) {
       flex-direction: column;
@@ -198,8 +244,8 @@
   .instruction-number {
     background: rgba(255, 255, 255, 0.2);
     color: white;
-    width: 40px;
-    height: 40px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -399,8 +445,8 @@
   
   .instruction-item {
     .instruction-number {
-      width: 20px;
-      height: 20px;
+      width: 10px;
+      height: 10px;
       font-size: 1rem;
       margin-right: 1rem;
     }

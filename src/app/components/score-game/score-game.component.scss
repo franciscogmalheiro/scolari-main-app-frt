@@ -870,10 +870,11 @@
 
   h4 {
     margin: 0;
-    font-size: 1.3rem;
+    font-size: 1.8rem;
     color: white;
-    font-weight: 600;
+    font-weight: 700;
     text-align: center;
+    text-transform: uppercase;
   }
 
   .close-modal {
@@ -1026,7 +1027,7 @@
     padding: 1.25rem;
 
     h4 {
-      font-size: 1.2rem;
+      font-size: 1.8rem;
     }
   }
 
@@ -1137,10 +1138,11 @@
       margin-bottom: 0;
       
       h3 {
-        font-size: 1.3rem;
-        font-weight: 600;
+        font-size: 1.8rem;
+        font-weight: 700;
         color: white;
         margin: 0;
+        text-transform: uppercase;
       }
       
       p {
@@ -1288,31 +1290,6 @@
       font-size: 1.25rem;
     }
 
-    .close-preview-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: #dc3545;
-      color: #fff;
-      border: 0;
-      cursor: pointer;
-      font-size: 18px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-      transition: all 0.2s ease;
-      
-      &:hover {
-        background: #c82333;
-        transform: scale(1.1);
-      }
-    }
-
     .photo-preview-image {
       width: 100%;
       max-height: 70vh;
@@ -1320,6 +1297,11 @@
       background: #000;
       border-radius: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      margin-bottom: 1.5rem;
+    }
+
+    .button-green {
+      margin-top: 1rem;
     }
 
     .photo-preview-actions {
@@ -1359,7 +1341,7 @@
       
       .photo-capture-header {
         h3 {
-          font-size: 1.5rem;
+          font-size: 1.8rem;
         }
       }
       
@@ -1397,7 +1379,7 @@
         padding: 1.25rem;
         
         h3 {
-          font-size: 1.2rem;
+          font-size: 1.8rem;
         }
       }
       

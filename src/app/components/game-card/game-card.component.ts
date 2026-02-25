@@ -38,7 +38,7 @@ export class GameCardComponent {
   }
 
   onSearchSubmit(): void {
-    if (this.recordingCode && this.recordingCode.length >= 4 && !this.isSearching) {
+    if (this.recordingCode && this.recordingCode.length >= 3 && !this.isSearching) {
       this.searchSubmit.emit(this.recordingCode);
     }
   }

@@ -39,6 +39,9 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
   isMatchAddedToFavorites = false;
   // Track if zoom is inverted (from API response)
   zoomInverted = false;
+  // Track if invert zoom message has been dismissed
+  isInvertZoomMessageDismissed = false;
+  private readonly INVERT_ZOOM_MESSAGE_DISMISSED_KEY = 'invert_zoom_message_dismissed';
   // Registration popup state
   isRegistrationModalOpen = false;
   // Information modal state for first-time logged-in users
@@ -86,6 +89,19 @@ export class MediaLibraryComponent implements OnInit, OnDestroy {
 
     // Check if we should show the info modal for first-time logged-in users
     this.checkAndShowInfoModal();
+    
+    // Check if invert zoom message has been dismissed
+    this.checkInvertZoomMessageDismissed();
+  }
+  
+  private checkInvertZoomMessageDismissed(): void {
+    const dismissed = localStorage.getItem(this.INVERT_ZOOM_MESSAGE_DISMISSED_KEY);
+    this.isInvertZoomMessageDismissed = dismissed === 'true';
+  }
+  
+  dismissInvertZoomMessage(): void {
+    this.isInvertZoomMessageDismissed = true;
+    localStorage.setItem(this.INVERT_ZOOM_MESSAGE_DISMISSED_KEY, 'true');
   }
 
   private checkAndShowInfoModal(): void {

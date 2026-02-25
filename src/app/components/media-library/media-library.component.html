@@ -43,22 +43,12 @@
             <!--div class="library-counter">{{ allItems.length }} item{{ allItems.length !== 1 ? 's' : '' }}</div-->
           </div>
 
-          <!-- Invert zoom message and button -->
-          <div class="invert-zoom-message" *ngIf="!zoomInverted">
-            <p>
-              A câmara está a fazer zoom nos golos da baliza errada? Podes clicar neste botão para corrigir o problema
-              <button class="reprocess-button" (click)="onReprocessVideos()">
-                Reprocessar vídeos
-              </button>
-            </p>
-          </div>
-
           <!-- Registration message for non-authenticated users -->
           <div class="registration-message" *ngIf="!isAuthenticated()">
             <p>
               <i class="fas fa-exclamation-circle registration-icon"></i>
               <span>
-                Cria o teu histórico adicionando os teus jogos e melhores momentos aos favoritos. 
+                Cria o teu histórico adicionando os teus jogos, golos e highlights aos favoritos. 
                 <a (click)="navigateToRegistration(); $event.preventDefault()" class="registration-link">Regista-te</a> para usufruir desta funcionalidade.
               </span>
             </p>
@@ -147,7 +137,7 @@
             <!-- Todos os Momentos -->
             <div class="section" *ngIf="momentItems.length > 0">
               <div class="section-header mb-4 mt-4">
-                <h3>Golos e melhores momentos</h3>
+                <h3>Golos e highlights</h3>
               </div>
               
               <!-- Small processing message at top if any items are null -->
@@ -313,14 +303,27 @@
         </div>
 
         <div class="empty-section" *ngIf="!isLoadingEvents && !errorMessage && allItems.length === 0">
-          <div class="empty-icon">📹</div>
-          <h2>Não foram encontrados conteúdos para este jogo.</h2>
-          <button class="back-to-download-button" (click)="onBackClick()">
+          <p>Não foram encontrados conteúdos para este jogo.</p>
+          <button class="button-yellow" (click)="onBackClick()">
             <i class="fas fa-arrow-left"></i>
             Procurar outro jogo
           </button>
         </div>
       </div>
+
+      <!-- Invert zoom message and button -->
+      <div class="invert-zoom-message" *ngIf="!zoomInverted && !isInvertZoomMessageDismissed && !isLoadingEvents && !errorMessage && allItems.length > 0">
+        <button class="dismiss-message-btn" (click)="dismissInvertZoomMessage()" title="Fechar">
+          <i class="fas fa-times"></i>
+        </button>
+        <p>
+          A câmara está a fazer zoom nos golos da baliza errada? Podes clicar neste botão para corrigir o problema
+          <button class="reprocess-button" (click)="onReprocessVideos()">
+            Reprocessar vídeos
+          </button>
+        </p>
+      </div>
+
       <!-- Share Modal -->
       <div class="share-modal-backdrop" *ngIf="isShareModalOpen" (click)="closeShareModal()"></div>
       <div class="share-modal" *ngIf="isShareModalOpen" (click)="$event.stopPropagation()">

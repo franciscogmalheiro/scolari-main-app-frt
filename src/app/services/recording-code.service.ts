@@ -10,6 +10,8 @@ export interface RecordingCodeDto {
   isUsed: boolean;
   usedDate: string | null;
   createdDateTime: string;
+  vipCodeId?: number | null;
+  vipCode?: string | null;
 }
 
 @Injectable({
@@ -23,10 +25,15 @@ export class RecordingCodeService {
   /**
    * Validate a recording code by calling the backend API
    * @param code The recording code to validate
+   * @param validateForRecording Optional parameter to include validateForRecording=true query param
    * @returns Observable of RecordingCodeDto
    */
-  validateRecordingCode(code: string): Observable<RecordingCodeDto> {
-    return this.http.get<RecordingCodeDto>(`${this.API_BASE_URL}/recording-codes/code/${code}`);
+  validateRecordingCode(code: string, validateForRecording?: boolean): Observable<RecordingCodeDto> {
+    let url = `${this.API_BASE_URL}/recording-codes/code/${code}`;
+    if (validateForRecording === true) {
+      url += '?validateForRecording=true';
+    }
+    return this.http.get<RecordingCodeDto>(url);
   }
 
   /**

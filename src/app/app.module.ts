@@ -26,6 +26,7 @@ import { UserManagementComponent } from './components/user-management/user-manag
 import { FieldCameraManagementComponent } from './components/field-camera-management/field-camera-management.component';
 import { MatchHistoryComponent } from './components/match-history/match-history.component';
 import { VideoPlayerComponent } from './components/video-player/video-player.component';
+import { TutorialCarouselModalComponent } from './components/tutorial-carousel-modal/tutorial-carousel-modal.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { VideoPlayerComponent } from './components/video-player/video-player.com
     UserManagementComponent,
     FieldCameraManagementComponent,
     MatchHistoryComponent,
-    VideoPlayerComponent
+    VideoPlayerComponent,
+    TutorialCarouselModalComponent
   ],
   imports: [
     BrowserModule,

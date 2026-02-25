@@ -637,8 +637,8 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.confirmationType = 'match';
     this.confirmationItem = match;
-    this.confirmationTitle = 'Remover Jogo';
-    this.confirmationMessage = `Tem a certeza que deseja remover o jogo "${match.teamAName} ${match.finalResult} ${match.teamBName}" dos seus jogos?`;
+    this.confirmationTitle = 'REMOVER JOGO';
+    this.confirmationMessage = `Tens a certeza que desejas remover o jogo "${match.teamAName} ${match.finalResult} ${match.teamBName}" dos teus jogos?`;
     this.isConfirmationModalOpen = true;
   }
 

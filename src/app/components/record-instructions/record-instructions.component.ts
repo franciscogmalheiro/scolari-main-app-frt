@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FieldCameraService, FieldCameraResponseDto } from '../../services/field-camera.service';
 import { RecordingCodeService, RecordingCodeDto } from '../../services/recording-code.service';
 import { TrackingService } from '../../services/tracking.service';
+import { TutorialSlide } from '../tutorial-carousel-modal/tutorial-carousel-modal.component';
 
 @Component({
   selector: 'app-record-instructions',
@@ -41,6 +42,36 @@ export class RecordInstructionsComponent implements OnInit {
 
   // Tracking
   private hasTrackedQrScan = false;
+
+  // Tutorial modal
+  isTutorialModalOpen = false;
+  tutorialSlides: TutorialSlide[] = [
+    {
+      imageUrl: 'assets/tutorial/Instrucoes_Carrossel_1.jpg',
+      text: 'Edita o nome e cor das equipas.'
+    },
+    {
+      imageUrl: 'assets/tutorial/Instrucoes_Carrossel_2.jpg',
+      text: 'Prime "Começar Jogo" para iniciar a gravação.'
+    },
+    {
+      imageUrl: 'assets/tutorial/Instrucoes_Carrossel_3.jpg',
+      text: 'Durante o jogo, utiliza os botões “Golo” e “Highlight” para registar cada momento, logo após ocorrerem.'
+    },
+    {
+      imageUrl: 'assets/tutorial/Instrucoes_Carrossel_4.jpg',
+      text: 'Se te enganares durante o registo prime o botão “Corrigir”.'
+    },
+    {
+      imageUrl: 'assets/tutorial/Instrucoes_Carrossel_5.jpg',
+      text: 'Prime “terminar jogo” no final da partida'
+    }
+    ,
+    {
+      imageUrl: 'assets/tutorial/Instrucoes_Carrossel_6.jpg',
+      text: 'Revê o resumo e melhores momentos do jogo'
+    }
+  ];
 
   constructor(
     private router: Router,
@@ -152,7 +183,7 @@ export class RecordInstructionsComponent implements OnInit {
     this.codeValidationFailed = false;
     this.codeValidationError = '';
 
-    this.recordingCodeService.validateRecordingCode(code).subscribe({
+    this.recordingCodeService.validateRecordingCode(code, true).subscribe({
       next: (recordingCode) => {
         this.isValidatingCode = false;
         
@@ -171,7 +202,14 @@ export class RecordInstructionsComponent implements OnInit {
       error: (error) => {
         this.isValidatingCode = false;
         this.codeValidationFailed = true;
-        this.codeValidationError = 'Código de gravação inválido ou não encontrado.';
+        
+        // Check for specific error code
+        if (error?.error?.errorCode === 'ERROR_CAMERA_UNAVAILABLE_FOR_RECORDING') {
+          this.codeValidationError = 'Este campo não permite gravações a esta dia/hora';
+        } else {
+          this.codeValidationError = 'Código de gravação inválido.';
+        }
+        
         this.validatedRecordingCode = null;
         console.error('Recording code validation failed:', error);
       }
@@ -317,5 +355,13 @@ export class RecordInstructionsComponent implements OnInit {
   canProceed(): boolean {
     // Can proceed if camera health check passed (only for recording mode)
     return this.cameraHealthCheckPassed && !this.isCheckingCamera;
+  }
+
+  openTutorial(): void {
+    this.isTutorialModalOpen = true;
+  }
+
+  closeTutorial(): void {
+    this.isTutorialModalOpen = false;
   }
 } 

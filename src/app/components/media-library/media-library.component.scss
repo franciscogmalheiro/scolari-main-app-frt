@@ -911,9 +911,10 @@
 
 .share-modal-header h4 {
   margin:0;
-  font-size:1.3rem;
+  font-size:1.8rem;
   color: #00ff88;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .close-modal {
@@ -1164,6 +1165,27 @@
   padding: 1rem 1.5rem;
   margin: 1rem 0 1.5rem 0;
   backdrop-filter: blur(10px);
+  position: relative;
+  
+  .dismiss-message-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    line-height: 1;
+    
+    &:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
   
   p {
     margin: 0;
@@ -1174,6 +1196,7 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem;
+    padding-right: 2rem; // Make room for dismiss button
   }
   
   .reprocess-button {
