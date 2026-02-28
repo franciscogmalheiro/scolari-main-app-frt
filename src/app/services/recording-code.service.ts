@@ -3,6 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+export interface MultiUseRecordingCodeDto {
+  id: number;
+  code: string;
+  usageCount: number;
+  usageLimit: number;
+}
+
 export interface RecordingCodeDto {
   id: number;
   code: string;
@@ -10,8 +17,10 @@ export interface RecordingCodeDto {
   isUsed: boolean;
   usedDate: string | null;
   createdDateTime: string;
-  vipCodeId?: number | null;
-  vipCode?: string | null;
+  wasFree?: boolean | null;
+  isPrinted?: boolean;
+  multiUseRecordingCode?: MultiUseRecordingCodeDto | null;
+  usageIndex?: number;
 }
 
 @Injectable({
@@ -48,6 +57,28 @@ export class RecordingCodeService {
     return this.http.post<RecordingCodeDto>(
       `${this.API_BASE_URL}/recording-codes/field/${fieldId}/free`,
       body
+    );
+  }
+
+  /**
+   * Get all recording codes for a specific field
+   * Endpoint: /recording-codes/field/{fieldId}
+   * @param fieldId The field identifier
+   */
+  getRecordingCodesByField(fieldId: number | string): Observable<RecordingCodeDto[]> {
+    return this.http.get<RecordingCodeDto[]>(
+      `${this.API_BASE_URL}/recording-codes/field/${fieldId}`
+    );
+  }
+
+  /**
+   * Mark a recording code as printed.
+   * Endpoint: PUT /recording-codes/{id}/mark-as-printed
+   */
+  markAsPrinted(id: number): Observable<RecordingCodeDto> {
+    return this.http.put<RecordingCodeDto>(
+      `${this.API_BASE_URL}/recording-codes/${id}/mark-as-printed`,
+      {}
     );
   }
 }

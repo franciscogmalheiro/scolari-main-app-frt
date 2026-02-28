@@ -1,0 +1,135 @@
+<div class="recording-code-management">
+  <!-- Header -->
+  <div class="management-header">
+    <div class="header-content">
+      <h2>Recordings</h2>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMessage" class="message error-message">
+    <span class="message-icon">⚠️</span>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-container">
+    <div class="form-group">
+      <label for="fieldSelect">Field</label>
+      <select
+        id="fieldSelect"
+        [disabled]="isLoadingFields"
+        (change)="onFieldChange($event)"
+      >
+        <option value="">Select a field</option>
+        <option *ngFor="let field of fields" [value]="field.id">
+          {{ getFieldDisplay(field) }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="hasUsageLimitSelect">Has usage limit</label>
+      <select
+        id="hasUsageLimitSelect"
+        [(ngModel)]="hasUsageLimitFilter"
+        (ngModelChange)="applyFilters()"
+      >
+        <option value="all">All</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="wasFreeSelect">Was free</label>
+      <select
+        id="wasFreeSelect"
+        [(ngModel)]="wasFreeFilter"
+        (ngModelChange)="applyFilters()"
+      >
+        <option value="all">All</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </div>
+
+    <div class="date-range-group">
+      <div class="form-group">
+        <label for="usedDateFrom">Date From</label>
+        <input
+          id="usedDateFrom"
+          type="date"
+          [(ngModel)]="usedDateFrom"
+          (ngModelChange)="applyFilters()"
+        />
+      </div>
+      <div class="form-group">
+        <label for="usedDateTo">Date To</label>
+        <input
+          id="usedDateTo"
+          type="date"
+          [(ngModel)]="usedDateTo"
+          (ngModelChange)="applyFilters()"
+        />
+      </div>
+    </div>
+
+    <button
+      class="search-btn"
+      (click)="searchRecordingCodes()"
+      [disabled]="isLoadingCodes || isLoadingFields"
+    >
+      <span *ngIf="isLoadingCodes" class="loading-spinner-small"></span>
+      {{ isLoadingCodes ? 'Searching...' : 'Search' }}
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoadingCodes" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading recording codes...</p>
+  </div>
+
+  <!-- Codes Table -->
+  <div *ngIf="!isLoadingCodes" class="table-container">
+    <table class="codes-table">
+      <thead>
+        <tr>
+          <th>Unique Code</th>
+          <th>Date</th>
+          <th>Was Free</th>
+          <th>Code</th>
+          <th>Usage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let code of paginatedCodes" class="code-row">
+          <td class="code-value">{{ code.code }}</td>
+          <td>{{ code.usedDate ? (code.usedDate | date:'yyyy/MM/dd HH:mm') : '—' }}</td>
+          <td>{{ code.wasFree ? 'Yes' : 'No' }}</td>
+          <td>{{ code.multiUseRecordingCode?.code ?? '—' }}</td>
+          <td>{{ getUsageIndexDisplay(code) }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredRecordingCodes.length === 0 && selectedFieldId && hasSearched && !isLoadingCodes" class="empty-state">
+      <div class="empty-icon">🎥</div>
+      <h3>No Recording Codes Found</h3>
+      <p>No recording codes were found for the selected field.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="filteredRecordingCodes.length > 0" class="pagination">
+      <span class="pagination-info">Showing {{ paginationStart }}-{{ paginationEnd }} of {{ filteredRecordingCodes.length }}</span>
+      <div class="pagination-controls">
+        <button type="button" class="pagination-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">Prev</button>
+        <span class="pagination-page">Page {{ currentPage }} of {{ totalPages }}</span>
+        <button type="button" class="pagination-btn" [disabled]="currentPage >= totalPages" (click)="goToPage(currentPage + 1)">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+

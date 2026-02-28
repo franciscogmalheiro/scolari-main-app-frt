@@ -23,6 +23,7 @@ export interface MatchResponse {
   sportId: number;
   status: string;
   createdAt: string;
+  recordingCode?: string;
 }
 
 export interface MatchEventResponseDto {
@@ -146,8 +147,8 @@ export class MatchService {
     return this.http.delete(`${this.API_BASE_URL}/matches/${matchId}/users`);
   }
 
-  getMatchesByVipCode(vipCode: string): Observable<FieldMatchResponseDto[]> {
-    return this.http.get<FieldMatchResponseDto[]>(`${this.API_BASE_URL}/matches/vipCode/${vipCode}`);
+  getMatchesByMultiUseCode(multiUseCode: string): Observable<FieldMatchResponseDto[]> {
+    return this.http.get<FieldMatchResponseDto[]>(`${this.API_BASE_URL}/matches/multi-use-recording-code/${multiUseCode}`);
   }
 
   getMatchEventsByMatchId(matchId: number): Observable<MatchEventResponseDto[]> {

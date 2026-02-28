@@ -121,10 +121,10 @@ export class HomeComponent implements OnInit {
 
     this.recordingCodeService.validateRecordingCode(code).subscribe({
       next: (response) => {
-        // Check if response includes vipCodeId
-        if (response.vipCodeId) {
-          // Navigate to match history with vipCode query param
-          this.router.navigate(['/match-history'], { queryParams: { vipCode: response.vipCode || code } });
+        // Check if response is a multi-use recording code
+        if (response.multiUseRecordingCode) {
+          // Navigate to match history with multi-use code
+          this.router.navigate(['/match-history'], { queryParams: { 'multi-use-recording-code': response.multiUseRecordingCode.code || code } });
         } else {
           // Code is valid, navigate directly to media library
           this.router.navigate(['/media-library/recording-code', code]);

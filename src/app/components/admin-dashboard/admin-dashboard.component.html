@@ -40,6 +40,20 @@
         <span class="tab-icon">👥</span>
         Users
       </button>
+      <button 
+        class="nav-tab" 
+        [class.active]="activeTab === 'recording-codes'"
+        (click)="setActiveTab('recording-codes')">
+        <span class="tab-icon">🎥</span>
+        Recordings
+      </button>
+      <button 
+        class="nav-tab" 
+        [class.active]="activeTab === 'multi-use-recording-codes'"
+        (click)="setActiveTab('multi-use-recording-codes')">
+        <span class="tab-icon">📋</span>
+        Multi-use Recording Codes
+      </button>
     </div>
   </nav>
 
@@ -54,6 +68,16 @@
       <!-- Users Management -->
       <div *ngIf="activeTab === 'users'" class="tab-content">
         <app-user-management></app-user-management>
+      </div>
+
+      <!-- Recording Codes -->
+      <div *ngIf="activeTab === 'recording-codes'" class="tab-content">
+        <app-recording-code-management></app-recording-code-management>
+      </div>
+
+      <!-- Multi-use Recording Codes -->
+      <div *ngIf="activeTab === 'multi-use-recording-codes'" class="tab-content">
+        <app-multi-use-recording-code-management></app-multi-use-recording-code-management>
       </div>
     </div>
   </main>

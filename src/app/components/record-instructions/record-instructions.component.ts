@@ -206,6 +206,8 @@ export class RecordInstructionsComponent implements OnInit {
         // Check for specific error code
         if (error?.error?.errorCode === 'ERROR_CAMERA_UNAVAILABLE_FOR_RECORDING') {
           this.codeValidationError = 'Este campo não permite gravações a esta dia/hora';
+        } else if (error?.error?.errorCode === 'ERROR_MULTIUSE_RECORDING_CODE_REACHED_LIMIT') {
+          this.codeValidationError = 'Código de gravação atingiu o limite de utilização.';
         } else {
           this.codeValidationError = 'Código de gravação inválido.';
         }

@@ -260,6 +260,15 @@ export class ScoreGameComponent implements OnInit, OnDestroy {
           console.log('Match created successfully:', response);
           this.gameId = response.matchCode;
           this.matchId = response.id;
+          if (this.isRecordingMode && response.recordingCode) {
+            this.recordingCode = response.recordingCode;
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { recordingCode: response.recordingCode },
+              queryParamsHandling: 'merge',
+              replaceUrl: true
+            });
+          }
           this.startMatchTimer();
         },
         error: (error) => {

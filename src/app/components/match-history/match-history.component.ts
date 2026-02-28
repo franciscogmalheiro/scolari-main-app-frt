@@ -19,7 +19,7 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
   matches: FieldMatchResponseDto[] = [];
   displayedMatches: FieldMatchResponseDto[] = [];
   displayedCount = 6;
-  isVipCodeView = false; // Flag to indicate if viewing via vipCode
+  isMultiUseCodeView = false; // Flag to indicate if viewing via vipCode
   
   // Meus golos section
   isLoadingGoals = false;
@@ -56,14 +56,14 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Check for vipCode in query params
-    const vipCode = this.route.snapshot.queryParams['vipCode'];
-    if (vipCode) {
-      // Load matches using vipCode
-      this.isVipCodeView = true;
-      this.loadMatchesByVipCode(vipCode);
+    const multiUseCode = this.route.snapshot.queryParams['multi-use-recording-code'];
+    if (multiUseCode) {
+      // Load matches using multiUseCode
+      this.isMultiUseCodeView = true;
+      this.loadMatchesBymultiUseCode(multiUseCode);
     } else {
       // Normal flow - load matches based on user
-      this.isVipCodeView = false;
+      this.isMultiUseCodeView = false;
       this.authService.currentUser.subscribe(user => {
         this.currentUser = user;
         if (user) {
@@ -142,11 +142,11 @@ export class MatchHistoryComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadMatchesByVipCode(vipCode: string): void {
+  loadMatchesBymultiUseCode(multiUseCode: string): void {
     this.isLoading = true;
     this.errorMessage = '';
     
-    this.matchService.getMatchesByVipCode(vipCode).subscribe({
+    this.matchService.getMatchesByMultiUseCode(multiUseCode).subscribe({
       next: (data) => {
         this.matches = data || [];
         this.updateDisplayedMatches();

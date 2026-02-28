@@ -35,7 +35,7 @@
               <span class="btn-text">Galeria</span>
             </button>
             <button 
-              *ngIf="isUserRole() && !isVipCodeView" 
+              *ngIf="isUserRole() && !isMultiUseCodeView" 
               class="remove-match-btn" 
               title="Remover dos meus jogos" 
               (click)="onRemoveMatch(m, $event)">
@@ -55,8 +55,8 @@
 
     <div *ngIf="!isLoading && !errorMessage && !matches.length" class="empty">Ainda não tens jogos adicionados aos favoritos.</div>
 
-    <!-- Meus golos section (only for USER role and not vipCode view) -->
-    <div *ngIf="isUserRole() && !isVipCodeView" class="my-goals-section mt-4">
+    <!-- Meus golos section (only for USER role and not multiUseCode view) -->
+    <div *ngIf="isUserRole() && !isMultiUseCodeView" class="my-goals-section mt-4">
       <div class="section-header-goals">
         <h2 class="title">Golos e Highlights</h2>
       </div>

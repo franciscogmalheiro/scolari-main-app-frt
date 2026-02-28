@@ -1,0 +1,172 @@
+<div class="multi-use-recording-code-management">
+  <!-- Header -->
+  <div class="management-header">
+    <div class="header-content">
+      <h2>Multi-use Recording Codes</h2>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div *ngIf="errorMessage" class="message error-message">
+    <span class="message-icon">⚠️</span>
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="message success-message">
+    <span class="message-icon">✅</span>
+    {{ successMessage }}
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-container">
+    <div class="form-group">
+      <label for="fieldSelect">Field</label>
+      <select
+        id="fieldSelect"
+        [disabled]="isLoadingFields"
+        (change)="onFieldChange($event)"
+      >
+        <option value="">Select a field</option>
+        <option *ngFor="let field of fields" [value]="field.id">
+          {{ getFieldDisplay(field) }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="isPrintedSelect">Is Printed</label>
+      <select
+        id="isPrintedSelect"
+        [(ngModel)]="isPrintedFilter"
+        (ngModelChange)="applyFilters()"
+      >
+        <option value="all">All</option>
+        <option value="printed">Printed</option>
+        <option value="notPrinted">Not Printed</option>
+      </select>
+    </div>
+
+    <div class="date-range-group">
+      <div class="form-group">
+        <label for="createdDateFrom">Created Date From</label>
+        <input
+          id="createdDateFrom"
+          type="date"
+          [(ngModel)]="createdDateFrom"
+          (ngModelChange)="applyFilters()"
+        />
+      </div>
+      <div class="form-group">
+        <label for="createdDateTo">Created Date To</label>
+        <input
+          id="createdDateTo"
+          type="date"
+          [(ngModel)]="createdDateTo"
+          (ngModelChange)="applyFilters()"
+        />
+      </div>
+    </div>
+
+    <button
+      class="search-btn"
+      (click)="search()"
+      [disabled]="isLoadingCodes || isLoadingFields"
+    >
+      <span *ngIf="isLoadingCodes" class="loading-spinner-small"></span>
+      {{ isLoadingCodes ? 'Searching...' : 'Search' }}
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoadingCodes" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading multi-use recording codes...</p>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!isLoadingCodes" class="table-container">
+    <table class="codes-table">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Created On</th>
+          <th>Usage Count</th>
+          <th>Usage Limit</th>
+          <th>Is Printed</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let code of paginatedCodes" class="code-row">
+          <td class="code-value">{{ code.prefix }}</td>
+          <td>{{ code.createdDateTime ? (code.createdDateTime | date:'yyyy/MM/dd HH:mm') : '—' }}</td>
+          <td>{{ code.usageCount ? code.usageCount : 0 }}</td>
+          <td>{{ code.usageLimit ? code.usageLimit : '∞' }}</td>
+          <td>{{ code.isPrinted ? 'Yes' : 'No' }}</td>
+          <td class="cell-actions">
+            <button
+              type="button"
+              class="action-btn mark-printed-btn"
+              [disabled]="code.isPrinted || markingAsPrintedId === code.id"
+              (click)="markAsPrinted(code)"
+              [title]="code.isPrinted ? 'Already printed' : 'Mark as printed'"
+            >
+              <span *ngIf="markingAsPrintedId === code.id" class="loading-spinner-small"></span>
+              <span *ngIf="markingAsPrintedId !== code.id">{{ code.isPrinted ? 'Printed' : 'Mark as printed' }}</span>
+            </button>
+            <button
+              *ngIf="code.usageCount === 0"
+              type="button"
+              class="action-btn delete-btn"
+              (click)="openDeleteModal(code)"
+              title="Delete"
+            >
+              🗑️
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredCodes.length === 0 && selectedFieldId && hasSearched && !isLoadingCodes" class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3>No Multi-use Recording Codes Found</h3>
+      <p>No multi-use recording codes were found for the selected field.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="filteredCodes.length > 0" class="pagination">
+      <span class="pagination-info">Showing {{ paginationStart }}-{{ paginationEnd }} of {{ filteredCodes.length }}</span>
+      <div class="pagination-controls">
+        <button type="button" class="pagination-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">Prev</button>
+        <span class="pagination-page">Page {{ currentPage }} of {{ totalPages }}</span>
+        <button type="button" class="pagination-btn" [disabled]="currentPage >= totalPages" (click)="goToPage(currentPage + 1)">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+    <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Delete Multi-use Recording Code</h3>
+        <button class="close-btn" (click)="closeDeleteModal()">✕</button>
+      </div>
+      <div class="delete-content">
+        <div class="delete-icon">🗑️</div>
+        <h4>Are you sure you want to delete this multi-use recording code?</h4>
+        <p class="delete-warning">
+          <strong>{{ selectedCodeForDelete?.prefix }}</strong> will be permanently deleted and cannot be recovered.
+        </p>
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" (click)="closeDeleteModal()">Cancel</button>
+          <button type="button" class="delete-confirm-btn" (click)="deleteCode()" [disabled]="isDeleting">
+            <span *ngIf="isDeleting" class="loading-spinner-small"></span>
+            {{ isDeleting ? 'Deleting...' : 'Delete' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
